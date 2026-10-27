@@ -36,6 +36,11 @@ const cases = [
   ['type User = { name: str }', "type", "storage.type.quillo"],
   ['let tiny = 1e-9 + 2.5E3', "1e-9", "constant.numeric.float.quillo"],
   ['let tiny = 1e-9 + 2.5E3', "2.5E3", "constant.numeric.float.quillo"],
+  ['let price = 12.50m * 3 + 5m', "12.50m", "constant.numeric.decimal.quillo"],
+  ['let price = 12.50m * 3 + 5m', "5m", "constant.numeric.decimal.quillo"],
+  ['let price = 12.50m * 3 + 5m', "3", "constant.numeric.integer.quillo"],
+  ['fn fee(a: dec) -> dec = a', "dec", "support.type.quillo"],
+  ['let m = money.of(12.50m, "USD")', "money", "support.module.quillo"],
   ['let style = css`a > b { color: ${accent}; }`', "css", "support.function.tag.quillo"],
   ['let style = css`a > b { color: ${accent}; }`', "a > b { color: ", "meta.embedded.block.css"],
   ['let style = css`a > b { color: ${accent}; }`', "accent", "meta.template.expression.quillo"],
@@ -85,12 +90,48 @@ const cases = [
   ['media.rtp("cam", { video: 5004, audio: 5006 })', "media", "support.module.quillo"],
   ['media.rtp("cam", { video: 5004, audio: 5006 })', "rtp", "support.function.quillo"],
   ['let r = math.sqrt(2)', "math", "support.module.quillo"],
+  ['let due = date.add_business_days(d, 2, cal)', "date", "support.module.quillo"],
+  ['let due = date.add_business_days(d, 2, cal)', "add_business_days", "support.function.quillo"],
   ['fn ping(h: str) with net = udp.send(h, 9, "x")', "net", "support.constant.effect.quillo"],
   ['<quillo-media stream="cam" controls/>', "quillo-media", "entity.name.tag.quillo"],
   ['<quillo-media stream="cam" controls/>', "stream", "entity.other.attribute-name.quillo"],
   ['    every(1000, tick)', "every", "support.function.builtin.quillo"],
   ['    listen("/progress", (p) => { done = p.done })', "listen", "support.function.builtin.quillo"],
   ['route GET /feed = events((send) => send(1))', "events", "support.function.builtin.quillo"],
+  ['route POST /pay = idempotent(() => pay())', "idempotent", "support.function.builtin.quillo"],
+  // Types: what is inside `list<...>` is a type, not an HTML tag.
+  ['fn titles(posts: list<{ id: int, title: str }>) = posts | map((p) => p.title)', "list", "support.type.quillo"],
+  ['fn titles(posts: list<{ id: int, title: str }>) = posts | map((p) => p.title)', "id", "variable.other.property.quillo"],
+  ['fn titles(posts: list<{ id: int, title: str }>) = posts | map((p) => p.title)', "str", "support.type.quillo"],
+  ['fn titles(posts: list<{ id: int, title: str }>) = posts | map((p) => p.title)', "map", "support.function.builtin.quillo"],
+  ['fn names(xs: list<str>) -> list<str> = xs', "str", "support.type.quillo"],
+  ['fn names(xs: list<str>) -> list<str> = xs', "str", "meta.type.parameters.quillo"],
+  ['fn kids(n: Node) -> list<Node> = n.kids', "Node", "entity.name.type.quillo"],
+  ['fn f(m: map<str, list<int>>) = m', "int", "support.type.quillo"],
+  ['fn f(m: map<str, list<int?>>) = m', "?", "keyword.operator.type.optional.quillo"],
+  ['type Tree = { value: int, kids: list<Node> = [] }', "Tree", "entity.name.type.quillo"],
+  ['type Tree = { value: int, kids: list<Node> = [] }', "Node", "entity.name.type.quillo"],
+  ['type Ids = list<int | str>', "|", "keyword.operator.type.union.quillo"],
+  ['type Ids = list<int | str>', "int", "support.type.quillo"],
+  ['fn greet(u: User) -> Greeting = hi(u)', "User", "entity.name.type.quillo"],
+  ['fn greet(u: User) -> Greeting = hi(u)', "Greeting", "entity.name.type.quillo"],
+  ['type User = { name: str, role: "admin" | "member" = "member", tags: list<str> = [] }', "role", "variable.other.property.quillo"],
+  ['type User = { name: str, role: "admin" | "member" = "member", tags: list<str> = [] }', "tags", "variable.other.property.quillo"],
+  ['let n = int(s) + len(xs | map((x) => x))', "int", "support.function.builtin.quillo"],
+  // ...while a tag in an expression stays one.
+  ['let rows = list.map((x) => <li>{x}</li>)', "li", "entity.name.tag.quillo"],
+  ['let n = <span.badge>{len(list)}</span>', "span", "entity.name.tag.quillo"],
+];
+
+// Lines tokenized in turn: [lines, line index, token text, scope]. A type
+// with `<` must not leave the lines after it inside a tag.
+const blocks = [
+  [["fn titles(posts: list<{ id: int, title: str }>) = posts", "view Home() = <div class=\"a\">{titles([])}</div>", "let after = 1"], 1, "div", "entity.name.tag.quillo"],
+  [["fn titles(posts: list<{ id: int, title: str }>) = posts", "view Home() = <div class=\"a\">{titles([])}</div>", "let after = 1"], 2, "let", "storage.type.let.quillo"],
+  [["type Node = {", "    value: int,", "    kids: list<Node> = [],", "}", "let x = <p>hi</p>"], 2, "kids", "variable.other.property.quillo"],
+  [["type Node = {", "    value: int,", "    kids: list<Node> = [],", "}", "let x = <p>hi</p>"], 4, "p", "entity.name.tag.quillo"],
+  [["fn f(m: map<str, list<int>>) -> list<str> = []", "let y = 2"], 1, "2", "constant.numeric.integer.quillo"],
+  [["let t = <h1>Virtual list</h1>", "let y = 2"], 1, "2", "constant.numeric.integer.quillo"],
 ];
 
 (async () => {
@@ -104,6 +145,20 @@ const cases = [
     if (!scopes.includes(scope)) {
       failed++;
       console.log(`FAIL ${JSON.stringify(text)} in ${JSON.stringify(line)}\n  want ${scope}\n  got  ${scopes.join(" ")}`);
+    }
+  }
+  for (const [lines, n, text, scope] of blocks) {
+    let state = vsctm.INITIAL;
+    let toks = [];
+    lines.forEach((line, i) => {
+      const r = grammar.tokenizeLine(line, state);
+      state = r.ruleStack;
+      if (i === n) toks = r.tokens.map((t) => ({ text: line.slice(t.startIndex, t.endIndex), scopes: t.scopes }));
+    });
+    const tok = toks.find((t) => t.text === text) || toks.find((t) => t.text.includes(text));
+    if (!tok || !tok.scopes.includes(scope) || state.depth > 1) {
+      failed++;
+      console.log(`FAIL ${JSON.stringify(text)} on line ${n + 1} of ${JSON.stringify(lines)}\n  want ${scope}${state.depth > 1 ? " (and the state is still nested at the end)" : ""}\n  got  ${tok ? tok.scopes.join(" ") : "(no token)"}`);
     }
   }
   // Every example file tokenizes without leaving a tag or string open: those of
@@ -168,6 +223,6 @@ const cases = [
   } else {
     console.log("(no Rust grammar found: the .qwer cases were skipped)");
   }
-  console.log(failed ? `${failed} failed` : `all ${cases.length + rustCases} grammar cases passed`);
+  console.log(failed ? `${failed} failed` : `all ${cases.length + blocks.length + rustCases} grammar cases passed`);
   process.exit(failed ? 1 : 0);
 })();

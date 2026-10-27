@@ -20,10 +20,16 @@
           "include": "#route"
         },
         {
+          "include": "#typedef"
+        },
+        {
           "include": "#definition"
         },
         {
           "include": "#state"
+        },
+        {
+          "include": "#type-generic"
         },
         {
           "include": "#html-close"
@@ -98,7 +104,7 @@
           "name": "string.unquoted.path.quillo",
           "patterns": [
             {
-              "match": "(:)([A-Za-z_]\\w*)(?:(\\()(int|float|num|str)(\\)))?",
+              "match": "(:)([A-Za-z_]\\w*)(?:(\\()(int|float|dec|num|str)(\\)))?",
               "captures": {
                 "1": {
                   "name": "punctuation.definition.parameter.quillo"
@@ -326,6 +332,10 @@
     "number": {
       "patterns": [
         {
+          "name": "constant.numeric.decimal.quillo",
+          "match": "\\b\\d[\\d_]*(?:\\.\\d[\\d_]*)?(?:[eE][+-]?\\d+)?m\\b"
+        },
+        {
           "name": "constant.numeric.float.quillo",
           "match": "\\b\\d[\\d_]*(?:\\.\\d[\\d_]*)?[eE][+-]?\\d+\\b|\\b\\d[\\d_]*\\.\\d[\\d_]*\\b"
         },
@@ -350,8 +360,15 @@
           "match": "\\b(let|fn|view|component|server)\\b"
         },
         {
-          "name": "storage.type.quillo",
-          "match": "\\btype(?=\\s+[A-Z])"
+          "match": "\\b(type)\\s+([A-Z]\\w*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.quillo"
+            },
+            "2": {
+              "name": "entity.name.type.quillo"
+            }
+          }
         },
         {
           "match": "\\b(state)\\s+([A-Za-z_][A-Za-z0-9_]*)(?=\\s*=(?!=))",
@@ -369,18 +386,47 @@
     "type-annotation": {
       "patterns": [
         {
-          "match": "(->|!)\\s*((?:(?:int|float|num|str|bool|list|map|html|fn|any|response|null)\\??\\s*\\|?\\s*)+)",
+          "match": "(->|!)\\s*((?:(?:int|float|dec|num|str|bool|list|map|html|fn|any|response|null|[A-Z]\\w*)\\??\\s*\\|?\\s*)+)",
           "captures": {
             "1": {
               "name": "keyword.operator.type.quillo"
             },
             "2": {
-              "name": "support.type.quillo"
+              "patterns": [
+                {
+                  "match": "\\b(?:int|float|dec|num|str|bool|list|map|html|fn|any|response|null)\\b",
+                  "name": "support.type.quillo"
+                },
+                {
+                  "match": "\\b[A-Z]\\w*",
+                  "name": "entity.name.type.quillo"
+                }
+              ]
             }
           }
         },
         {
-          "match": "(?<=[\\w)])\\s*(:)\\s*((?:(?:int|float|num|str|bool|list|map|html|fn|any|response|null)\\??\\s*(?:\\|\\s*)?)+)(?=\\s*[,)=]|\\s*$)",
+          "match": "(?<=[\\w)])\\s*(:)\\s*((?:(?:int|float|dec|num|str|bool|list|map|html|fn|any|response|null|[A-Z][a-z]\\w*)\\??\\s*(?:\\|\\s*)?)+)(?=\\s*[,)=]|\\s*$)",
+          "captures": {
+            "1": {
+              "name": "punctuation.separator.type.quillo"
+            },
+            "2": {
+              "patterns": [
+                {
+                  "match": "\\b(?:int|float|dec|num|str|bool|list|map|html|fn|any|response|null)\\b",
+                  "name": "support.type.quillo"
+                },
+                {
+                  "match": "\\b[A-Z]\\w*",
+                  "name": "entity.name.type.quillo"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "match": "(?<=[\\w)])\\s*(:)\\s*\\b(list|map)(?=<)",
           "captures": {
             "1": {
               "name": "punctuation.separator.type.quillo"
@@ -391,7 +437,7 @@
           }
         },
         {
-          "match": "(?<=[:|{,]\\s{0,8})\\b(int|float|num|str|bool|list|map|html|any|response)\\b",
+          "match": "(?<=[:|{,]\\s{0,8})\\b(int|float|dec|num|str|bool|list|map|html|any|response)\\b(?!\\s*\\()",
           "name": "support.type.pattern.quillo"
         }
       ]
@@ -445,7 +491,7 @@
       ]
     },
     "module-call": {
-      "match": "\\b(json|db|http|udp|channel|media|crypto|image|math|stats|vec)(\\.)([a-z_]\\w*)",
+      "match": "\\b(json|db|http|udp|channel|media|crypto|image|math|stats|vec|date|money)(\\.)([a-z_]\\w*)",
       "captures": {
         "1": {
           "name": "support.module.quillo"
@@ -461,7 +507,7 @@
     "call": {
       "patterns": [
         {
-          "match": "\\b(print|str|int|float|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|live|publish|watch|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session)\\b(?=\\s*\\()",
+          "match": "\\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent)\\b(?=\\s*\\()",
           "name": "support.function.builtin.quillo"
         },
         {
@@ -792,6 +838,186 @@
         },
         {
           "include": "source.sql"
+        }
+      ]
+    },
+    "type-generic": {
+      "comment": "`list<T>` (and `map<...>`): what is between `<` and `>` is a type, never an HTML tag.",
+      "name": "meta.type.parameters.quillo",
+      "begin": "(?<=\\blist|\\bmap)(<)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.typeparameters.begin.quillo"
+        }
+      },
+      "end": ">",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.typeparameters.end.quillo"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#type-body"
+        }
+      ]
+    },
+    "type-shape": {
+      "comment": "`{ id: int, tags: list<str> }` inside a type: fields and their types.",
+      "name": "meta.type.shape.quillo",
+      "begin": "\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.section.block.begin.quillo"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.block.end.quillo"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "match": "([A-Za-z_]\\w*|\"[^\"]*\")\\s*(:)",
+          "captures": {
+            "1": {
+              "name": "variable.other.property.quillo"
+            },
+            "2": {
+              "name": "punctuation.separator.type.quillo"
+            }
+          }
+        },
+        {
+          "include": "#type-body"
+        }
+      ]
+    },
+    "type-body": {
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "match": "\\b(?:list|map)\\b(?=<)",
+          "name": "support.type.quillo"
+        },
+        {
+          "include": "#type-generic"
+        },
+        {
+          "include": "#type-shape"
+        },
+        {
+          "match": "\\b(?:int|float|dec|num|str|bool|list|map|html|fn|any|response|null)\\b",
+          "name": "support.type.quillo"
+        },
+        {
+          "match": "\\b[A-Z]\\w*",
+          "name": "entity.name.type.quillo"
+        },
+        {
+          "include": "#string"
+        },
+        {
+          "match": "\\|",
+          "name": "keyword.operator.type.union.quillo"
+        },
+        {
+          "match": "\\?",
+          "name": "keyword.operator.type.optional.quillo"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.quillo"
+        }
+      ]
+    },
+    "typedef": {
+      "comment": "`type Name = { field: type = default, ... }`, or `type Name = another type` to the end of the line.",
+      "patterns": [
+        {
+          "name": "meta.type.declaration.quillo",
+          "begin": "\\b(type)\\s+([A-Z]\\w*)\\s*(=)\\s*(\\{)",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.quillo"
+            },
+            "2": {
+              "name": "entity.name.type.quillo"
+            },
+            "3": {
+              "name": "keyword.operator.assignment.quillo"
+            },
+            "4": {
+              "name": "punctuation.section.block.begin.quillo"
+            }
+          },
+          "end": "\\}",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.block.end.quillo"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#comment"
+            },
+            {
+              "match": "([A-Za-z_]\\w*|\"[^\"]*\")\\s*(:)",
+              "captures": {
+                "1": {
+                  "name": "variable.other.property.quillo"
+                },
+                "2": {
+                  "name": "punctuation.separator.type.quillo"
+                }
+              }
+            },
+            {
+              "include": "#type-body"
+            },
+            {
+              "include": "#number"
+            },
+            {
+              "include": "#constant"
+            },
+            {
+              "include": "#operator"
+            },
+            {
+              "include": "#call"
+            },
+            {
+              "include": "#identifier"
+            }
+          ]
+        },
+        {
+          "name": "meta.type.declaration.quillo",
+          "begin": "\\b(type)\\s+([A-Z]\\w*)\\s*(=)",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.quillo"
+            },
+            "2": {
+              "name": "entity.name.type.quillo"
+            },
+            "3": {
+              "name": "keyword.operator.assignment.quillo"
+            }
+          },
+          "end": "$|(?=//)",
+          "patterns": [
+            {
+              "include": "#type-body"
+            }
+          ]
         }
       ]
     }
