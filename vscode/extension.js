@@ -6,6 +6,8 @@ const path = require("path");
 const { LanguageClient } = require("vscode-languageclient/node");
 
 let client = null;
+let watched = null;
+let restartTimer = null;
 
 /** The quillo binary: the setting, a build in the workspace, or `quillo` on the PATH. */
 function quilloPath() {
@@ -20,8 +22,52 @@ function quilloPath() {
   return "quillo";
 }
 
+/** Where `command` is on disk: itself if it is a path, else found on the PATH. */
+function resolveBinary(command) {
+  if (command.includes("/") || command.includes("\\")) return fs.existsSync(command) ? command : null;
+  const exts = process.platform === "win32" ? (process.env.PATHEXT || ".EXE").split(";") : [""];
+  for (const dir of (process.env.PATH || "").split(path.delimiter)) {
+    for (const ext of exts) {
+      const full = path.join(dir, command + ext);
+      if (fs.existsSync(full)) return full;
+    }
+  }
+  return null;
+}
+
+/**
+ * The server runs the binary as it was when it started: after a rebuild
+ * (cargo build, cargo install), it would still parse code as the old one
+ * did, and new syntax would show as errors. So it is started again once the
+ * file has been replaced and has stopped changing.
+ */
+function watchBinary(command) {
+  unwatchBinary();
+  const file = resolveBinary(command);
+  if (!file) return;
+  watched = file;
+  fs.watchFile(file, { interval: 2000 }, (now, before) => {
+    if (now.mtimeMs === before.mtimeMs || now.size === 0) return;
+    clearTimeout(restartTimer);
+    restartTimer = setTimeout(restartClient, 1500);
+  });
+}
+
+function unwatchBinary() {
+  clearTimeout(restartTimer);
+  if (watched) fs.unwatchFile(watched);
+  watched = null;
+}
+
+async function restartClient() {
+  if (client) await client.stop().catch(() => {});
+  client = null;
+  await startClient();
+}
+
 async function startClient() {
   const command = quilloPath();
+  watchBinary(command);
   client = new LanguageClient(
     "quillo",
     "Quillo",
@@ -159,21 +205,16 @@ async function activate(context) {
       t.show();
       t.sendText(`${quote(quilloPath())} check ${quote(doc.fileName)}`);
     }),
-    vscode.commands.registerCommand("quillo.restartServer", async () => {
-      if (client) await client.stop();
-      await startClient();
-    }),
+    vscode.commands.registerCommand("quillo.restartServer", restartClient),
     vscode.workspace.onDidChangeConfiguration(async (e) => {
-      if (e.affectsConfiguration("quillo.path")) {
-        if (client) await client.stop();
-        await startClient();
-      }
+      if (e.affectsConfiguration("quillo.path")) await restartClient();
     })
   );
   await startClient();
 }
 
 function deactivate() {
+  unwatchBinary();
   return client ? client.stop() : undefined;
 }
 
