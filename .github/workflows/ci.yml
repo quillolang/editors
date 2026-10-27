@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  vscode:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vscode
+    steps:
+      - uses: actions/checkout@v4
+      # The grammar test also tokenizes every example.
+      - uses: actions/checkout@v4
+        with:
+          repository: quillolang/examples
+          path: examples
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Grammar tests, then the package
+        env:
+          QUILLO_EXAMPLES: ${{ github.workspace }}/examples
+        run: npm ci && npm test && npx vsce package --skip-license
