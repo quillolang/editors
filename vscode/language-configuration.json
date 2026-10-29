@@ -14,6 +14,7 @@
     "decreaseIndentPattern": "^\\s*(\\}|\\)|\\]|</[A-Za-z])"
   },
   "onEnterRules": [
+    { "beforeText": "<(?!(?:area|base|br|col|embed|hr|img|input|link|meta|source|track|wbr)\\b)[A-Za-z][\\w-]*(?:[.#][^\\s<>/]*)*(?:\\s(?:[^<>\"\\'/{}]|\"[^\"]*\"|\\'[^\\']*\\'|\\{[^{}]*(?:\\{[^{}]*\\}[^{}]*)*\\})*)?>[^<]*$", "afterText": "^\\s*</[A-Za-z][\\w-]*\\s*>", "action": { "indent": "indentOutdent" } },
     { "beforeText": "^\\s*//.*$", "action": { "indent": "none", "appendText": "// " } }
   ]
 }
