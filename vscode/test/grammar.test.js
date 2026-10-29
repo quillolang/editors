@@ -10,10 +10,20 @@ const onigLib = oniguruma.loadWASM(wasm).then(() => ({
   createOnigScanner: (s) => new oniguruma.OnigScanner(s),
   createOnigString: (s) => new oniguruma.OnigString(s),
 }));
+// SQL in strings is tokenized with VS Code's own SQL grammar, where it can be
+// found; without it, only the embedded scope around it is checked.
+const sqlGrammar = [
+  process.env.VSCODE_SQL_GRAMMAR,
+  "/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/sql/syntaxes/sql.tmLanguage.json",
+  "/usr/share/code/resources/app/extensions/sql/syntaxes/sql.tmLanguage.json",
+].find((p) => p && fs.existsSync(p));
+const grammars = {
+  "source.quillo": path.join(__dirname, "../syntaxes/quillo.tmLanguage.json"),
+  "source.sql": sqlGrammar,
+};
 const registry = new vsctm.Registry({
   onigLib,
-  loadGrammar: async () => vsctm.parseRawGrammar(
-    fs.readFileSync(path.join(__dirname, "../syntaxes/quillo.tmLanguage.json"), "utf8"), "quillo.tmLanguage.json"),
+  loadGrammar: async (scope) => grammars[scope] && vsctm.parseRawGrammar(fs.readFileSync(grammars[scope], "utf8"), grammars[scope]),
 });
 
 // [line, token text, scope that token must have]
@@ -50,7 +60,7 @@ const cases = [
   ['let style = css`a > b { color: ${accent}; }`', "a > b { color: ", "meta.embedded.block.css"],
   ['let style = css`a > b { color: ${accent}; }`', "accent", "meta.template.expression.quillo"],
   ['let style = css`a > b { color: ${accent}; }`', "${", "punctuation.definition.template-expression.begin.quillo"],
-  ['let rows = db.query(sql`select * from t where id = ?`, id)', "select * from t where id = ?", "meta.embedded.block.sql"],
+  ['let rows = db.query(sql`select * from t where id = ?`, id)', "from", "meta.embedded.block.sql"],
   ['let greeting = `Hello, ${name}!`', "greeting", "variable.other.declaration.quillo"],
   ['let greeting = `Hello, ${name}!`', "Hello, ", "string.template.quillo"],
   ['let greeting = `Hello, ${name}!`', "name", "meta.template.expression.quillo"],
@@ -145,6 +155,18 @@ const cases = [
   ['use * from lib/auth', "*", "constant.language.wildcard.quillo"],
   ['use * from lib/auth', "lib/auth", "string.unquoted.path.quillo"],
   ['use lib/auth // the login', "the login", "comment.line.double-slash.quillo"],
+  // SQL: the first argument of db.exec, db.one and db.query, and sql`...`; the
+  // rest of the call is Quillo again.
+  ['if db.one("select count(*) as n from users").n > 0 { return null }', "users", "meta.embedded.block.sql"],
+  ['if db.one("select count(*) as n from users").n > 0 { return null }', "db", "support.module.quillo"],
+  ['if db.one("select count(*) as n from users").n > 0 { return null }', "0", "constant.numeric.integer.quillo"],
+  ['db.exec("update projects set created = ? where id = ?", begin, pid)', "projects", "meta.embedded.block.sql"],
+  ['db.exec("update projects set created = ? where id = ?", begin, pid)', "pid", "variable.other.quillo"],
+  ['db.exec("insert into notes (body) values (\\"hi\\")", x)', "\\\"", "constant.character.escape.quillo"],
+  ['let rows = db.query(`select * from t where id = ${id}`)', "${", "punctuation.definition.template-expression.begin.quillo"],
+  ['let rows = db.query(`select * from t where id = ${id}`)', "from", "meta.embedded.block.sql"],
+  ['let rows = db.query(sql`select 1`)', "sql", "support.function.tag.quillo"],
+  ['let rows = db.query(sql`select 1`)', "select", "meta.embedded.block.sql"],
 ];
 
 // Lines tokenized in turn: [lines, line index, token text, scope]. A type
@@ -156,6 +178,9 @@ const blocks = [
   [["type Node = {", "    value: int,", "    kids: list<Node> = [],", "}", "let x = <p>hi</p>"], 4, "p", "entity.name.tag.quillo"],
   [["fn f(m: map<str, list<int>>) -> list<str> = []", "let y = 2"], 1, "2", "constant.numeric.integer.quillo"],
   [["let t = <h1>Virtual list</h1>", "let y = 2"], 1, "2", "constant.numeric.integer.quillo"],
+  // The SQL string may start on the line after db.query(.
+  [["for t in db.query(", "    \"select * from tasks where id = ?\", pid) {", "}", "let after = 1"], 1, "tasks", "meta.embedded.block.sql"],
+  [["for t in db.query(", "    \"select * from tasks where id = ?\", pid) {", "}", "let after = 1"], 3, "let", "storage.type.let.quillo"],
 ];
 
 (async () => {
@@ -183,6 +208,23 @@ const blocks = [
     if (!tok || !tok.scopes.includes(scope) || state.depth > 1) {
       failed++;
       console.log(`FAIL ${JSON.stringify(text)} on line ${n + 1} of ${JSON.stringify(lines)}\n  want ${scope}${state.depth > 1 ? " (and the state is still nested at the end)" : ""}\n  got  ${tok ? tok.scopes.join(" ") : "(no token)"}`);
+    }
+  }
+  // With VS Code's SQL grammar: keywords and strings inside the SQL.
+  const sqlCases = [
+    ['db.exec("insert into members (role) values (\'editor\')")', "insert", "keyword.other.DML.sql"],
+    ['db.exec("insert into members (role) values (\'editor\')")', "editor", "string.quoted.single.sql"],
+    ['let n = db.one("select count(*) as n from users where id = ?", id).n', "select", "keyword.other.DML.sql"],
+    ['let n = db.one("select count(*) as n from users where id = ?", id).n', "id", "variable.other.quillo"],
+  ];
+  if (!sqlGrammar) console.log("skipped the SQL cases: no VS Code SQL grammar found (VSCODE_SQL_GRAMMAR)");
+  for (const [line, text, scope] of sqlGrammar ? sqlCases : []) {
+    const { tokens } = grammar.tokenizeLine(line, vsctm.INITIAL);
+    const all = tokens.filter((t) => line.slice(t.startIndex, t.endIndex) === text);
+    const tok = scope.endsWith(".quillo") ? all[all.length - 1] : all[0] || tokens.find((t) => line.slice(t.startIndex, t.endIndex).includes(text));
+    if (!tok || !tok.scopes.includes(scope)) {
+      failed++;
+      console.log(`FAIL ${JSON.stringify(text)} in ${JSON.stringify(line)}\n  want ${scope}\n  got  ${tok ? tok.scopes.join(" ") : "(no token)"}`);
     }
   }
   // Every example file tokenizes without leaving a tag or string open: those of

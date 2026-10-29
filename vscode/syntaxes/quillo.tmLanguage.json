@@ -50,6 +50,9 @@
           "include": "#tagged-sql"
         },
         {
+          "include": "#db-sql"
+        },
+        {
           "include": "#template"
         },
         {
@@ -878,6 +881,76 @@
         },
         {
           "include": "source.css"
+        }
+      ]
+    },
+    "db-sql": {
+      "comment": "db.exec(\"...\"), db.one and db.query: the first argument, a string or a template, is SQL; it ends after that string, or at anything else (sql`...` is tagged-sql)",
+      "begin": "\\b(db)(\\.)(exec|one|query)\\s*(\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "support.module.quillo"
+        },
+        "2": {
+          "name": "punctuation.accessor.quillo"
+        },
+        "3": {
+          "name": "support.function.quillo"
+        },
+        "4": {
+          "name": "punctuation.section.parens.begin.quillo"
+        }
+      },
+      "end": "(?<=[\"`])|(?=[^\\s\"`])",
+      "patterns": [
+        {
+          "begin": "\"",
+          "beginCaptures": {
+            "0": {
+              "name": "string.quoted.double.quillo punctuation.definition.string.begin.quillo"
+            }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": {
+              "name": "string.quoted.double.quillo punctuation.definition.string.end.quillo"
+            }
+          },
+          "contentName": "meta.embedded.block.sql",
+          "patterns": [
+            {
+              "include": "#escape"
+            },
+            {
+              "include": "source.sql"
+            }
+          ]
+        },
+        {
+          "begin": "`",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.template.begin.quillo"
+            }
+          },
+          "end": "`",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.template.end.quillo"
+            }
+          },
+          "contentName": "meta.embedded.block.sql",
+          "patterns": [
+            {
+              "include": "#interpolation"
+            },
+            {
+              "include": "#escape"
+            },
+            {
+              "include": "source.sql"
+            }
+          ]
         }
       ]
     },
