@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.0
+
+- SQL highlighted as SQL in the string or template passed to `db.exec`, `db.one` and
+  `db.query` (with VS Code's own SQL grammar), as it already was in `` sql`...` ``.
+
 ## 0.10.0
 
 - Classes in markup: hover shows their CSS rules, Find All References lists the rules and the

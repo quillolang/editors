@@ -4,7 +4,8 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
 
 - **Highlighting** for `private` and `public` before a definition, routes and paths, HTML literals (tags, `.class#id`, `@event`, `bind:value`),
   string interpolation, `state` declarations, `type` records, numbers such as `1e-9`, types,
-  effects and pipelines.
+  effects and pipelines. SQL is highlighted as SQL in the string (or template) passed to
+  `db.exec`, `db.one` and `db.query`, and in `` sql`...` ``.
 - **Diagnostics as you type**: unknown names, wrong arguments, type mismatches, effects,
   component props, code that cannot run in the browser, unused variables.
 - **End tags**: an element that is never closed is underlined at its start tag, with a quick fix
