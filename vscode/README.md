@@ -2,7 +2,7 @@
 
 Language support for [Quillo](https://github.com/quillolang/quillo), the small web language.
 
-- **Highlighting** for routes and paths, HTML literals (tags, `.class#id`, `@event`, `bind:value`),
+- **Highlighting** for `private` and `public` before a definition, routes and paths, HTML literals (tags, `.class#id`, `@event`, `bind:value`),
   string interpolation, `state` declarations, `type` records, numbers such as `1e-9`, types,
   effects and pipelines.
 - **Diagnostics as you type**: unknown names, wrong arguments, type mismatches, effects,
@@ -20,7 +20,9 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   in markup, your views and components and HTML's elements; after `</`, the end tag to write;
   after `<span.` and in `class="`, the classes your style sheets define.
 - **Outline** of functions, views, components, variables and routes.
-- **Snippets**: `route`, `routejson`, `fn`, `fnb`, `server fn`, `view`, `component`, `match`, `for`, `page`,
+- **Private names**: hover and the outline say `private fn page_of(...)`; another file's private
+  names are not offered in completion (nor its private views after `<`).
+- **Snippets**: `route`, `routejson`, `fn`, `fnb`, `pfn` (private fn), `server fn`, `view`, `component`, `match`, `for`, `page`,
   and for real time: `udplisten`, `channelon`, `channelopen`, `mediartp`, `quillo-media`.
 - **File icons**: a quill for `.qwe` files, and a quill with a gear for `.qwer` files, in the
   default (Seti) icon theme and any other that has none of its own for them.
