@@ -141,6 +141,15 @@
     "definition": {
       "patterns": [
         {
+          "comment": "`private fn`, `public view`...: before a definition at a file's top level; elsewhere `private` is a name ({ private: true }).",
+          "match": "^\\s*(private|public)(?=\\s+(?:fn|view|component|let|server|type)\\b)",
+          "captures": {
+            "1": {
+              "name": "storage.modifier.visibility.quillo"
+            }
+          }
+        },
+        {
           "match": "\\b(server)\\s+(fn)\\s+([A-Za-z_]\\w*)",
           "captures": {
             "1": {

@@ -19,6 +19,11 @@
     "body": ["fn ${1:name}(${2}) {", "\t$0", "}"],
     "description": "A function with a block body"
   },
+  "private fn": {
+    "prefix": "pfn",
+    "body": ["private fn ${1:name}(${2}) = ${0:null}"],
+    "description": "A function for this file only"
+  },
   "server fn": {
     "prefix": "serverfn",
     "body": ["server fn ${1:name}(${2}) {", "\t$0", "}"],
