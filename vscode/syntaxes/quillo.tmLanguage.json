@@ -20,6 +20,9 @@
           "include": "#route"
         },
         {
+          "include": "#use"
+        },
+        {
           "include": "#typedef"
         },
         {
@@ -137,6 +140,63 @@
           ]
         }
       }
+    },
+    "use": {
+      "comment": "use lib/auth, use \"lib/auth.qwe\", use * from lib/auth, use a as b, c from redis.qwer",
+      "begin": "^\\s*(use)(?=\\s+[^\\s=(])",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.use.quillo"
+        }
+      },
+      "end": "(?=$|//|;)",
+      "patterns": [
+        {
+          "include": "#string"
+        },
+        {
+          "match": "\\b(from)\\s+([^\\s\",;]+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.from.quillo"
+            },
+            "2": {
+              "name": "string.unquoted.path.quillo"
+            }
+          }
+        },
+        {
+          "match": "\\b(from)\\b",
+          "name": "keyword.other.from.quillo"
+        },
+        {
+          "match": "\\b(as)\\s+([A-Za-z_]\\w*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.as.quillo"
+            },
+            "2": {
+              "name": "entity.name.function.quillo"
+            }
+          }
+        },
+        {
+          "match": "\\*",
+          "name": "constant.language.wildcard.quillo"
+        },
+        {
+          "match": "[A-Za-z_]\\w*(?=\\s*(?:,|\\bas\\b|\\bfrom\\b))",
+          "name": "entity.name.function.quillo"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.quillo"
+        },
+        {
+          "match": "[^\\s\",;]+",
+          "name": "string.unquoted.path.quillo"
+        }
+      ]
     },
     "definition": {
       "patterns": [

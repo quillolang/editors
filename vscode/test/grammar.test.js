@@ -130,7 +130,21 @@ const cases = [
   ['let n = int(s) + len(xs | map((x) => x))', "int", "support.function.builtin.quillo"],
   // ...while a tag in an expression stays one.
   ['let rows = list.map((x) => <li>{x}</li>)', "li", "entity.name.tag.quillo"],
-  ['let n = <span.badge>{len(list)}</span>', "span", "entity.name.tag.quillo"],
+  ['let n = <span.badge>{len(list)}</span>', "span", "entity.name.tag.quillo"],  // use: a path with or without quotes, names taken from a .qwer file, `as` and `*`.
+  ['use lib/auth', "use", "keyword.other.use.quillo"],
+  ['use lib/auth', "lib/auth", "string.unquoted.path.quillo"],
+  ['use ../shared/auth.qwe', "../shared/auth.qwe", "string.unquoted.path.quillo"],
+  ['use lib\\auth', "lib\\auth", "string.unquoted.path.quillo"],
+  ['use "lib/auth.qwe"', "lib/auth.qwe", "string.quoted.double.quillo"],
+  ['use cache_get as redis_get, cache_set from redis.qwer', "cache_get", "entity.name.function.quillo"],
+  ['use cache_get as redis_get, cache_set from redis.qwer', "as", "keyword.other.as.quillo"],
+  ['use cache_get as redis_get, cache_set from redis.qwer', "redis_get", "entity.name.function.quillo"],
+  ['use cache_get as redis_get, cache_set from redis.qwer', "cache_set", "entity.name.function.quillo"],
+  ['use cache_get as redis_get, cache_set from redis.qwer', "from", "keyword.other.from.quillo"],
+  ['use cache_get as redis_get, cache_set from redis.qwer', "redis.qwer", "string.unquoted.path.quillo"],
+  ['use * from lib/auth', "*", "constant.language.wildcard.quillo"],
+  ['use * from lib/auth', "lib/auth", "string.unquoted.path.quillo"],
+  ['use lib/auth // the login', "the login", "comment.line.double-slash.quillo"],
 ];
 
 // Lines tokenized in turn: [lines, line index, token text, scope]. A type
