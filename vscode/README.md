@@ -11,9 +11,14 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   (Ctrl+. / Cmd+.) that adds the end tag where it belongs; a mistyped end tag (`</dvi>`) has one
   that corrects it. Typing a start tag's `>` adds its end tag after the cursor, and typing `</`
   finishes the end tag of the element open there (setting `quillo.autoCloseTags`).
-- **Hover** shows types and signatures; **Go to Definition** works across `use`d files, and
-  from a class in markup (`<span.chip>`, `class="chip"`) to its CSS rules: in `css(...)`, a
-  component's `style`, or the CSS files under `public/`.
+- **Hover** shows types and signatures; **Go to Definition** works across `use`d files.
+- **Classes**: from a class in markup (`<span.chip>`, `class="chip"`), Go to Definition goes
+  to its CSS rules (in `css(...)`, a component's `style`, or the CSS files under `public/`)
+  and hover shows them. **Find All References** lists its rules and every place the markup
+  writes it, from either side, and **Rename Symbol** (F2) renames it in both (a class put
+  together, as in `card-${size}`, is left as it is). A class no sheet has a rule for is
+  marked: a warning when it is close to one that has (`.chiip`: did you mean `chip`?), else
+  a faint hint.
 - **Completion** for your functions and variables, builtins (with signatures), the members of
   `db.`, `http.`, `json.`, `udp.`, `channel.`, `media.`, `crypto.`, `image.`, `math.`, `stats.`,
   `vec.` and `date.`, keywords, types, HTTP methods and effects (`net` among them); after `<`

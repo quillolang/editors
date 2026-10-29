@@ -75,9 +75,23 @@ async function startClient() {
     { run: { command, args: ["lsp"] }, debug: { command, args: ["lsp"] } },
     {
       // .qwer files are Rust: the server says what Quillo makes of them, and
-      // what the compiler says (through `cargo check`).
-      documentSelector: [{ scheme: "file", language: "quillo" }, { scheme: "file", language: "qwer" }],
+      // what the compiler says (through `cargo check`). An app's style
+      // sheets: hover, references and rename of their classes, which the
+      // markup writes.
+      documentSelector: [
+        { scheme: "file", language: "quillo" },
+        { scheme: "file", language: "qwer" },
+        { scheme: "file", language: "css", pattern: "**/public/**/*.css" },
+      ],
       synchronize: { fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{qwe,qwer}") },
+      // A server from before `experimental.cssClasses` would read CSS as
+      // Quillo and mark it all as errors: it is not sent CSS files.
+      middleware: {
+        didOpen: (doc, next) => (cssUnwelcome(doc) ? undefined : next(doc)),
+        didChange: (e, next) => (cssUnwelcome(e.document) ? undefined : next(e)),
+        didSave: (doc, next) => (cssUnwelcome(doc) ? undefined : next(doc)),
+        didClose: (doc, next) => (cssUnwelcome(doc) ? undefined : next(doc)),
+      },
     }
   );
   try {
@@ -121,6 +135,12 @@ function closeTags(e) {
     if (!now.selection.isEmpty || !now.selection.active.isEqual(at)) return;
     now.insertSnippet(new vscode.SnippetString(text), at);
   }, 100);
+}
+
+function cssUnwelcome(doc) {
+  if (doc.languageId !== "css") return false;
+  const caps = client && client.initializeResult && client.initializeResult.capabilities;
+  return !(caps && caps.experimental && caps.experimental.cssClasses);
 }
 
 function terminal() {
