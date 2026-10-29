@@ -7,10 +7,15 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   effects and pipelines.
 - **Diagnostics as you type**: unknown names, wrong arguments, type mismatches, effects,
   component props, code that cannot run in the browser, unused variables.
+- **End tags**: an element that is never closed is underlined at its start tag, with a quick fix
+  (Ctrl+. / Cmd+.) that adds the end tag where it belongs; a mistyped end tag (`</dvi>`) has one
+  that corrects it. Typing a start tag's `>` adds its end tag after the cursor, and typing `</`
+  finishes the end tag of the element open there (setting `quillo.autoCloseTags`).
 - **Hover** shows types and signatures; **Go to Definition** works across `use`d files.
 - **Completion** for your functions and variables, builtins (with signatures), the members of
   `db.`, `http.`, `json.`, `udp.`, `channel.`, `media.`, `crypto.`, `image.`, `math.`, `stats.`,
-  `vec.` and `date.`, keywords, types, HTTP methods and effects (`net` among them).
+  `vec.` and `date.`, keywords, types, HTTP methods and effects (`net` among them); after `<`
+  in markup, your views and components and HTML's elements; after `</`, the end tag to write.
 - **Outline** of functions, views, components, variables and routes.
 - **Snippets**: `route`, `routejson`, `fn`, `fnb`, `server fn`, `view`, `component`, `match`, `for`, `page`,
   and for real time: `udplisten`, `channelon`, `channelopen`, `mediartp`, `quillo-media`.

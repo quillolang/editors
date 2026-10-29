@@ -1,8 +1,8 @@
 {
   "name": "quillo-lang",
   "displayName": "Quillo",
-  "description": "Quillo language support: highlighting, diagnostics, hover, go to definition, completion, outline (via `quillo lsp`) and debugging (via `quillo dap`).",
-  "version": "0.8.0",
+  "description": "Quillo language support: highlighting, diagnostics, quick fixes, hover, go to definition, completion, end tags closed as you type, outline (via `quillo lsp`) and debugging (via `quillo dap`).",
+  "version": "0.9.0",
   "publisher": "quillolang",
   "icon": "icon.png",
   "license": "MIT",
@@ -130,6 +130,11 @@
           "type": "string",
           "default": "",
           "description": "Path to the `quillo` binary. Empty: `quillo` on the PATH, or target/release/quillo or target/debug/quillo in the workspace."
+        },
+        "quillo.autoCloseTags": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add an element's end tag when its start tag's `>` is typed, and finish the end tag when `</` is typed."
         },
         "quillo.port": {
           "type": "number",
