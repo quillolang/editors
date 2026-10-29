@@ -11,11 +11,14 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   (Ctrl+. / Cmd+.) that adds the end tag where it belongs; a mistyped end tag (`</dvi>`) has one
   that corrects it. Typing a start tag's `>` adds its end tag after the cursor, and typing `</`
   finishes the end tag of the element open there (setting `quillo.autoCloseTags`).
-- **Hover** shows types and signatures; **Go to Definition** works across `use`d files.
+- **Hover** shows types and signatures; **Go to Definition** works across `use`d files, and
+  from a class in markup (`<span.chip>`, `class="chip"`) to its CSS rules: in `css(...)`, a
+  component's `style`, or the CSS files under `public/`.
 - **Completion** for your functions and variables, builtins (with signatures), the members of
   `db.`, `http.`, `json.`, `udp.`, `channel.`, `media.`, `crypto.`, `image.`, `math.`, `stats.`,
   `vec.` and `date.`, keywords, types, HTTP methods and effects (`net` among them); after `<`
-  in markup, your views and components and HTML's elements; after `</`, the end tag to write.
+  in markup, your views and components and HTML's elements; after `</`, the end tag to write;
+  after `<span.` and in `class="`, the classes your style sheets define.
 - **Outline** of functions, views, components, variables and routes.
 - **Snippets**: `route`, `routejson`, `fn`, `fnb`, `server fn`, `view`, `component`, `match`, `for`, `page`,
   and for real time: `udplisten`, `channelon`, `channelopen`, `mediartp`, `quillo-media`.
