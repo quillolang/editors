@@ -23,4 +23,4 @@ jobs:
       - name: Grammar tests, then the package
         env:
           QUILLO_EXAMPLES: ${{ github.workspace }}/examples
-        run: npm ci && npm test && npx vsce package --skip-license
+        run: npm ci && npm test && npx vsce package

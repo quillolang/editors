@@ -100,9 +100,11 @@ async function startClient() {
     client = null;
     const pick = await vscode.window.showWarningMessage(
       `Quillo: could not start "${command} lsp". Install quillo or set "quillo.path".`,
+      "Download quillo",
       "Open settings"
     );
-    if (pick) vscode.commands.executeCommand("workbench.action.openSettings", "quillo.path");
+    if (pick === "Download quillo") vscode.env.openExternal(vscode.Uri.parse("https://github.com/quillolang/quillo/releases/latest"));
+    else if (pick) vscode.commands.executeCommand("workbench.action.openSettings", "quillo.path");
   }
 }
 

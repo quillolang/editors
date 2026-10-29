@@ -1,0 +1,52 @@
+name: Release
+
+# A tag vscode-v<version> (the version in vscode/package.json) publishes the
+# extension: to the Visual Studio Marketplace with the VSCE_PAT secret, to
+# Open VSX with OVSX_PAT (each skipped when its secret is not set), and the
+# .vsix to a GitHub release.
+on:
+  push:
+    tags:
+      - "vscode-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vscode
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: quillolang/examples
+          path: examples
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: The tag names the package's version
+        run: test "vscode-v$(node -p 'require("./package.json").version')" = "${GITHUB_REF_NAME}"
+      - name: Tests, then the package
+        env:
+          QUILLO_EXAMPLES: ${{ github.workspace }}/examples
+        run: npm ci && npm test && npx vsce package --out quillo-lang.vsix
+      - name: Visual Studio Marketplace
+        if: env.VSCE_PAT != ''
+        run: npx vsce publish --packagePath quillo-lang.vsix --pat "$VSCE_PAT"
+      - name: Open VSX
+        if: env.OVSX_PAT != ''
+        run: npx --yes ovsx publish quillo-lang.vsix --pat "$OVSX_PAT"
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${GITHUB_REF_NAME#vscode-v}"
+          mv quillo-lang.vsix "quillo-lang-$v.vsix"
+          awk '/^## /{n++} n==1 && !/^## /' CHANGELOG.md > notes.md
+          gh release create "$GITHUB_REF_NAME" "quillo-lang-$v.vsix" --title "Quillo for VS Code $v" --notes-file notes.md

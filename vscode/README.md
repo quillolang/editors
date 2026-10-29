@@ -57,8 +57,21 @@ The extension looks for the binary in the `quillo.path` setting, then in `target
 
 ## Install
 
+1. Install the extension: search for **Quillo** in the Extensions view (from the
+   [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=quillolang.quillo-lang),
+   or [Open VSX](https://open-vsx.org/extension/quillolang/quillo-lang) in VSCodium, Cursor and
+   other editors built on VS Code).
+2. Install `quillo`, which the extension runs: download it for your system from the
+   [releases](https://github.com/quillolang/quillo/releases/latest) and put it on your `PATH`
+   (or point the `quillo.path` setting at it), or build it with Cargo:
+
+   ```sh
+   cargo install --git https://github.com/quillolang/quillo quillo
+   ```
+
+To build the extension from this repository instead:
+
 ```sh
-cargo install --git https://github.com/quillolang/quillo quillo   # puts `quillo` on your PATH
 git clone https://github.com/quillolang/editors.git quillo-editors
 cd quillo-editors/vscode
 npm install
