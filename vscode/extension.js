@@ -8,6 +8,7 @@ const { LanguageClient } = require("vscode-languageclient/node");
 let client = null;
 let watched = null;
 let restartTimer = null;
+let closeTimer = null;
 
 /** The quillo binary: the setting, a build in the workspace, or `quillo` on the PATH. */
 function quilloPath() {
@@ -89,6 +90,37 @@ async function startClient() {
     );
     if (pick) vscode.commands.executeCommand("workbench.action.openSettings", "quillo.path");
   }
+}
+
+/**
+ * Typing the `>` of a start tag puts its end tag after the cursor, and
+ * typing `</` finishes the end tag of the element open there. The server
+ * says which tag (`quillo/closeTag`), from the parser's own reading of the
+ * text, so `a > b`, `=>` and `<br>` are left alone.
+ */
+function closeTags(e) {
+  if (!client || e.document.languageId !== "quillo" || e.contentChanges.length !== 1 || e.reason) return;
+  if (!vscode.workspace.getConfiguration("quillo", e.document).get("autoCloseTags")) return;
+  const change = e.contentChanges[0];
+  if (change.rangeLength !== 0 || (change.text !== ">" && change.text !== "/")) return;
+  const ed = vscode.window.activeTextEditor;
+  if (!ed || ed.document !== e.document) return;
+  const doc = e.document;
+  const version = doc.version;
+  const at = change.range.start.translate(0, 1);
+  clearTimeout(closeTimer);
+  closeTimer = setTimeout(async () => {
+    const text = await client
+      .sendRequest("quillo/closeTag", {
+        textDocument: { uri: doc.uri.toString() },
+        position: client.code2ProtocolConverter.asPosition(at),
+      })
+      .catch(() => null);
+    const now = vscode.window.activeTextEditor;
+    if (!text || doc.version !== version || !now || now.document !== doc) return;
+    if (!now.selection.isEmpty || !now.selection.active.isEqual(at)) return;
+    now.insertSnippet(new vscode.SnippetString(text), at);
+  }, 100);
 }
 
 function terminal() {
@@ -206,6 +238,7 @@ async function activate(context) {
       t.sendText(`${quote(quilloPath())} check ${quote(doc.fileName)}`);
     }),
     vscode.commands.registerCommand("quillo.restartServer", restartClient),
+    vscode.workspace.onDidChangeTextDocument(closeTags),
     vscode.workspace.onDidChangeConfiguration(async (e) => {
       if (e.affectsConfiguration("quillo.path")) await restartClient();
     })
