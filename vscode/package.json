@@ -2,7 +2,7 @@
   "name": "quillo-lang",
   "displayName": "Quillo",
   "description": "Quillo language support: highlighting, diagnostics, quick fixes, hover, go to definition, completion, end tags closed as you type, outline (via `quillo lsp`) and debugging (via `quillo dap`).",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "publisher": "quillolang",
   "icon": "icon.png",
   "license": "MIT",
@@ -261,7 +261,7 @@
     ]
   },
   "scripts": {
-    "test": "node test/grammar.test.js",
+    "test": "node test/grammar.test.js && node test/language-configuration.test.js",
     "package": "vsce package --skip-license"
   },
   "dependencies": {
