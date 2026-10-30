@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.0
+
+- Parameter hints: inside a call, the function's parameters, the current one marked, and a
+  line about what it does, as you type `(` and `,` and with Ctrl+Space, which also opens the
+  completions. Needs a `quillo` built with `textDocument/signatureHelp`.
+- Completion and hover explain builtins in a line.
+
 ## 0.11.0
 
 - SQL highlighted as SQL in the string or template passed to `db.exec`, `db.one` and

@@ -2,7 +2,7 @@
   "name": "quillo-lang",
   "displayName": "Quillo",
   "description": "Quillo language support: highlighting, diagnostics, quick fixes, hover, go to definition, completion, end tags closed as you type, outline (via `quillo lsp`) and debugging (via `quillo dap`).",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "publisher": "quillolang",
   "icon": "icon.png",
   "license": "MIT",
@@ -90,6 +90,13 @@
         "path": "./snippets/quillo.json"
       }
     ],
+    "keybindings": [
+      {
+        "command": "quillo.hints",
+        "key": "ctrl+space",
+        "when": "editorTextFocus && editorLangId == quillo && !suggestWidgetVisible"
+      }
+    ],
     "commands": [
       {
         "command": "quillo.run",
@@ -110,6 +117,11 @@
       {
         "command": "quillo.restartServer",
         "title": "Restart the language server",
+        "category": "Quillo"
+      },
+      {
+        "command": "quillo.hints",
+        "title": "Show parameter hints and completions",
         "category": "Quillo"
       }
     ],
