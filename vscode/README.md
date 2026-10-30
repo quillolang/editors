@@ -40,8 +40,8 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   a warning on each `pub fn` Quillo cannot export, saying why; hover shows how Quillo sees an
   export, and the outline lists them. Their functions are checked, completed and hovered in
   the `.qwe` files that `use` them.
-- **`use` lines**: paths with or without quotes, the names taken from a `.qwer` file, `as`
-  and `*` are highlighted. Go to Definition on the path opens the file, and on a name goes to
+- **`use` lines**: paths with or without quotes, the names taken from a `.qwer` file, `as`,
+  `*` and a browser library's `with preload` and `with preconnect` are highlighted. Go to Definition on the path opens the file, and on a name goes to
   its Rust function, whose signature hover shows (under the name after `as`). The path
   completes to the program's files, and before `from` the names complete to the file's
   functions.

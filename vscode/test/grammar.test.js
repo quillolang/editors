@@ -155,6 +155,16 @@ const cases = [
   ['use * from lib/auth', "*", "constant.language.wildcard.quillo"],
   ['use * from lib/auth', "lib/auth", "string.unquoted.path.quillo"],
   ['use lib/auth // the login', "the login", "comment.line.double-slash.quillo"],
+  // A browser library, and how a page gets ready for it.
+  ['use Chart with preload from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"', "Chart", "entity.name.function.quillo"],
+  ['use Chart with preload from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"', "with", "keyword.other.with.quillo"],
+  ['use Chart with preload from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"', "preload", "keyword.other.library-hint.quillo"],
+  ['use Chart with preload from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"', "from", "keyword.other.from.quillo"],
+  ['use Chart with preload from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"', "cdn.jsdelivr.net", "string.quoted.double.quillo"],
+  ['use L with preconnect from "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"', "L", "entity.name.function.quillo"],
+  ['use L with preconnect from "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"', "preconnect", "keyword.other.library-hint.quillo"],
+  ['use Chart as C with preload from "/js/chart.js"', "C", "entity.name.function.quillo"],
+  ['use Chart as C with preload from "/js/chart.js"', "preload", "keyword.other.library-hint.quillo"],
   // SQL: the first argument of db.exec, db.one and db.query, and sql`...`; the
   // rest of the call is Quillo again.
   ['if db.one("select count(*) as n from users").n > 0 { return null }', "users", "meta.embedded.block.sql"],
