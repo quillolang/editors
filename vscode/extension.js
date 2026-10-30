@@ -260,6 +260,11 @@ async function activate(context) {
       t.sendText(`${quote(quilloPath())} check ${quote(doc.fileName)}`);
     }),
     vscode.commands.registerCommand("quillo.restartServer", restartClient),
+    // Ctrl+Space: inside a call, its parameters as well as the completions.
+    vscode.commands.registerCommand("quillo.hints", async () => {
+      await vscode.commands.executeCommand("editor.action.triggerParameterHints");
+      await vscode.commands.executeCommand("editor.action.triggerSuggest");
+    }),
     vscode.workspace.onDidChangeTextDocument(closeTags),
     vscode.workspace.onDidChangeConfiguration(async (e) => {
       if (e.affectsConfiguration("quillo.path")) await restartClient();

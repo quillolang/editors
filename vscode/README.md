@@ -25,6 +25,9 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   `vec.` and `date.`, keywords, types, HTTP methods and effects (`net` among them); after `<`
   in markup, your views and components and HTML's elements; after `</`, the end tag to write;
   after `<span.` and in `class="`, the classes your style sheets define.
+- **Parameter hints**: inside a call, as you type `(` and `,`, or with Ctrl+Space, the
+  function's parameters with the current one marked, and a line about what it does: for
+  builtins and `.qwer` functions, and for your own, from the comment above them.
 - **Outline** of functions, views, components, variables and routes.
 - **Private names**: hover and the outline say `private fn page_of(...)`; another file's private
   names are not offered in completion (nor its private views after `<`).
