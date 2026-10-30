@@ -6,6 +6,7 @@
   line about what it does, as you type `(` and `,` and with Ctrl+Space, which also opens the
   completions. Needs a `quillo` built with `textDocument/signatureHelp`.
 - Completion and hover explain builtins in a line.
+- `use Chart with preload from "..."` and `with preconnect` highlighted.
 
 ## 0.11.0
 

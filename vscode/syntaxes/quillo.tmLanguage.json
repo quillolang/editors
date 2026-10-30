@@ -145,7 +145,7 @@
       }
     },
     "use": {
-      "comment": "use lib/auth, use \"lib/auth.qwe\", use * from lib/auth, use a as b, c from redis.qwer",
+      "comment": "use lib/auth, use \"lib/auth.qwe\", use * from lib/auth, use a as b, c from redis.qwer, use Chart with preload from \"https://...\"",
       "begin": "^\\s*(use)(?=\\s+[^\\s=(])",
       "beginCaptures": {
         "1": {
@@ -184,11 +184,26 @@
           }
         },
         {
+          "match": "\\b(with)\\s+(preload|preconnect)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.with.quillo"
+            },
+            "2": {
+              "name": "keyword.other.library-hint.quillo"
+            }
+          }
+        },
+        {
+          "match": "\\b(with)\\b",
+          "name": "keyword.other.with.quillo"
+        },
+        {
           "match": "\\*",
           "name": "constant.language.wildcard.quillo"
         },
         {
-          "match": "[A-Za-z_]\\w*(?=\\s*(?:,|\\bas\\b|\\bfrom\\b))",
+          "match": "[A-Za-z_]\\w*(?=\\s*(?:,|\\bas\\b|\\bwith\\b|\\bfrom\\b))",
           "name": "entity.name.function.quillo"
         },
         {
