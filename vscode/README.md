@@ -31,7 +31,7 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
 - **Outline** of functions, views, components, variables and routes.
 - **Private names**: hover and the outline say `private fn page_of(...)`; another file's private
   names are not offered in completion (nor its private views after `<`).
-- **Snippets**: `route`, `routejson`, `fn`, `fnb`, `pfn` (private fn), `server fn`, `view`, `component`, `match`, `for`, `page`,
+- **Snippets**: `import`, `client`, `preload`, `route`, `routejson`, `fn`, `fnb`, `pfn` (private fn), `server fn`, `view`, `component`, `match`, `for`, `page`,
   and for real time: `udplisten`, `channelon`, `channelopen`, `mediartp`, `quillo-media`.
 - **File icons**: a quill for `.qwe` files, and a quill with a gear for `.qwer` files, in the
   default (Seti) icon theme and any other that has none of its own for them.
@@ -40,11 +40,12 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   a warning on each `pub fn` Quillo cannot export, saying why; hover shows how Quillo sees an
   export, and the outline lists them. Their functions are checked, completed and hovered in
   the `.qwe` files that `use` them.
-- **`use` lines**: paths with or without quotes, the names taken from a `.qwer` file, `as`,
-  `*` and a browser library's `with preload` and `with preconnect` are highlighted. Go to Definition on the path opens the file, and on a name goes to
+- **`use` and `import` lines**: paths with or without quotes, the names taken from a file, `as`,
+  `*`, and `import`, `client`, `preload`, `preconnect` and `module` are highlighted, as are 0.6's
+  `with preload` and `with preconnect`. Go to Definition on the path opens the file, and on a name goes to
   its Rust function, whose signature hover shows (under the name after `as`). The path
-  completes to the program's files, and before `from` the names complete to the file's
-  functions.
+  completes to the program's files. On `import lib/x.qwe use ...` the names complete to the
+  file's functions as you type, as they do before `from` on 0.6's `use a from lib/x`.
 - **Debugging** (F5 in a `.qwe` file): breakpoints (with conditions, hit counts and logpoints),
   stepping, the stack, variables (locals, globals and the request), the debug console, and
   stopping where a runtime error happens. Through `quillo dap`; see Debugging in the user guide.
@@ -84,6 +85,8 @@ code --install-extension quillo-lang-*.vsix
 ```
 
 ## Other editors
+
+For IntelliJ IDEA, WebStorm and the other JetBrains IDEs, see [`jetbrains/`](https://github.com/quillolang/editors/tree/main/jetbrains).
 
 Any editor with LSP support can run `quillo lsp` over stdio for `*.qwe` files. For example, Neovim:
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.13.0
+
+- The file first: `import lib/a.qwe use b`, `client /assets/l.js use L`, `preload` and
+  `preconnect` highlighted, with `module`, and a long address that leaves its `use` to the next
+  line. The words stay names elsewhere: `client = 1` and `client / 2` are plain code.
+- Names complete as you type them, since the file is already on the line, and the file
+  completes first: `.qwe` and `.qwer` after `import`, `.js` and `.mjs` after `client`, what
+  `public/` holds from the site's root. Needs a `quillo` that knows `import`.
+- Snippets: `import`, `client`, `preload`.
+
 ## 0.12.0
 
 - Parameter hints: inside a call, the function's parameters, the current one marked, and a

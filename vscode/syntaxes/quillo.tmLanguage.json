@@ -20,6 +20,9 @@
           "include": "#route"
         },
         {
+          "include": "#import"
+        },
+        {
           "include": "#use"
         },
         {
@@ -143,6 +146,117 @@
           ]
         }
       }
+    },
+    "import": {
+      "comment": "import lib/auth.qwe use a, b as c; client /assets/l.js use L; preload module \"https://...\" use Chart. The words are names too, so a line is one of these only if a file and `use` follow, as for the parser.",
+      "patterns": [
+        {
+          "begin": "^\\s*(?:(import|client)|(preload|preconnect))(?=\\s+(?:module\\s+)?(?:\"[^\"]*\"|[^\\s\"=(]+)\\s+use\\b)",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.other.import.quillo"
+            },
+            "2": {
+              "name": "keyword.other.library-hint.quillo"
+            }
+          },
+          "end": "(?=$|//|;)",
+          "patterns": [
+            {
+              "include": "#import-file"
+            },
+            {
+              "begin": "\\b(use)\\b",
+              "beginCaptures": {
+                "1": {
+                  "name": "keyword.other.use.quillo"
+                }
+              },
+              "end": "(?=$|//|;)",
+              "patterns": [
+                {
+                  "include": "#import-names"
+                }
+              ]
+            },
+            {
+              "match": "[^\\s\",;]+",
+              "name": "string.unquoted.path.quillo"
+            }
+          ]
+        },
+        {
+          "comment": "A long address leaves its `use` to the next line: this ends at the next line's start, and takes the names when that line has them.",
+          "begin": "^\\s*(?:(import|client)|(preload|preconnect))(?=\\s+(?:module\\s+)?(?:\"[^\"]*\"|[^\\s\"=(]*\\.[^\\s\"=(]*)\\s*(?://.*)?$)",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.other.import.quillo"
+            },
+            "2": {
+              "name": "keyword.other.library-hint.quillo"
+            }
+          },
+          "end": "^(?!\\s*use\\b)|^\\s*(use)\\s+([^/;]*?)\\s*(?=//|;|$)",
+          "endCaptures": {
+            "1": {
+              "name": "keyword.other.use.quillo"
+            },
+            "2": {
+              "name": "entity.name.function.quillo"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#comment"
+            },
+            {
+              "include": "#import-file"
+            },
+            {
+              "match": "[^\\s\",;]+",
+              "name": "string.unquoted.path.quillo"
+            }
+          ]
+        }
+      ]
+    },
+    "import-file": {
+      "patterns": [
+        {
+          "match": "\\bmodule\\b(?!\\s+use\\b)",
+          "name": "keyword.other.library-hint.quillo"
+        },
+        {
+          "include": "#string"
+        }
+      ]
+    },
+    "import-names": {
+      "patterns": [
+        {
+          "match": "\\b(as)\\s+([A-Za-z_]\\w*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.as.quillo"
+            },
+            "2": {
+              "name": "entity.name.function.quillo"
+            }
+          }
+        },
+        {
+          "match": "\\*",
+          "name": "constant.language.wildcard.quillo"
+        },
+        {
+          "match": "[A-Za-z_]\\w*",
+          "name": "entity.name.function.quillo"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.quillo"
+        }
+      ]
     },
     "use": {
       "comment": "use lib/auth, use \"lib/auth.qwe\", use * from lib/auth, use a as b, c from redis.qwer, use Chart with preload from \"https://...\"",
@@ -524,7 +638,7 @@
           }
         },
         {
-          "match": "(?<=[:|{,]\\s{0,8})\\b(int|float|dec|num|str|bool|list|map|html|any|response)\\b(?!\\s*\\()",
+          "match": "(?<=[:|{,]|[:|{,]\\s|[:|{,]\\s\\s|[:|{,]\\s\\s\\s|[:|{,]\\s\\s\\s\\s|[:|{,]\\s\\s\\s\\s\\s|[:|{,]\\s\\s\\s\\s\\s\\s|[:|{,]\\s\\s\\s\\s\\s\\s\\s|[:|{,]\\s\\s\\s\\s\\s\\s\\s\\s)\\b(int|float|dec|num|str|bool|list|map|html|any|response)\\b(?!\\s*\\()",
           "name": "support.type.pattern.quillo"
         }
       ]

@@ -9,6 +9,21 @@
     "body": ["route POST /${1:things} { json: { ${2:name}: ${3:str} } } {", "\t$0", "}"],
     "description": "A route matching a JSON payload"
   },
+  "import": {
+    "prefix": "import",
+    "body": ["import ${1:lib/file.qwe} use ${0:name}"],
+    "description": "Names from a Quillo or Rust file: the file first, so its names complete"
+  },
+  "client": {
+    "prefix": "client",
+    "body": ["client ${1|\"https://\",/assets/|} use ${0:Name}"],
+    "description": "A script for the browser, from an address or your own file"
+  },
+  "preload": {
+    "prefix": "preload",
+    "body": ["preload \"${1:https://}\" use ${0:Name}"],
+    "description": "A script for the browser, fetched from the page's head"
+  },
   "fn": {
     "prefix": "fn",
     "body": ["fn ${1:name}(${2}) = ${0:null}"],

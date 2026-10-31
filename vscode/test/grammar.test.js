@@ -141,6 +141,28 @@ const cases = [
   // ...while a tag in an expression stays one.
   ['let rows = list.map((x) => <li>{x}</li>)', "li", "entity.name.tag.quillo"],
   ['let n = <span.badge>{len(list)}</span>', "span", "entity.name.tag.quillo"],  // use: a path with or without quotes, names taken from a .qwer file, `as` and `*`.
+  // import: the file first, and the words stay names unless a file and `use` follow.
+  ['import lib/forum.qwe use latest, older as past', "import", "keyword.other.import.quillo"],
+  ['import lib/forum.qwe use latest, older as past', "lib/forum.qwe", "string.unquoted.path.quillo"],
+  ['import lib/forum.qwe use latest, older as past', "use", "keyword.other.use.quillo"],
+  ['import lib/forum.qwe use latest, older as past', "latest", "entity.name.function.quillo"],
+  ['import lib/forum.qwe use latest, older as past', "as", "keyword.other.as.quillo"],
+  ['import lib/forum.qwe use latest, older as past', "past", "entity.name.function.quillo"],
+  ['import lib/use.qwe use go', "lib/use.qwe", "string.unquoted.path.quillo"],
+  ['import module use go', "module", "string.unquoted.path.quillo"],
+  ['import "lib/a.qwe" use *', "lib/a.qwe", "string.quoted.double.quillo"],
+  ['import "lib/a.qwe" use *', "*", "constant.language.wildcard.quillo"],
+  ['import lib/a.qwe use go // why', "// why", "comment.line.double-slash.quillo"],
+  ['client /assets/l.js use L', "client", "keyword.other.import.quillo"],
+  ['client /assets/l.js use L', "/assets/l.js", "string.unquoted.path.quillo"],
+  ['client /assets/l.js use L', "L", "entity.name.function.quillo"],
+  ['client https://cdn.example/a.js use A', "https://cdn.example/a.js", "string.unquoted.path.quillo"],
+  ['client module "https://esm.sh/three" use * as THREE', "module", "keyword.other.library-hint.quillo"],
+  ['client module "https://esm.sh/three" use * as THREE', "THREE", "entity.name.function.quillo"],
+  ['client module "https://esm.sh/dayjs" use default as d', "default", "entity.name.function.quillo"],
+  ['preload "https://a.b/c.js" use Chart', "preload", "keyword.other.library-hint.quillo"],
+  ['preload module /a.js use go', "module", "keyword.other.library-hint.quillo"],
+  ['preconnect "https://a.b/c.js" use L', "preconnect", "keyword.other.library-hint.quillo"],
   ['use lib/auth', "use", "keyword.other.use.quillo"],
   ['use lib/auth', "lib/auth", "string.unquoted.path.quillo"],
   ['use ../shared/auth.qwe', "../shared/auth.qwe", "string.unquoted.path.quillo"],
@@ -259,6 +281,45 @@ const blocks = [
     "/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/rust/syntaxes/rust.tmLanguage.json",
     "/usr/share/code/resources/app/extensions/rust/syntaxes/rust.tmLanguage.json",
   ].find((p) => p && fs.existsSync(p));
+  // Lines read together, and words that are names.
+  const lines = async (src) => {
+    const q = await registry.loadGrammar("source.quillo");
+    let state = vsctm.INITIAL;
+    return src.map((l) => {
+      const r = q.tokenizeLine(l, state);
+      state = r.ruleStack;
+      return r.tokens.map((t) => ({ text: l.slice(t.startIndex, t.endIndex), scopes: t.scopes }));
+    });
+  };
+  const hasScope = (line, text, scope) => line.some((t) => t.text.trim() === text && t.scopes.includes(scope));
+  const together = [
+    [["client \"https://a.b/c.js\"", "    use confetti"], 0, "client", "keyword.other.import.quillo"],
+    [["client \"https://a.b/c.js\"", "    use confetti"], 0, "https://a.b/c.js", "string.quoted.double.quillo"],
+    [["client \"https://a.b/c.js\"", "    use confetti"], 1, "use", "keyword.other.use.quillo"],
+    [["client \"https://a.b/c.js\"", "    use confetti"], 1, "confetti", "entity.name.function.quillo"],
+    [["preload module \"https://a.b/c.js\" // charts", "use Chart // here"], 0, "// charts", "comment.line.double-slash.quillo"],
+    [["preload module \"https://a.b/c.js\" // charts", "use Chart // here"], 1, "Chart", "entity.name.function.quillo"],
+    [["preload module \"https://a.b/c.js\" // charts", "use Chart // here"], 1, "// here", "comment.line.double-slash.quillo"],
+    [["import lib/a.qwe", "    use one", "fn next() = 1"], 2, "next", "entity.name.function.quillo"],
+    [["import lib/a.qwe", "fn next() = 1"], 1, "next", "entity.name.function.quillo"],
+    [["import lib/a.qwe", "    let x = 1"], 1, "let", "storage.type.let.quillo"],
+    [["import lib/a.qwe use a", "route GET / = 1"], 1, "route", "keyword.other.route.quillo"],
+  ];
+  for (const [src, n, text, scope] of together) {
+    const got = (await lines(src))[n];
+    if (!hasScope(got, text, scope)) {
+      failed++;
+      console.log(`FAIL ${JSON.stringify(src)} line ${n} ${JSON.stringify(text)}\n  want ${scope}\n  got  ${JSON.stringify(got.map((t) => [t.text, t.scopes.at(-1)]))}`);
+    }
+  }
+  for (const line of ["client = 1", "client / 2", "client /total", "client.go()", "preload(1)", "import(1)", "client + 1", "import = 3", "preconnect"]) {
+    const [got] = await lines([line]);
+    const word = line.match(/^\w+/)[0];
+    if (hasScope(got, word, "keyword.other.import.quillo") || hasScope(got, word, "keyword.other.library-hint.quillo")) {
+      failed++;
+      console.log(`FAIL ${JSON.stringify(line)} is a name here, not a keyword`);
+    }
+  }
   let rustCases = 0;
   if (rustGrammar) {
     const files = {
