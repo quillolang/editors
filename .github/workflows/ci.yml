@@ -90,3 +90,19 @@ jobs:
         run: sudo apt-get install -y luajit
       - name: The plugin against a stand-in for Neovim's API
         run: luajit test/run.lua
+
+  helix:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: helix
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The test looks for the grammar's commit.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: languages.toml and the queries, against what Helix reads
+        run: npm ci && npm test

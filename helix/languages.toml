@@ -1,0 +1,61 @@
+# Quillo for Helix: add these to ~/.config/helix/languages.toml (or a project's
+# .helix/languages.toml), then: hx --grammar fetch && hx --grammar build
+# The queries go in ~/.config/helix/runtime/queries/ (see the README).
+
+[[language]]
+name = "quillo"
+scope = "source.quillo"
+injection-regex = "^(quillo|qwe)$"
+file-types = ["qwe"]
+shebangs = ["quillo"]
+roots = ["main.qwe", "app.toml"]
+comment-tokens = ["//"]
+block-comment-tokens = { start = "/*", end = "*/" }
+indent = { tab-width = 4, unit = "    " }
+language-servers = ["quillo-lsp"]
+
+[language.auto-pairs]
+'(' = ')'
+'{' = '}'
+'[' = ']'
+'"' = '"'
+"'" = "'"
+'`' = '`'
+
+[language.debugger]
+name = "quillo-dap"
+transport = "stdio"
+command = "quillo"
+args = ["dap"]
+
+[[language.debugger.templates]]
+name = "run"
+request = "launch"
+completion = [{ name = "program", completion = "filename", default = "main.qwe" }]
+args = { program = "{0}", args = ["--watch"] }
+
+[[language.debugger.templates]]
+name = "run, stopping at the start"
+request = "launch"
+completion = [{ name = "program", completion = "filename", default = "main.qwe" }]
+args = { program = "{0}", args = ["--watch"], stopOnEntry = true }
+
+[[grammar]]
+name = "quillo"
+source = { git = "https://github.com/quillolang/editors", rev = "7e6868b77af4e08a010371b9ee7ad8ebc72050d1", subpath = "tree-sitter" }
+
+# A .qwer file is Rust, with Rust's grammar and queries; quillo lsp says what it exports.
+[[language]]
+name = "qwer"
+scope = "source.qwer"
+file-types = ["qwer"]
+grammar = "rust"
+roots = ["main.qwe", "app.toml"]
+comment-tokens = ["//", "///", "//!"]
+block-comment-tokens = { start = "/*", end = "*/" }
+indent = { tab-width = 4, unit = "    " }
+language-servers = ["quillo-lsp"]
+
+[language-server.quillo-lsp]
+command = "quillo"
+args = ["lsp"]
