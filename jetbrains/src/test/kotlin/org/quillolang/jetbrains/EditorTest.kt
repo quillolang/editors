@@ -186,7 +186,9 @@ class EditorTest : BasePlatformTestCase() {
         val qwer = myFixture.configureByText("lib.qwer", "").virtualFile
         val other = myFixture.configureByText("notes.txt", "").virtualFile
         val icon = provider.getIcon(qwe, 0, project)!!
-        assertEquals(16, icon.iconWidth)
+        // The plugin's own SVG, square: its size in pixels depends on the screen's scale.
+        assertSame(com.intellij.openapi.util.IconLoader.getIcon("/icons/qwe.svg", QuilloIconProvider::class.java), icon)
+        assertTrue("${icon.iconWidth}x${icon.iconHeight}", icon.iconWidth > 0 && icon.iconWidth == icon.iconHeight)
         assertNotSame(icon, provider.getIcon(qwer, 0, project))
         assertNull(provider.getIcon(other, 0, project))
     }

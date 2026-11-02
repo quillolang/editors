@@ -1,19 +1,20 @@
 -- Which .rs files quillo lsp is given: those a program uses (FEEDBACK37.md, Q-453). Most .rs
 -- files are a crate's, and quillo would run cargo check on each and warn of every pub fn it
--- cannot export. So a .rs buffer gets quillo lsp only when a .qwe file names it on a `use` or
--- `import` line, looked for as quillo's own program_entry looks: in the file's folder and up to
--- three above it, not above a Cargo.toml or a .git, the .qwe files there and three folders
--- down. The same rule as the VS Code extension's rust-files.js.
+-- cannot export. So a .rs buffer gets quillo lsp only when a program reaches it through its
+-- `use` and `import` lines. The program is looked for as quillo's own program_entry looks: the
+-- .qwe files in the file's folder and in up to three folders above it, not above a Cargo.toml
+-- or a .git, each followed through the .qwe files it takes. A folder or file that cannot be
+-- read is passed over. The same rule as the VS Code extension's rust-files.js.
 local M = {}
 
-local MAX_FILES = 400
+local MAX_FILES = 500
 
 local function uv()
   return vim.uv or vim.loop
 end
 
 local function real(p)
-  return uv().fs_realpath(p) or p
+  return uv().fs_realpath(p)
 end
 
 local function join(a, b)
@@ -28,74 +29,88 @@ local function exists(p)
   return uv().fs_stat(p) ~= nil
 end
 
---- The .rs paths a .qwe file's `use` and `import` lines name, as written.
-function M.rust_paths(text)
+local function unquote(p)
+  return p:match('^"(.*)"$') or p
+end
+
+--- The files a .qwe file's `use` and `import` lines name, as written: .qwe (a path with no
+--- extension is one) and .rs. Browser scripts and .qwer files are left out.
+function M.use_paths(text)
   local out = {}
-  for line in (text .. "\n"):gmatch("([^\n]*)\n") do
-    local rest
-    for _, w in ipairs({ "use", "import", "client", "preload", "preconnect" }) do
-      rest = rest or line:match("^%s*" .. w .. "%f[^%w_](.*)$")
-    end
-    if rest then
-      rest = rest:gsub("//.*$", "")
-      for quoted in rest:gmatch('"([^"]+%.rs)"') do
-        table.insert(out, quoted)
+  for raw in (text .. "\n"):gmatch("([^\n]*)\n") do
+    local line = raw:gsub("%s//.*$", "")
+    local p
+    local kind, rest = line:match("^%s*(%a+)%s+(.*)$")
+    if kind == "import" or kind == "client" or kind == "preload" or kind == "preconnect" then
+      rest = rest:gsub("^module%s+", "")
+      local path = rest:match('^("[^"]*")%s+use%f[^%w_]') or rest:match("^(%S+)%s+use%f[^%w_]")
+      if kind == "import" and path then
+        p = unquote(path)
       end
-      local unquoted = rest:gsub('"[^"]*"', " ")
-      for p in unquoted:gmatch("[^%s,;]+") do
-        if p:match("%.rs$") then
-          table.insert(out, p)
-        end
+    elseif kind == "use" then
+      rest = rest:gsub("%s+$", "")
+      local from = rest:match('%f[%w_]from%s+("[^"]*")$') or rest:match("%f[%w_]from%s+(%S+)$")
+      p = unquote(from or rest:match("^(%S+)") or "")
+      if not from and not p:find("/", 1, true) and not p:find(".", 1, true) and rest:sub(1, 1) ~= '"' then
+        p = nil
+      end
+    end
+    if p and p ~= "" and not p:match("^%a+://") and p:sub(1, 1) ~= "/" then
+      if p:match("%.rs$") or p:match("%.qwe$") then
+        table.insert(out, p)
+      elseif not p:match("%.%w+$") then
+        table.insert(out, p .. ".qwe")
       end
     end
   end
   return out
 end
 
-local function qwe_files(dir, depth, out)
+--- The .qwe files right in `dir`, sorted.
+local function qwe_in(dir)
   local handle = uv().fs_scandir(dir)
+  local out = {}
   if not handle then
     return out
   end
-  local names = {}
   while true do
     local name, kind = uv().fs_scandir_next(handle)
     if not name then
       break
     end
-    table.insert(names, { name, kind })
-  end
-  table.sort(names, function(a, b) return a[1] < b[1] end)
-  for _, e in ipairs(names) do
-    if #out >= MAX_FILES then
-      break
-    end
-    local name, kind = e[1], e[2]
-    if not (name:sub(1, 1) == "." or name == "node_modules" or name == "target") then
-      local full = join(dir, name)
-      if kind == "file" and name:match("%.qwe$") then
-        table.insert(out, full)
-      elseif kind == "directory" and depth > 0 then
-        qwe_files(full, depth - 1, out)
-      end
+    if kind == "file" and name:match("%.qwe$") then
+      table.insert(out, join(dir, name))
     end
   end
+  table.sort(out)
   return out
 end
 
-local function names(qwe, base, target)
-  local f = io.open(qwe, "r")
-  if not f then
-    return false
-  end
-  local text = f:read("*a")
-  f:close()
-  for _, p in ipairs(M.rust_paths(text)) do
-    -- `./` and `../` count from the file that writes them; the rest from the program's folder.
-    local from = (p:sub(1, 2) == "./" or p:sub(1, 3) == "../") and { dirname(qwe) } or { base, dirname(qwe) }
-    for _, d in ipairs(from) do
-      if real(join(d, p)) == target then
-        return true
+local function reaches(main, base, target)
+  local todo, seen, count = { main }, {}, 0
+  while #todo > 0 do
+    local f = table.remove(todo)
+    if not seen[f] and count < MAX_FILES then
+      seen[f] = true
+      count = count + 1
+      local h = io.open(f, "r")
+      if h then
+        local text = h:read("*a") or ""
+        h:close()
+        for _, p in ipairs(M.use_paths(text)) do
+          -- `./` and `../` count from the file that writes them; the rest from the program's folder.
+          local from = (p:sub(1, 2) == "./" or p:sub(1, 3) == "../") and dirname(f) or base
+          local full = real(join(from, p))
+          if full then
+            if p:match("%.rs$") then
+              if full == target then
+                return true
+              end
+            else
+              table.insert(todo, full)
+            end
+          end
+        end
       end
     end
   end
@@ -104,14 +119,17 @@ end
 
 --- Whether a program uses the .rs file `file`.
 function M.used_by_program(file)
-  if type(file) ~= "string" or not file:match("%.rs$") or not exists(file) then
+  if type(file) ~= "string" or not file:match("%.rs$") then
     return false
   end
   local target = real(file)
+  if not target then
+    return false
+  end
   local dir = dirname(target)
   for _ = 1, 4 do
-    for _, q in ipairs(qwe_files(dir, 3, {})) do
-      if names(q, dir, target) then
+    for _, main in ipairs(qwe_in(dir)) do
+      if reaches(main, dir, target) then
         return true
       end
     end

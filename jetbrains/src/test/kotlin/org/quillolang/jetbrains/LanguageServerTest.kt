@@ -201,18 +201,7 @@ class LanguageServerTest : QuilloTestCase() {
         myFixture.addFileToProject("main.qwe", "import tw.rs use tailwind\nroute GET / = tailwind()\n")
         val rs = myFixture.addFileToProject("tw.rs", "pub fn tailwind() -> String { String::new() }\npub fn generic<T>(x: T) -> T { x }\n")
         myFixture.openFileInEditor(rs.virtualFile)
-        // The matcher runs as a read action that a write cancels; LSP4IJ asks again, as here.
-        val until = System.currentTimeMillis() + 30_000
-        while (true) {
-            val servers = LanguageServiceAccessor.getInstance(project).getLanguageServers(myFixture.file, null, null)
-            waitFor("the matcher") { servers.isDone }
-            if (!servers.isCancelled && !servers.isCompletedExceptionally) {
-                assertFalse("a server for tw.rs", servers.get().isEmpty())
-                break
-            }
-            assertTrue("matched in time", System.currentTimeMillis() < until)
-            settle(200)
-        }
+        assertFalse("a server for tw.rs", servers().isEmpty())
         waitFor("quillo's word on the generic function") { published().any { "`generic` is not exported" in it.toString() } }
     }
 
@@ -222,9 +211,20 @@ class LanguageServerTest : QuilloTestCase() {
         myFixture.addFileToProject("crate/notes.qwe", "// main.rs\n")
         val rs = myFixture.addFileToProject("crate/src/main.rs", "fn main() {}\npub fn generic<T>(x: T) -> T { x }\n")
         myFixture.openFileInEditor(rs.virtualFile)
-        val servers = LanguageServiceAccessor.getInstance(project).getLanguageServers(myFixture.file, null, null)
-        waitFor("the matcher") { servers.isDone }
-        assertEmpty(servers.get())
+        assertEmpty(servers())
+    }
+
+    /** The servers for the open file. The .rs matcher runs as a read action that a write
+     *  cancels, and LSP4IJ asks again: so does this. */
+    private fun servers(): List<*> {
+        val until = System.currentTimeMillis() + 30_000
+        while (true) {
+            val found = LanguageServiceAccessor.getInstance(project).getLanguageServers(myFixture.file, null, null)
+            waitFor("the matcher") { found.isDone }
+            if (!found.isCancelled && !found.isCompletedExceptionally) return found.get()
+            assertTrue("matched in time", System.currentTimeMillis() < until)
+            settle(200)
+        }
     }
 
     /** QUILLO_OLD_BIN: a server from before experimental.cssClasses, which reads CSS as Quillo. */

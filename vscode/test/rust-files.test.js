@@ -4,7 +4,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const Module = require("module");
-const { usedByProgram, rustPaths, cached } = require("../rust-files.js");
+const { usedByProgram, usePaths, cached } = require("../rust-files.js");
 
 let failed = 0;
 let count = 0;
@@ -24,10 +24,10 @@ const put = (rel, text = "") => {
   return full;
 };
 
-// The paths a .qwe file's lines name.
-check("import and use lines", JSON.stringify(rustPaths('import tw.rs use f\nuse "lib/a.rs"\nuse x, y from ./b.rs\nlet s = "c.rs"\n// use d.rs\nclient /e.js use E')) === JSON.stringify(["tw.rs", "lib/a.rs", "./b.rs"]), rustPaths('import tw.rs use f\nuse "lib/a.rs"\nuse x, y from ./b.rs\nlet s = "c.rs"\n// use d.rs'));
-check("a comment after the line is not a path", rustPaths("import a.rs use f // not b.rs").join() === "a.rs");
-check("tw.rs.bak is not tw.rs", rustPaths("use tw.rs.bak").length === 0);
+// The files a .qwe file's lines name.
+const named = usePaths('import tw.rs use f\nuse "lib/a.rs"\nuse x, y from ./b.rs\nlet s = "c.rs"\n// use d.rs\nclient /e.js use E\nuse lib/auth\nuse a as b from redis.qwer\nuse Chart with preload from "https://x/c.js"\nimport lib/forum.qwe use latest // a note\nuse x\nimport "lib/q.qwe" use q');
+check("import and use lines", JSON.stringify(named) === JSON.stringify(["tw.rs", "lib/a.rs", "./b.rs", "lib/auth.qwe", "lib/forum.qwe", "lib/q.qwe"]), named);
+check("tw.rs.bak is not a .rs file", usePaths("use tw.rs.bak").length === 0);
 
 // A program and what it uses.
 put("app/main.qwe", "import tw.rs use tailwind\nuse lib/forum.qwe\n");
@@ -40,6 +40,30 @@ check("a .rs file main.qwe imports", usedByProgram(tw));
 check("a path from the program's folder, written in a file below it", usedByProgram(md));
 check("./ from the file that writes it", usedByProgram(near));
 check("a .rs file nothing names", !usedByProgram(loose));
+put("app/other/side.qwe", "import ../tw2.rs use t\n");
+const tw2 = put("app/tw2.rs");
+check("a .qwe beside it that no program takes, in a folder that is not above it", !usedByProgram(tw2));
+put("noext/main.qwe", "use lib/a\n");
+put("noext/lib/a.qwe", "import lib/x.rs use x\n");
+check("a path with no extension is a .qwe file", usedByProgram(put("noext/lib/x.rs")));
+put("cycle/main.qwe", "use a.qwe\n");
+put("cycle/a.qwe", "use main.qwe\nuse b.qwe\n");
+put("cycle/b.qwe", "import c.rs use c\n");
+check("files that use each other, followed once each", usedByProgram(put("cycle/c.rs")));
+check("in a cycle, a file nothing names", !usedByProgram(put("cycle/d.rs")));
+// A folder the walk cannot read is passed over, not an error.
+put("locked/inner/main.qwe", "import x.rs use x\n");
+const lockedX = put("locked/inner/x.rs");
+fs.chmodSync(path.join(tmp, "locked"), 0o311);
+let threw = false;
+let lockedUsed;
+try {
+  lockedUsed = usedByProgram(lockedX);
+} catch {
+  threw = true;
+}
+fs.chmodSync(path.join(tmp, "locked"), 0o755);
+check("an unreadable folder above is passed over", !threw && lockedUsed === true);
 check("not a .rs file", !usedByProgram(path.join(tmp, "app/main.qwe")));
 check("a .rs file that is not there", !usedByProgram(path.join(tmp, "app/none.rs")));
 

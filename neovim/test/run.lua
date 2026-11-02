@@ -197,15 +197,20 @@ local function sh(cmd)
   p:close()
   return out
 end
+-- os.execute gives 0 on some LuaJIT builds and true on those made with Lua 5.2's ways (Linux CI).
+local function ok(cmd)
+  local r = os.execute(cmd)
+  return r == 0 or r == true
+end
 local function real_uv()
   return {
-    fs_stat = function(p) return os.execute("test -e '" .. p .. "'") == 0 and {} or nil end,
+    fs_stat = function(p) return ok("test -e '" .. p .. "'") and {} or nil end,
     fs_realpath = function(p)
       local r = sh("realpath '" .. p .. "' 2>/dev/null"):gsub("\n$", "")
       return r ~= "" and r or nil
     end,
     fs_scandir = function(dir)
-      if os.execute("test -d '" .. dir .. "'") ~= 0 then return nil end
+      if not ok("test -d '" .. dir .. "'") then return nil end
       local items = {}
       for line in sh("ls -1Ap '" .. dir .. "' 2>/dev/null"):gmatch("[^\n]+") do
         if line:sub(-1) == "/" then table.insert(items, { line:sub(1, -2), "directory" }) else table.insert(items, { line, "file" }) end
@@ -227,7 +232,7 @@ vim.fs = {
     local dir = o.path:match("^(.*)/[^/]*$")
     while dir and dir ~= "" do
       for _, n in ipairs(names) do
-        if os.execute("test -e '" .. dir .. "/" .. n .. "'") == 0 then return { dir .. "/" .. n } end
+        if ok("test -e '" .. dir .. "/" .. n .. "'") then return { dir .. "/" .. n } end
       end
       dir = dir:match("^(.*)/[^/]*$")
     end
@@ -244,8 +249,8 @@ local function put(rel, text)
   return full
 end
 local rf = require("quillo.rust_files")
-local paths = rf.rust_paths('import tw.rs use f\nuse "lib/a.rs"\nuse x, y from ./b.rs\nlet s = "c.rs"\n// use d.rs\nimport a.rs use f // not b.rs\nuse tw.rs.bak')
-check("the paths a line names", table.concat(paths, " ") == "tw.rs lib/a.rs ./b.rs a.rs", table.concat(paths, " "))
+local paths = rf.use_paths('import tw.rs use f\nuse "lib/a.rs"\nuse x, y from ./b.rs\nlet s = "c.rs"\n// use d.rs\nclient /e.js use E\nuse lib/auth\nuse a as b from redis.qwer\nuse Chart with preload from "https://x/c.js"\nimport lib/forum.qwe use latest // a note\nuse x\nimport "lib/q.qwe" use q\nuse tw.rs.bak')
+check("the files a line names", table.concat(paths, " ") == "tw.rs lib/a.rs ./b.rs lib/auth.qwe lib/forum.qwe lib/q.qwe", table.concat(paths, " "))
 put("app/main.qwe", "import tw.rs use tailwind\nuse lib/forum.qwe\n")
 local tw = put("app/tw.rs", "pub fn tailwind() -> String { String::new() }\n")
 put("app/lib/forum.qwe", "import lib/md.rs use render\nimport ./near.rs use near\n")
@@ -255,6 +260,22 @@ check("./ from the file that writes it", rf.used_by_program(put("app/lib/near.rs
 local loose = put("app/lib/loose.rs")
 check("a .rs file nothing names", not rf.used_by_program(loose))
 check("not there", not rf.used_by_program(tmp .. "/app/none.rs"))
+put("app/other/side.qwe", "import ../tw2.rs use t\n")
+check("a .qwe beside it that no program takes", not rf.used_by_program(put("app/tw2.rs")))
+put("noext/main.qwe", "use lib/a\n")
+put("noext/lib/a.qwe", "import lib/x.rs use x\n")
+check("a path with no extension is a .qwe file", rf.used_by_program(put("noext/lib/x.rs")))
+put("cycle/main.qwe", "use a.qwe\n")
+put("cycle/a.qwe", "use main.qwe\nuse b.qwe\n")
+put("cycle/b.qwe", "import c.rs use c\n")
+check("files that use each other, followed once each", rf.used_by_program(put("cycle/c.rs")))
+check("in a cycle, a file nothing names", not rf.used_by_program(put("cycle/d.rs")))
+put("locked/inner/main.qwe", "import x.rs use x\n")
+local lx = put("locked/inner/x.rs")
+os.execute("chmod 311 '" .. tmp .. "/locked'")
+local okl, usedl = pcall(rf.used_by_program, lx)
+os.execute("chmod 755 '" .. tmp .. "/locked'")
+check("an unreadable folder above is passed over", okl and usedl == true, tostring(usedl))
 put("crate/Cargo.toml", "[package]\n")
 put("crate/src/notes.qwe", "// tw.rs\n")
 check("a crate's own .rs file", not rf.used_by_program(put("crate/src/main.rs")))
