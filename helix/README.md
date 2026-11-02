@@ -19,6 +19,10 @@ Quillo's `.qwe` files (and `.qwer` files, as Rust):
 3. Fetch and build the grammar: `hx --grammar fetch && hx --grammar build`.
 4. Check: `hx --health quillo`.
 
+A `.rs` file a program uses is Rust to Helix, with rust-analyzer: Helix starts a language server
+for every file of a language, and most `.rs` files are a crate's. VS Code, the JetBrains IDEs and
+Neovim give quillo's word on such a file too.
+
 `quillo` must be on your `PATH` ([releases](https://github.com/quillolang/quillo/releases/latest)).
 
 The highlight, injection, locals and indent queries are made from `../tree-sitter/queries` by

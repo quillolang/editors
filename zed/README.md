@@ -36,8 +36,9 @@ To debug, add a `.zed/debug.json` to the project (or use the New Process modal):
 ```
 
 A `.qwer` file is Rust: `"file_types": { "Rust": ["qwer"] }` in Zed's settings gives it Zed's
-Rust support. What quillo says about a `.qwer` file (which `pub fn`s it can export) is in VS
-Code and the JetBrains IDEs for now.
+Rust support. What quillo says about a `.qwer` or `.rs` file (which `pub fn`s it can export) is
+in VS Code, the JetBrains IDEs and Neovim for now: Zed starts a language server for every file of
+a language, and most `.rs` files are a crate's, not a program's.
 
 ## Install
 

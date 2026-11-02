@@ -5,7 +5,8 @@
 - **Highlighting, folds, indentation** and CSS, SQL and JavaScript inside strings, from
   [tree-sitter-quillo](../tree-sitter), with its queries in [`queries/quillo`](queries/quillo)
   (made from `../tree-sitter/queries` by `tree-sitter/scripts/queries.js`: change them there).
-- **`quillo lsp`** for `.qwe` and `.qwer` files: diagnostics, quick fixes, completion, hover, go
+- **`quillo lsp`** for `.qwe` and `.qwer` files, and for the `.rs` files a program uses
+  (`import tw.rs use f`; a crate's own, which no `.qwe` file names, are left to rust-analyzer): diagnostics, quick fixes, completion, hover, go
   to definition, references, rename, signature help, document symbols.
 - **`quillo dap`** for [nvim-dap](https://github.com/mfussenegger/nvim-dap): breakpoints,
   stepping, the stack, variables.

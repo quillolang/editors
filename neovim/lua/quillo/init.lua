@@ -19,12 +19,31 @@ function M.binary(opts)
   return "quillo"
 end
 
---- The language server's configuration, for vim.lsp.config (and nvim-lspconfig's shape too).
+M.root_markers = { "main.qwe", "app.toml", ".git" }
+
+--- The folder quillo lsp works from for the file `name`, or nil to leave it alone: a .rs
+--- file no program uses is a crate's (rust_files.lua).
+function M.root_for(name)
+  if name:match("%.rs$") and not require("quillo.rust_files").used_by_program(name) then
+    return nil
+  end
+  local found = vim.fs.find(M.root_markers, { path = name, upward = true })[1]
+  return found and vim.fs.dirname(found) or vim.fs.dirname(name)
+end
+
+--- The language server's configuration, for vim.lsp.config: .qwe, .qwer, and the .rs files a
+--- program uses.
 function M.lsp_config(opts)
   return {
     cmd = { M.binary(opts), "lsp" },
-    filetypes = { "quillo", "qwer" },
-    root_markers = { "main.qwe", "app.toml", ".git" },
+    filetypes = { "quillo", "qwer", "rust" },
+    root_markers = M.root_markers,
+    root_dir = function(bufnr, on_dir)
+      local root = M.root_for(vim.api.nvim_buf_get_name(bufnr))
+      if root then
+        on_dir(root)
+      end
+    end,
   }
 end
 
@@ -103,7 +122,7 @@ function M.setup(opts)
       if ok then
         local c = M.lsp_config(opts)
         configs.quillo = configs.quillo or {
-          default_config = { cmd = c.cmd, filetypes = c.filetypes, root_dir = require("lspconfig.util").root_pattern(unpack(c.root_markers)) },
+          default_config = { cmd = c.cmd, filetypes = c.filetypes, root_dir = M.root_for },
         }
         require("lspconfig").quillo.setup({})
       end

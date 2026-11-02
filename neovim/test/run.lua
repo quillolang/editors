@@ -152,7 +152,7 @@ fresh({ old_nvim = true, lspconfig = true })
 require("quillo").setup()
 check("nvim-lspconfig gets a quillo config", state.lspconfig.configs.quillo ~= nil)
 check("and sets it up", state.lspconfig.setups.quillo ~= nil)
-check("with the root pattern", state.lspconfig.configs.quillo.default_config.root_dir[1] == "main.qwe")
+check("with the plugin's root, which leaves a crate's .rs alone", state.lspconfig.configs.quillo.default_config.root_dir == require("quillo").root_for)
 fresh({ old_nvim = true })
 local ok = pcall(require("quillo").setup)
 check("before 0.11 and without nvim-lspconfig, setup still works", ok)
@@ -188,6 +188,94 @@ require("quillo").setup({ dap = false })
 check("dap = false adds none", state.dap.adapters.quillo == nil)
 fresh()
 check("without nvim-dap, nothing", require("quillo").register_dap() == false)
+
+-- .rs files: quillo lsp only for those a program uses, found on disk. vim.uv and vim.fs
+-- stand in through the shell here.
+local function sh(cmd)
+  local p = io.popen(cmd)
+  local out = p:read("*a")
+  p:close()
+  return out
+end
+local function real_uv()
+  return {
+    fs_stat = function(p) return os.execute("test -e '" .. p .. "'") == 0 and {} or nil end,
+    fs_realpath = function(p)
+      local r = sh("realpath '" .. p .. "' 2>/dev/null"):gsub("\n$", "")
+      return r ~= "" and r or nil
+    end,
+    fs_scandir = function(dir)
+      if os.execute("test -d '" .. dir .. "'") ~= 0 then return nil end
+      local items = {}
+      for line in sh("ls -1Ap '" .. dir .. "' 2>/dev/null"):gmatch("[^\n]+") do
+        if line:sub(-1) == "/" then table.insert(items, { line:sub(1, -2), "directory" }) else table.insert(items, { line, "file" }) end
+      end
+      return { items = items, i = 0 }
+    end,
+    fs_scandir_next = function(h)
+      h.i = h.i + 1
+      local e = h.items[h.i]
+      if e then return e[1], e[2] end
+    end,
+  }
+end
+fresh()
+vim.uv = real_uv()
+vim.fs = {
+  dirname = function(p) return p:match("^(.*)/[^/]*$") end,
+  find = function(names, o)
+    local dir = o.path:match("^(.*)/[^/]*$")
+    while dir and dir ~= "" do
+      for _, n in ipairs(names) do
+        if os.execute("test -e '" .. dir .. "/" .. n .. "'") == 0 then return { dir .. "/" .. n } end
+      end
+      dir = dir:match("^(.*)/[^/]*$")
+    end
+    return {}
+  end,
+}
+local tmp = sh("cd \"$(mktemp -d)\" && pwd -P"):gsub("\n$", "")
+local function put(rel, text)
+  local full = tmp .. "/" .. rel
+  os.execute("mkdir -p '" .. full:match("^(.*)/[^/]*$") .. "'")
+  local f = io.open(full, "w")
+  f:write(text or "")
+  f:close()
+  return full
+end
+local rf = require("quillo.rust_files")
+local paths = rf.rust_paths('import tw.rs use f\nuse "lib/a.rs"\nuse x, y from ./b.rs\nlet s = "c.rs"\n// use d.rs\nimport a.rs use f // not b.rs\nuse tw.rs.bak')
+check("the paths a line names", table.concat(paths, " ") == "tw.rs lib/a.rs ./b.rs a.rs", table.concat(paths, " "))
+put("app/main.qwe", "import tw.rs use tailwind\nuse lib/forum.qwe\n")
+local tw = put("app/tw.rs", "pub fn tailwind() -> String { String::new() }\n")
+put("app/lib/forum.qwe", "import lib/md.rs use render\nimport ./near.rs use near\n")
+check("a .rs file main.qwe imports", rf.used_by_program(tw))
+check("a path from the program's folder", rf.used_by_program(put("app/lib/md.rs")))
+check("./ from the file that writes it", rf.used_by_program(put("app/lib/near.rs")))
+local loose = put("app/lib/loose.rs")
+check("a .rs file nothing names", not rf.used_by_program(loose))
+check("not there", not rf.used_by_program(tmp .. "/app/none.rs"))
+put("crate/Cargo.toml", "[package]\n")
+put("crate/src/notes.qwe", "// tw.rs\n")
+check("a crate's own .rs file", not rf.used_by_program(put("crate/src/main.rs")))
+put("outer/main.qwe", "import inner/crate/src/x.rs use f\n")
+put("outer/inner/crate/Cargo.toml", "[package]\n")
+check("not above a Cargo.toml", not rf.used_by_program(put("outer/inner/crate/src/x.rs")))
+put("deep/main.qwe", "import a/b/c/d/e.rs use e\n")
+check("five folders below, not found", not rf.used_by_program(put("deep/a/b/c/d/e.rs")))
+put("deep2/main.qwe", "import a/b/c/f.rs use f\n")
+check("four folders below, found", rf.used_by_program(put("deep2/a/b/c/f.rs")))
+local q = require("quillo")
+check("a used .rs file gets its program's root", q.root_for(tw) == tmp .. "/app", q.root_for(tw))
+check("an unused one gets no server", q.root_for(loose) == nil)
+check("a .qwe file gets its root", q.root_for(tmp .. "/app/main.qwe") == tmp .. "/app")
+check("rust is among the server's filetypes", q.lsp_config().filetypes[3] == "rust")
+local attached = {}
+vim.api.nvim_buf_get_name = function(b) return b end
+q.lsp_config().root_dir(tw, function(r) table.insert(attached, r) end)
+q.lsp_config().root_dir(loose, function(r) table.insert(attached, r) end)
+check("root_dir attaches to the used file only", #attached == 1 and attached[1] == tmp .. "/app", #attached)
+os.execute("rm -rf '" .. tmp .. "'")
 
 print(failed > 0 and (failed .. " of " .. count .. " failed") or ("all " .. count .. " Neovim checks passed"))
 os.exit(failed > 0 and 1 or 0)

@@ -37,6 +37,8 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   default (Seti) icon theme and any other that has none of its own for them.
 - **Rust in `.qwer` files**: highlighted as Rust, with the `//! [dependencies]` header as TOML;
   the Rust compiler's errors and warnings as you open and save (through `cargo check`);
+  the same for a `.rs` file a program uses (`import tw.rs use f`), while a crate's own `.rs` files,
+  which no `.qwe` file names, are left to rust-analyzer;
   a warning on each `pub fn` Quillo cannot export, saying why; hover shows how Quillo sees an
   export, and the outline lists them. Their functions are checked, completed and hovered in
   the `.qwe` files that `use` them.

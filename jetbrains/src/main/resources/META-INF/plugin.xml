@@ -36,6 +36,9 @@
     </server>
     <fileNamePatternMapping patterns="*.qwe" serverId="quillo" languageId="quillo"/>
     <fileNamePatternMapping patterns="*.qwer" serverId="quillo" languageId="qwer"/>
+    <!-- A .rs file a program uses is Rust as a .qwer file is (FEEDBACK37.md, Q-453); a crate's are not sent. -->
+    <fileNamePatternMapping patterns="*.rs" serverId="quillo" languageId="rust"
+                            documentMatcher="org.quillolang.jetbrains.UsedRustMatcher"/>
     <fileNamePatternMapping patterns="*.css" serverId="quillo" languageId="css"
                             documentMatcher="org.quillolang.jetbrains.PublicCssMatcher"/>
     <debugAdapterServer id="quillo" name="Quillo" factoryClass="org.quillolang.jetbrains.QuilloDebugFactory"/>

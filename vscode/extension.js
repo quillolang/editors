@@ -4,6 +4,7 @@ const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
 const { execFile } = require("child_process");
+const rustFiles = require("./rust-files");
 const { LanguageClient } = require("vscode-languageclient/node");
 
 let client = null;
@@ -83,16 +84,14 @@ async function startClient() {
         { scheme: "file", language: "quillo" },
         { scheme: "file", language: "qwer" },
         { scheme: "file", language: "css", pattern: "**/public/**/*.css" },
+        // A .rs file a program uses (FEEDBACK37.md, Q-453); the others are left out below.
+        { scheme: "file", language: "rust", pattern: "**/*.rs" },
       ],
-      synchronize: { fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{qwe,qwer}") },
+      synchronize: { fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{qwe,qwer,rs}") },
       // A server from before `experimental.cssClasses` would read CSS as
-      // Quillo and mark it all as errors: it is not sent CSS files.
-      middleware: {
-        didOpen: (doc, next) => (cssUnwelcome(doc) ? undefined : next(doc)),
-        didChange: (e, next) => (cssUnwelcome(e.document) ? undefined : next(e)),
-        didSave: (doc, next) => (cssUnwelcome(doc) ? undefined : next(doc)),
-        didClose: (doc, next) => (cssUnwelcome(doc) ? undefined : next(doc)),
-      },
+      // Quillo and mark it all as errors: it is not sent CSS files. A .rs file
+      // no program uses is a crate's, and is rust-analyzer's alone.
+      middleware: middleware(),
     }
   );
   try {
@@ -138,6 +137,45 @@ function closeTags(e) {
     if (!now.selection.isEmpty || !now.selection.active.isEqual(at)) return;
     now.insertSnippet(new vscode.SnippetString(text), at);
   }, 100);
+}
+
+/** The client's middleware: what is not sent to quillo lsp, and what it is not asked. */
+function middleware() {
+  const skip = (doc) => cssUnwelcome(doc) || rustUnwelcome(doc);
+  const sync = (doc, next, arg) => (skip(doc) ? undefined : next(arg === undefined ? doc : arg));
+  // A request about a file quillo is not given gets no answer from it.
+  const ask = (doc, args, next) => (skip(doc) ? undefined : next(doc, ...args));
+  const m = {
+    didOpen: (doc, next) => sync(doc, next),
+    didChange: (e, next) => sync(e.document, next, e),
+    didSave: (doc, next) => sync(doc, next),
+    didClose: (doc, next) => sync(doc, next),
+  };
+  for (const name of [
+    "provideCompletionItem",
+    "provideHover",
+    "provideSignatureHelp",
+    "provideDefinition",
+    "provideReferences",
+    "provideDocumentHighlights",
+    "provideDocumentSymbols",
+    "provideCodeActions",
+    "provideRenameEdits",
+    "prepareRename",
+  ]) {
+    m[name] = (doc, ...rest) => {
+      const next = rest.pop();
+      return ask(doc, rest, next);
+    };
+  }
+  return m;
+}
+
+const rustUsed = rustFiles.cached();
+
+/** A .rs file is sent to quillo lsp only when a program uses it. */
+function rustUnwelcome(doc) {
+  return doc.languageId === "rust" && !rustUsed(doc.uri.fsPath || doc.fileName);
 }
 
 function cssUnwelcome(doc) {
@@ -340,4 +378,4 @@ function deactivate() {
   return client ? client.stop() : undefined;
 }
 
-module.exports = { activate, deactivate, newProgram, newFolderProblem, newFailure };
+module.exports = { activate, deactivate, newProgram, newFolderProblem, newFailure, middleware, rustUnwelcome };
