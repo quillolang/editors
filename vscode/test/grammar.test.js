@@ -198,7 +198,35 @@ const cases = [
   ['let rows = db.query(`select * from t where id = ${id}`)', "${", "punctuation.definition.template-expression.begin.quillo"],
   ['let rows = db.query(`select * from t where id = ${id}`)', "from", "meta.embedded.block.sql"],
   ['let rows = db.query(sql`select 1`)', "sql", "support.function.tag.quillo"],
-  ['let rows = db.query(sql`select 1`)', "select", "meta.embedded.block.sql"],
+  ['let rows = db.query(sql`select 1`)', "select", "meta.embedded.block.sql"],  // A path from the file that writes it.
+  ['import ./greet.qwe use hello', "./greet.qwe", "string.unquoted.path.quillo"],
+  ['import ../shared/auth.qwe use login as sign_in', "../shared/auth.qwe", "string.unquoted.path.quillo"],
+  ['import ../shared/auth.qwe use login as sign_in', "sign_in", "entity.name.function.quillo"],
+  ['use ./lib/auth.qwe', "./lib/auth.qwe", "string.unquoted.path.quillo"],
+  // A deployed Quillo site, its server fns called as shop.notes().
+  ['site shop = "https://shop.example.com"', "site", "keyword.other.site.quillo"],
+  ['site shop = "https://shop.example.com"', "shop", "variable.other.declaration.quillo"],
+  ['site shop = env("SHOP_URL")', "env", "support.function.builtin.quillo"],
+  ['let n = shop.notes(a, b)', "notes", "entity.name.function.call.quillo"],
+  // A script as a tool, and the newer builtins.
+  ['#!/usr/bin/env quillo run', "#!/usr/bin/env quillo run", "comment.line.shebang.quillo"],
+  ['for line in split(stdin(), "\\n") { exit(1) }', "stdin", "support.function.builtin.quillo"],
+  ['for line in split(stdin(), "\\n") { exit(1) }', "exit", "support.function.builtin.quillo"],
+  ['let l = read_line()', "read_line", "support.function.builtin.quillo"],
+  ['let a = args()', "args", "support.function.builtin.quillo"],
+  ['redirect(local_path(next) ?? "/")', "local_path", "support.function.builtin.quillo"],
+  ['site_headers("/admin", { "X-Robots-Tag": "noindex" })', "site_headers", "support.function.builtin.quillo"],
+  ['let k = normalize(s, "NFKC")', "normalize", "support.function.builtin.quillo"],
+  ['run_after(300, () => { open = false })', "run_after", "support.function.builtin.quillo"],
+  ['page_updated()', "page_updated", "support.function.builtin.quillo"],
+  ['if js_has("navigator.share") { }', "js_has", "support.function.builtin.quillo"],
+  ['let at = cursor_index(s, e.target.selectionStart)', "cursor_index", "support.function.builtin.quillo"],
+  ['let me = platform().server.url', "platform", "support.function.builtin.quillo"],
+  ['let name = filled(n) ?? "anonymous"', "filled", "support.function.builtin.quillo"],
+  ['let why = error(r)', "error", "support.function.builtin.quillo"],
+  ['let first = date.compare(a, b) < 0', "compare", "support.function.quillo"],
+  ['let s = later.status(id)', "later", "support.module.quillo"],
+  ['let x = bit.and(a, b)', "bit", "support.module.quillo"],
 ];
 
 // Lines tokenized in turn: [lines, line index, token text, scope]. A type
@@ -318,6 +346,22 @@ const blocks = [
     if (hasScope(got, word, "keyword.other.import.quillo") || hasScope(got, word, "keyword.other.library-hint.quillo")) {
       failed++;
       console.log(`FAIL ${JSON.stringify(line)} is a name here, not a keyword`);
+    }
+  }
+  // `site` is a name but before another name and `=` at a line's start.
+  for (const line of ["let site = 1", "site = 2", "site.go()", "site == x", "let a = site", "  f(site)"]) {
+    const [got] = await lines([line]);
+    if (got.some((t) => t.scopes.includes("keyword.other.site.quillo"))) {
+      failed++;
+      console.log(`FAIL ${JSON.stringify(line)}: site is a name here, not a keyword`);
+    }
+  }
+  // `#!` is skipped on the first line only.
+  {
+    const got = (await lines(["let a = 1", "#!/usr/bin/env quillo"]))[1];
+    if (got.some((t) => t.scopes.includes("comment.line.shebang.quillo"))) {
+      failed++;
+      console.log("FAIL #! after the first line is not a comment");
     }
   }
   let rustCases = 0;

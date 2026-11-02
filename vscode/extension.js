@@ -3,6 +3,7 @@
 const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
+const { execFile } = require("child_process");
 const { LanguageClient } = require("vscode-languageclient/node");
 
 let client = null;
@@ -159,6 +160,66 @@ function currentFile() {
   return ed.document;
 }
 
+/**
+ * `quillo new <folder>`: a program to start from, the to-do app or `--minimal`,
+ * opened as the window's folder. A quillo from before `new` answers with its
+ * usage and status 2.
+ */
+async function newProgram() {
+  const kind = await vscode.window.showQuickPick(
+    [
+      { label: "The to-do app", description: "a database, a component, files served", args: [] },
+      { label: "Minimal", description: "a page, a component and a function both sides use", args: ["--minimal"] },
+    ],
+    { title: "Quillo: New program" }
+  );
+  if (!kind) return;
+  const parent = await vscode.window.showOpenDialog({
+    title: "Where the program's folder goes",
+    canSelectFolders: true,
+    canSelectFiles: false,
+    openLabel: "Here",
+  });
+  if (!parent || !parent[0]) return;
+  const name = await vscode.window.showInputBox({
+    title: "Quillo: New program",
+    prompt: `A new folder in ${parent[0].fsPath}`,
+    value: "my-app",
+    validateInput: (v) => newFolderProblem(parent[0].fsPath, v),
+  });
+  if (!name) return;
+  const folder = path.join(parent[0].fsPath, name.trim());
+  const command = quilloPath();
+  const { code, out } = await new Promise((resolve) =>
+    execFile(command, ["new", folder, ...kind.args], (err, stdout, stderr) =>
+      resolve({ code: err ? (typeof err.code === "number" ? err.code : -1) : 0, out: `${stderr}${stdout}`.trim() })
+    )
+  );
+  if (code !== 0) {
+    vscode.window.showErrorMessage(newFailure(command, code, out));
+    return;
+  }
+  await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(folder), {
+    forceNewWindow: !!(vscode.workspace.workspaceFolders || []).length,
+  });
+}
+
+/** What is wrong with `name` as a new folder in `parent`, or null. */
+function newFolderProblem(parent, name) {
+  const v = name.trim();
+  if (!v) return "Name the folder.";
+  if (/[\\/]/.test(v) || v === "." || v === "..") return "A name, not a path.";
+  const full = path.join(parent, v);
+  if (fs.existsSync(full) && (!fs.statSync(full).isDirectory() || fs.readdirSync(full).length)) return `${v} is there and not an empty folder.`;
+  return null;
+}
+
+/** The message for a failed `quillo new`: its own, or that the binary predates `new`. */
+function newFailure(command, code, out) {
+  if (code === 2 && !out.includes("quillo new")) return `Quillo: "${command}" has no \`new\`: install a newer quillo.`;
+  return `Quillo: ${out || `could not run "${command} new"`}`;
+}
+
 /** The debugger: `quillo dap` runs the program and speaks the Debug Adapter Protocol. */
 const debugAdapters = {
   createDebugAdapterDescriptor(session) {
@@ -260,6 +321,7 @@ async function activate(context) {
       t.sendText(`${quote(quilloPath())} check ${quote(doc.fileName)}`);
     }),
     vscode.commands.registerCommand("quillo.restartServer", restartClient),
+    vscode.commands.registerCommand("quillo.newProgram", newProgram),
     // Ctrl+Space: inside a call, its parameters as well as the completions.
     vscode.commands.registerCommand("quillo.hints", async () => {
       await vscode.commands.executeCommand("editor.action.triggerParameterHints");
@@ -278,4 +340,4 @@ function deactivate() {
   return client ? client.stop() : undefined;
 }
 
-module.exports = { activate, deactivate };
+module.exports = { activate, deactivate, newProgram, newFolderProblem, newFailure };

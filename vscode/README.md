@@ -2,7 +2,7 @@
 
 Language support for [Quillo](https://github.com/quillolang/quillo), the small web language.
 
-- **Highlighting** for `private` and `public` before a definition, routes and paths, HTML literals (tags, `.class#id`, `@event`, `bind:value`),
+- **Highlighting** for `private` and `public` before a definition, `site shop = "..."`, a script's `#!` line, routes and paths, HTML literals (tags, `.class#id`, `@event`, `bind:value`),
   string interpolation, `state` declarations, `type` records, numbers such as `1e-9`, types,
   effects and pipelines. SQL is highlighted as SQL in the string (or template) passed to
   `db.exec`, `db.one` and `db.query`, and in `` sql`...` ``.
@@ -22,7 +22,7 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   a faint hint.
 - **Completion** for your functions and variables, builtins (with signatures), the members of
   `db.`, `http.`, `json.`, `udp.`, `channel.`, `media.`, `crypto.`, `image.`, `math.`, `stats.`,
-  `vec.` and `date.`, keywords, types, HTTP methods and effects (`net` among them); after `<`
+  `vec.`, `date.`, `bit.` and `later.`, keywords, types, HTTP methods and effects (`net` among them); after `<`
   in markup, your views and components and HTML's elements; after `</`, the end tag to write;
   after `<span.` and in `class="`, the classes your style sheets define.
 - **Parameter hints**: inside a call, as you type `(` and `,`, or with Ctrl+Space, the
@@ -31,7 +31,7 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
 - **Outline** of functions, views, components, variables and routes.
 - **Private names**: hover and the outline say `private fn page_of(...)`; another file's private
   names are not offered in completion (nor its private views after `<`).
-- **Snippets**: `import`, `client`, `preload`, `route`, `routejson`, `fn`, `fnb`, `pfn` (private fn), `server fn`, `view`, `component`, `match`, `for`, `page`,
+- **Snippets**: `import`, `client`, `preload`, `site`, `tool` (a script reading its input a line at a time), `route`, `routejson`, `fn`, `fnb`, `pfn` (private fn), `server fn`, `view`, `component`, `match`, `for`, `page`,
   and for real time: `udplisten`, `channelon`, `channelopen`, `mediartp`, `quillo-media`.
 - **File icons**: a quill for `.qwe` files, and a quill with a gear for `.qwer` files, in the
   default (Seti) icon theme and any other that has none of its own for them.
@@ -40,7 +40,7 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   a warning on each `pub fn` Quillo cannot export, saying why; hover shows how Quillo sees an
   export, and the outline lists them. Their functions are checked, completed and hovered in
   the `.qwe` files that `use` them.
-- **`use` and `import` lines**: paths with or without quotes, the names taken from a file, `as`,
+- **`use` and `import` lines**: paths with or without quotes, `./` and `../` counting from the file that writes them, the names taken from a file, `as`,
   `*`, and `import`, `client`, `preload`, `preconnect` and `module` are highlighted, as are 0.6's
   `with preload` and `with preconnect`. Go to Definition on the path opens the file, and on a name goes to
   its Rust function, whose signature hover shows (under the name after `as`). The path
@@ -53,7 +53,9 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   with VS Code's JavaScript debugger too, and the same breakpoints stop in the components'
   browser code (event handlers, updates), through source maps to the `.qwe` files.
 - **Commands**: *Quillo: Run this file (watch mode)* (also the ▶ button), *Quillo: Debug this file*,
-  *Quillo: Check this file*, *Quillo: Restart the language server*.
+  *Quillo: Check this file*, *Quillo: Restart the language server*, and *Quillo: New program*,
+  which asks for the to-do app or a minimal one and a folder, runs `quillo new` and opens it
+  (needs a `quillo` that has `new`).
 
 The editor features come from `quillo lsp`, the language server built into the `quillo` binary,
 and the debugger from `quillo dap`.

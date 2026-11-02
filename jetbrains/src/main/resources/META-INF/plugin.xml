@@ -1,0 +1,55 @@
+<idea-plugin>
+  <id>org.quillolang.quillo</id>
+  <name>Quillo</name>
+  <vendor url="https://quillolang.org">Quillo</vendor>
+  <description><![CDATA[
+    Language support for <a href="https://quillolang.org">Quillo</a>, the small web language:
+    highlighting for <code>.qwe</code> and <code>.qwer</code> files, diagnostics as you type, quick fixes,
+    hover, go to definition, find usages, rename, completion, parameter info, the file structure,
+    end tags closed as you type, snippets, run configurations and a debugger.
+    The editor features come from <code>quillo lsp</code> and the debugger from <code>quillo dap</code>,
+    so the <a href="https://github.com/quillolang/quillo/releases/latest">quillo</a> binary must be installed.
+  ]]></description>
+
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.xdebugger</depends>
+  <depends>org.jetbrains.plugins.textmate</depends>
+  <depends>com.redhat.devtools.lsp4ij</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <textmate.bundleProvider implementation="org.quillolang.jetbrains.QuilloBundleProvider"/>
+    <fileIconProvider implementation="org.quillolang.jetbrains.QuilloIconProvider" order="first"/>
+    <typedHandler implementation="org.quillolang.jetbrains.CloseTags"/>
+    <enterHandlerDelegate implementation="org.quillolang.jetbrains.EnterBetweenTags"/>
+    <applicationConfigurable parentId="language" id="org.quillolang.settings" displayName="Quillo"
+                             instance="org.quillolang.jetbrains.QuilloConfigurable"/>
+    <notificationGroup id="Quillo" displayType="BALLOON"/>
+    <configurationType implementation="org.quillolang.jetbrains.QuilloRunConfigurationType"/>
+    <runConfigurationProducer implementation="org.quillolang.jetbrains.QuilloRunProducer"/>
+    <liveTemplateContext contextId="QUILLO" implementation="org.quillolang.jetbrains.QuilloTemplateContext"/>
+    <defaultLiveTemplates file="/liveTemplates/Quillo.xml"/>
+  </extensions>
+
+  <extensions defaultExtensionNs="com.redhat.devtools.lsp4ij">
+    <server id="quillo" name="Quillo" factoryClass="org.quillolang.jetbrains.QuilloServerFactory">
+      <description><![CDATA[<code>quillo lsp</code>, the language server built into the quillo binary.]]></description>
+    </server>
+    <fileNamePatternMapping patterns="*.qwe" serverId="quillo" languageId="quillo"/>
+    <fileNamePatternMapping patterns="*.qwer" serverId="quillo" languageId="qwer"/>
+    <fileNamePatternMapping patterns="*.css" serverId="quillo" languageId="css"
+                            documentMatcher="org.quillolang.jetbrains.PublicCssMatcher"/>
+    <debugAdapterServer id="quillo" name="Quillo" factoryClass="org.quillolang.jetbrains.QuilloDebugFactory"/>
+  </extensions>
+
+  <actions>
+    <group id="Quillo.Menu" text="Quillo" popup="true">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <action id="Quillo.Check" class="org.quillolang.jetbrains.CheckFileAction" text="Check This File"/>
+      <action id="Quillo.RestartServer" class="org.quillolang.jetbrains.RestartServerAction" text="Restart the Language Server"/>
+      <action id="Quillo.NewProgram" class="org.quillolang.jetbrains.NewProgramAction" text="New Quillo Program..."
+              description="A Quillo program to start from, made by quillo new, opened as a project">
+        <add-to-group group-id="WelcomeScreen.QuickStart" anchor="last"/>
+      </action>
+    </group>
+  </actions>
+</idea-plugin>
