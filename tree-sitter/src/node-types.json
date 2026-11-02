@@ -16,6 +16,10 @@
         "named": true
       },
       {
+        "type": "document",
+        "named": true
+      },
+      {
         "type": "element",
         "named": true
       },
@@ -122,7 +126,15 @@
     "named": true,
     "subtypes": [
       {
+        "type": "accept_calls_statement",
+        "named": true
+      },
+      {
         "type": "assignment",
+        "named": true
+      },
+      {
+        "type": "build_declaration",
         "named": true
       },
       {
@@ -182,6 +194,32 @@
         "named": true
       }
     ]
+  },
+  {
+    "type": "accept_calls_statement",
+    "named": true,
+    "fields": {
+      "options": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "map",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "alternative_pattern",
@@ -390,6 +428,10 @@
             "named": true
           },
           {
+            "type": "attribute_value",
+            "named": true
+          },
+          {
             "type": "string",
             "named": true
           }
@@ -544,6 +586,32 @@
     }
   },
   {
+    "type": "build_declaration",
+    "named": true,
+    "fields": {
+      "path": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expression",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "call_expression",
     "named": true,
     "fields": {
@@ -635,6 +703,25 @@
     }
   },
   {
+    "type": "document",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "effect",
     "named": true,
     "fields": {}
@@ -668,6 +755,10 @@
         },
         {
           "type": "end_tag",
+          "named": true
+        },
+        {
+          "type": "html_comment",
           "named": true
         },
         {
@@ -955,6 +1046,16 @@
         "types": [
           {
             "type": "_expression",
+            "named": true
+          }
+        ]
+      },
+      "callers": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "list",
             "named": true
           }
         ]
@@ -1979,6 +2080,10 @@
           },
           {
             "type": "call_expression",
+            "named": true
+          },
+          {
+            "type": "document",
             "named": true
           },
           {
@@ -3073,7 +3178,19 @@
     "named": false
   },
   {
+    "type": "accept_calls",
+    "named": false
+  },
+  {
     "type": "as",
+    "named": false
+  },
+  {
+    "type": "attribute_value",
+    "named": true
+  },
+  {
+    "type": "build",
     "named": false
   },
   {
@@ -3092,6 +3209,10 @@
   {
     "type": "db",
     "named": false
+  },
+  {
+    "type": "doctype",
+    "named": true
   },
   {
     "type": "else",
@@ -3128,6 +3249,10 @@
   {
     "type": "global",
     "named": false
+  },
+  {
+    "type": "html_comment",
+    "named": true
   },
   {
     "type": "html_text",

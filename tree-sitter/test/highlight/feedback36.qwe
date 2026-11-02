@@ -1,0 +1,24 @@
+build "/app.css" = tailwind(classes())
+// <- keyword
+//     ^ string.special.url
+//                          ^ function.builtin
+
+accept_calls { shared: false }
+// <- function.builtin
+
+server fn refund(id: int) for ["shop"] = id
+//                        ^ keyword.modifier
+
+let build = 1
+//  ^ variable
+
+let page =
+    <!DOCTYPE html>
+//  ^ keyword.directive
+    <html>
+        <!-- a note -->
+//      ^ comment
+        <img src=a.png alt='A cat'/>
+//               ^ string
+//                         ^ string
+    </html>

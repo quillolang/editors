@@ -42,6 +42,8 @@ syntax match quilloStatement "^\s*\zs\(state\|site\|type\)\ze\s\+\h\w*\s*=[^=]"
 syntax match quilloStatement "^\s*\zsstyle\ze\s\+\(global\s\+\)\=\h"
 syntax match quilloStatement "^\s*style\s\+\zsglobal\ze\s"
 syntax match quilloStatement "^\s*\zs\(routes\|service\|mount\)\ze\s\+[/a-zA-Z_]"
+syntax match quilloStatement "^\s*\zsbuild\ze\s\+\"[^"]*\"\s*=[^=]"
+syntax match quilloBuiltin "^\s*\zsaccept_calls\ze\s*{"
 syntax match quilloImport "^\s*\zs\(import\|client\|preload\|preconnect\)\ze\s\+\(module\s\+\)\=\S\+\s\+use\>"
 syntax match quilloImport "\(^\s*\(client\|preload\|preconnect\)\s\+\)\@<=module\ze\s"
 syntax match quilloPath "\(^\s*\(import\|client\|preload\|preconnect\)\s\+\(module\s\+\)\=\)\@<=[^ \t"]\+\ze\s\+use\>"
@@ -60,7 +62,7 @@ syntax match quilloEffect "\(\<with\s\+\(\(db\|http\|fs\|env\|time\|random\|net\
 
 " Calls.
 syntax match quilloCall "\<\h\w*\ze\s*("
-syntax match quilloBuiltin "\<\(print\|str\|int\|float\|dec\|len\|type_of\|upper\|lower\|trim\|split\|join\|contains\|starts_with\|ends_with\|replace\|slice\|map\|filter\|find\|any\|all\|reduce\|sum\|min\|max\|sort\|sort_by\|reverse\|first\|last\|push\|range\|enumerate\|keys\|values\|get\|has\|set\|remove\|merge\|err\|is_err\|unwrap\|raw\|escape\|url_encode\|env\|now\|sleep\|file\|redirect\|respond\|read_file\|write_file\|random\|random_int\|uuid\|abs\|round\|floor\|ceil\|sqrt\|pow\|unique\|flatten\|zip\|take\|drop\|count\|group_by\|index_of\|repeat\|format_number\|live\|publish\|watch\|unwatched\|delete_file\|check_program\|join_on\|markdown\|highlight\|run_script\|sql_name\|sql_param\|ask\|notify\|translations\|locale_from\|locale\|with_locale\|t\|schedule\|allow_cross_site\|tenant\|tenant_from\|with_tenant\|save_upload\|read_upload\|js\|js_new\|parallel\|every\|stream\|events\|listen\|receive\|url\|css\|sql\|navigate\|set_cookie\|delete_cookie\|session\|set_session\|end_session\|sessions\|renew_session\|end_sessions\|user_sessions\|rate_limit\|rate_limit_reset\|security_headers\|csp\|csp_nonce\|idempotent\|args\|cookie\|cursor_index\|defer\|error\|exit\|filled\|js_has\|local_path\|new_tenant\|normalize\|page_updated\|platform\|read_line\|ready\|run_after\|site_headers\|stdin\|style_with\|waiting\)\ze\s*("
+syntax match quilloBuiltin "\<\(print\|str\|int\|float\|dec\|len\|type_of\|upper\|lower\|trim\|split\|join\|contains\|starts_with\|ends_with\|replace\|slice\|map\|filter\|find\|any\|all\|reduce\|sum\|min\|max\|sort\|sort_by\|reverse\|first\|last\|push\|range\|enumerate\|keys\|values\|get\|has\|set\|remove\|merge\|err\|is_err\|unwrap\|raw\|escape\|url_encode\|env\|now\|sleep\|file\|redirect\|respond\|read_file\|write_file\|random\|random_int\|uuid\|abs\|round\|floor\|ceil\|sqrt\|pow\|unique\|flatten\|zip\|take\|drop\|count\|group_by\|index_of\|repeat\|format_number\|live\|publish\|watch\|unwatched\|delete_file\|check_program\|join_on\|markdown\|highlight\|run_script\|sql_name\|sql_param\|ask\|notify\|translations\|locale_from\|locale\|with_locale\|t\|schedule\|allow_cross_site\|tenant\|tenant_from\|with_tenant\|save_upload\|read_upload\|js\|js_new\|parallel\|every\|stream\|events\|listen\|receive\|url\|css\|sql\|navigate\|set_cookie\|delete_cookie\|session\|set_session\|end_session\|sessions\|renew_session\|end_sessions\|user_sessions\|rate_limit\|rate_limit_reset\|security_headers\|csp\|csp_nonce\|idempotent\|args\|cookie\|cursor_index\|defer\|error\|exit\|filled\|js_has\|local_path\|new_tenant\|normalize\|page_updated\|platform\|read_line\|ready\|run_after\|site_headers\|stdin\|style_with\|waiting\|accept_calls\|classes\|files\|markdown_page\)\ze\s*("
 syntax match quilloModule "\<\(json\|db\|http\|udp\|channel\|media\|crypto\|image\|math\|stats\|vec\|date\|money\|re\|bit\|later\)\ze\."
 
 " Definitions, after calls so their names are not taken for one.
@@ -74,7 +76,11 @@ syntax region quilloBraces start="{" end="}" transparent contains=TOP
 syntax match quilloTagName "</\=\zs\a[[:alnum:]_-]*" contained
 syntax match quilloAttribute "\s\zs[@:]\=\h[[:alnum:]_:@.-]*\ze=" contained
 syntax match quilloEvent "\s\zs@\h[[:alnum:]_.-]*" contained
-syntax region quilloElement start="<\ze\a" end=">" contains=quilloTagName,quilloAttribute,quilloEvent,quilloString,quilloAttributeValue,quilloBraces
+syntax region quilloElement start="<\ze\a" end="/\=>" contains=quilloTagName,quilloAttribute,quilloEvent,quilloString,quilloAttributeValue,quilloUnquoted,quilloBraces
+" HTML as written: <!-- comments -->, <!DOCTYPE html>, and values with no quotes (`/>` ends them).
+syntax region quilloHtmlComment start="<!--" end="-->" contains=@Spell
+syntax match quilloDoctype "<!\c\(doctype\)\s\+html\s*>"
+syntax match quilloUnquoted "=\zs\([^ \t"'=<>`{}/]\|/>\@!\)\+" contained
 syntax region quilloElement start="</\ze\a" end=">" contains=quilloTagName
 syntax region quilloAttributeValue matchgroup=quilloBrace start="={" end="}" contained contains=TOP
 
@@ -108,6 +114,9 @@ highlight default link quilloModule Identifier
 highlight default link quilloTagName Statement
 highlight default link quilloAttribute Type
 highlight default link quilloEvent Keyword
+highlight default link quilloHtmlComment Comment
+highlight default link quilloDoctype PreProc
+highlight default link quilloUnquoted String
 
 " Start from far enough back that a comment, template or element begun above is seen.
 syntax sync minlines=200

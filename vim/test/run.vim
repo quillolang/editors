@@ -69,6 +69,17 @@ call s:Is(17, 'button', 'quilloTagName')
 call s:Is(17, '@click', 'quilloEvent')
 call s:Is(17, 'disabled', 'quilloElement')
 
+call s:Is(19, 'build', 'quilloStatement')
+call s:Is(19, 'classes', 'quilloBuiltin')
+call s:Is(20, 'accept_calls', 'quilloBuiltin')
+call s:Is(21, 'box', 'quilloUnquoted')
+call s:Is(21, 'A cat', 'quilloString')
+call s:Is(21, 'a note', 'quilloHtmlComment')
+call s:Is(21, 'a.png', 'quilloUnquoted')
+call assert_notequal('quilloUnquoted', s:At(21, '/>'), '/> ends the value')
+call s:Is(22, 'DOCTYPE', 'quilloDoctype')
+call assert_notequal('quilloStatement', s:At(23, 'build'), 'build is a name here')
+
 " Indentation: every line of indent.qwe is where its indent puts it.
 execute 'edit ' . fnameescape(s:here . '/test/indent.qwe')
 let s:want = map(getline(1, '$'), 'len(matchstr(v:val, "^ *"))')

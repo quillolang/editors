@@ -41,22 +41,23 @@
 ((call_expression
   function: (identifier) @function.builtin)
   (#any-of? @function.builtin
-  "print" "str" "int" "float" "dec" "len" "type_of" "upper" "lower" "trim" "split" "join" 
-  "contains" "starts_with" "ends_with" "replace" "slice" "map" "filter" "find" "any" "all" 
-  "reduce" "sum" "min" "max" "sort" "sort_by" "reverse" "first" "last" "push" "range" "enumerate" 
-  "keys" "values" "get" "has" "set" "remove" "merge" "err" "is_err" "unwrap" "raw" "escape" 
-  "url_encode" "env" "now" "sleep" "file" "redirect" "respond" "read_file" "write_file" "random" 
-  "random_int" "uuid" "abs" "round" "floor" "ceil" "sqrt" "pow" "unique" "flatten" "zip" "take" 
-  "drop" "count" "group_by" "index_of" "repeat" "format_number" "live" "publish" "watch" 
-  "unwatched" "delete_file" "check_program" "join_on" "markdown" "highlight" "run_script" 
-  "sql_name" "sql_param" "ask" "notify" "translations" "locale_from" "locale" "with_locale" "t" 
-  "schedule" "allow_cross_site" "tenant" "tenant_from" "with_tenant" "save_upload" "read_upload" 
-  "js" "js_new" "parallel" "every" "stream" "events" "listen" "receive" "url" "css" "sql" 
-  "navigate" "set_cookie" "delete_cookie" "session" "set_session" "end_session" "sessions" 
-  "renew_session" "end_sessions" "user_sessions" "rate_limit" "rate_limit_reset" 
-  "security_headers" "csp" "csp_nonce" "idempotent" "args" "cookie" "cursor_index" "defer" 
-  "error" "exit" "filled" "js_has" "local_path" "new_tenant" "normalize" "page_updated" 
-  "platform" "read_line" "ready" "run_after" "site_headers" "stdin" "style_with" "waiting"))
+  "print" "str" "int" "float" "dec" "len" "type_of" "upper" "lower" "trim" "split" "join"
+  "contains" "starts_with" "ends_with" "replace" "slice" "map" "filter" "find" "any" "all"
+  "reduce" "sum" "min" "max" "sort" "sort_by" "reverse" "first" "last" "push" "range"
+  "enumerate" "keys" "values" "get" "has" "set" "remove" "merge" "err" "is_err" "unwrap" "raw"
+  "escape" "url_encode" "env" "now" "sleep" "file" "redirect" "respond" "read_file" "write_file"
+  "random" "random_int" "uuid" "abs" "round" "floor" "ceil" "sqrt" "pow" "unique" "flatten"
+  "zip" "take" "drop" "count" "group_by" "index_of" "repeat" "format_number" "live" "publish"
+  "watch" "unwatched" "delete_file" "check_program" "join_on" "markdown" "highlight"
+  "run_script" "sql_name" "sql_param" "ask" "notify" "translations" "locale_from" "locale"
+  "with_locale" "t" "schedule" "allow_cross_site" "tenant" "tenant_from" "with_tenant"
+  "save_upload" "read_upload" "js" "js_new" "parallel" "every" "stream" "events" "listen"
+  "receive" "url" "css" "sql" "navigate" "set_cookie" "delete_cookie" "session" "set_session"
+  "end_session" "sessions" "renew_session" "end_sessions" "user_sessions" "rate_limit"
+  "rate_limit_reset" "security_headers" "csp" "csp_nonce" "idempotent" "args" "cookie"
+  "cursor_index" "defer" "error" "exit" "filled" "js_has" "local_path" "new_tenant" "normalize"
+  "page_updated" "platform" "read_line" "ready" "run_after" "site_headers" "stdin" "style_with"
+  "waiting" "accept_calls" "classes" "files" "markdown_page"))
 
 ((member_expression
   object: (identifier) @module.builtin)
@@ -160,6 +161,10 @@
 
 (comment) @comment @spell
 
+(html_comment) @comment
+
+(doctype) @keyword.directive
+
 (shebang) @keyword.directive
 
 ; Markup
@@ -169,6 +174,8 @@
   (#match? @type "^[A-Z]"))
 
 (attribute_name) @tag.attribute
+
+(attribute_value) @string
 
 ((attribute_name) @keyword
   (#match? @keyword "^@"))
@@ -240,6 +247,15 @@
 (mount_declaration
   "mount" @keyword)
 
+(build_declaration
+  "build" @keyword)
+
+(build_declaration
+  path: (string) @string.special.url)
+
+(accept_calls_statement
+  (identifier) @function.builtin)
+
 (effects
   "with" @keyword)
 
@@ -279,6 +295,10 @@
   "in"
   "while"
 ] @keyword.repeat
+
+; `server fn f() for ["shop"]`: the callers, after the loops' `for` so it wins.
+(function_definition
+  "for" @keyword.modifier)
 
 [
   "return"

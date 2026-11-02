@@ -226,7 +226,28 @@ const cases = [
   ['let why = error(r)', "error", "support.function.builtin.quillo"],
   ['let first = date.compare(a, b) < 0', "compare", "support.function.quillo"],
   ['let s = later.status(id)', "later", "support.module.quillo"],
-  ['let x = bit.and(a, b)', "bit", "support.module.quillo"],
+  ['let x = bit.and(a, b)', "bit", "support.module.quillo"],  // FEEDBACK36-39: build, accept_calls, a service's callers, HTML as written.
+  ['build "/app.css" = tailwind(classes())', "build", "keyword.other.build.quillo"],
+  ['build "/app.css" = tailwind(classes())', "/app.css", "string.quoted.double.quillo"],
+  ['build "/app.css" = tailwind(classes())', "classes", "support.function.builtin.quillo"],
+  ['accept_calls { keys: { shop: env("SHOP_KEY") } }', "accept_calls", "support.function.builtin.quillo"],
+  ['accept_calls({ shared: false })', "accept_calls", "support.function.builtin.quillo"],
+  ['server fn refund(id: int) for ["shop"] = id', "for", "keyword.control.quillo"],
+  ['server fn refund(id: int) for ["shop"] = id', "shop", "string.quoted.double.quillo"],
+  ['route GET /* = files("site", path, { index: "index.html" })', "files", "support.function.builtin.quillo"],
+  ['route GET /readme = markdown_page(read_file("README.md"), { title: "Read me" })', "markdown_page", "support.function.builtin.quillo"],
+  ['<!DOCTYPE html>', "DOCTYPE", "keyword.other.doctype.quillo"],
+  ['<!doctype html>', "html", "entity.name.tag.quillo"],
+  ['let p = <p>one <!-- a note --> two</p>', "<!--", "comment.block.html.quillo"],
+  ['let p = <p>one <!-- a note --> two</p>', " a note ", "comment.block.html.quillo"],
+  ['let p = <p>one <!-- a note --> two</p>', " two", "meta.jsx.children.quillo"],
+  ["let i = <img src=a.png alt='A cat'/>", "a.png", "string.unquoted.attribute-value.quillo"],
+  ["let i = <img src=a.png alt='A cat'/>", "A cat", "string.quoted.single.quillo"],
+  ["let i = <img src=a.png alt='A cat'/>", "alt", "entity.other.attribute-name.quillo"],
+  ['let d = <div class=box id=main>x</div>', "box", "string.unquoted.attribute-value.quillo"],
+  ['let d = <div class=box id=main>x</div>', "x", "meta.jsx.children.quillo"],
+  ['import tw.rs use tailwind', "tw.rs", "string.unquoted.path.quillo"],
+  ['use "tw.rs"', "tw.rs", "string.quoted.double.quillo"],
 ];
 
 // Lines tokenized in turn: [lines, line index, token text, scope]. A type
@@ -354,6 +375,22 @@ const blocks = [
     if (got.some((t) => t.scopes.includes("keyword.other.site.quillo"))) {
       failed++;
       console.log(`FAIL ${JSON.stringify(line)}: site is a name here, not a keyword`);
+    }
+  }
+  // `build` is a name but before a string and `=` at a line's start.
+  for (const line of ["let build = 1", "build = 2", "build.go()", "build == \"x\"", "f(build)"]) {
+    const [got] = await lines([line]);
+    if (got.some((t) => t.scopes.includes("keyword.other.build.quillo"))) {
+      failed++;
+      console.log(`FAIL ${JSON.stringify(line)}: build is a name here, not a keyword`);
+    }
+  }
+  // `/>` after an unquoted value ends the tag; the next line is code again.
+  {
+    const got = (await lines(["let i = <img src=a.png/>", "let after = 1"]))[1];
+    if (!got.some((t) => t.text === "let" && t.scopes.includes("storage.type.let.quillo"))) {
+      failed++;
+      console.log("FAIL an unquoted value before /> left the tag open");
     }
   }
   // `#!` is skipped on the first line only.
