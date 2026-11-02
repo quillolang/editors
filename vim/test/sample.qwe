@@ -1,0 +1,18 @@
+// A sample for test/run.vim: each line is looked at by what it holds.
+import lib/forum.qwe use latest, older as past
+use "lib/todos.qwe"
+private fn add(a: int, b: int = 10) -> int with db = a + b
+route GET /users/:id(int) = find_user(id)
+let client = 1
+let total = len(items) + 12.50m
+let s = `Hello, ${name}!`
+let style_sheet = css`a { color: red; }`
+site shop = "https://shop.example.com"
+let n = db.one("select 1")
+let f = if ok { true } else { null }
+/* a block
+   comment */
+component Counter(start: int = 0) {
+    state count = start
+    <button @click={() => { count += 1 }} disabled>{count}</button>
+}
