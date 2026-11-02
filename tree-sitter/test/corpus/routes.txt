@@ -1,0 +1,172 @@
+======================================================================
+Routes and their paths
+======================================================================
+
+route GET / = "home"
+route GET /users/:id(int) = find(id)
+route GET /static/*path = file(path)
+route DELETE /a/b-c.d_e = null
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    (http_method)
+    (route_path)
+    (string
+      (string_content)))
+  (route
+    (http_method)
+    (route_path
+      (path_literal)
+      (path_parameter
+        (identifier)
+        (type_identifier)))
+    (call_expression
+      (identifier)
+      (arguments
+        (identifier))))
+  (route
+    (http_method)
+    (route_path
+      (path_literal)
+      (path_rest
+        (identifier)))
+    (call_expression
+      (identifier)
+      (arguments
+        (identifier))))
+  (route
+    (http_method)
+    (route_path
+      (path_literal)
+      (path_literal))
+    (null)))
+
+======================================================================
+A route's query and body patterns
+======================================================================
+
+route GET /search ? { q: str, page: int = 1 } = q
+route POST /things { json: { name: str } } {
+    name
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    (http_method)
+    (route_path
+      (path_literal))
+    (record_pattern
+      (field_pattern
+        (property_identifier)
+        (identifier))
+      (field_pattern
+        (property_identifier)
+        (identifier)
+        (number)))
+    (identifier))
+  (route
+    (http_method)
+    (route_path
+      (path_literal))
+    (record_pattern
+      (field_pattern
+        (property_identifier)
+        (record_pattern
+          (field_pattern
+            (property_identifier)
+            (identifier)))))
+    (block
+      (expression_statement
+        (identifier)))))
+
+======================================================================
+A route group
+======================================================================
+
+routes /admin | auth.required {
+    route GET /users = users()
+    routes /reports {
+        route GET /daily = daily()
+    }
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (route_group
+    (route_path
+      (path_literal))
+    (member_expression
+      (identifier)
+      (property_identifier))
+    (route
+      (http_method)
+      (route_path
+        (path_literal))
+      (call_expression
+        (identifier)
+        (arguments)))
+    (route_group
+      (route_path
+        (path_literal))
+      (route
+        (http_method)
+        (route_path
+          (path_literal))
+        (call_expression
+          (identifier)
+          (arguments))))))
+
+======================================================================
+A wildcard path is not a comment
+======================================================================
+
+route GET /*rest = rest
+let after = 1 /* a comment */
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    (http_method)
+    (route_path
+      (path_rest
+        (identifier)))
+    (identifier))
+  (let_declaration
+    (identifier)
+    (number))
+  (comment))
+
+======================================================================
+reply
+======================================================================
+
+route GET /x {
+    reply 404 "none"
+}
+route GET /y = reply 302
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    (http_method)
+    (route_path
+      (path_literal))
+    (block
+      (expression_statement
+        (reply_expression
+          (number)
+          (string
+            (string_content))))))
+  (route
+    (http_method)
+    (route_path
+      (path_literal))
+    (reply_expression
+      (number))))

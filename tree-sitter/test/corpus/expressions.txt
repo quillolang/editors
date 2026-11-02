@@ -1,0 +1,476 @@
+======================================================================
+Numbers
+======================================================================
+
+let a = [1, 1_000, 0xFF, 2.5, 1e-9, 2.5E3, 12.50m, 5m]
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (list
+      (number)
+      (number)
+      (number)
+      (number)
+      (number)
+      (number)
+      (number)
+      (number))))
+
+======================================================================
+Strings and templates
+======================================================================
+
+let a = "say \"hi\""
+let b = 'one'
+let c = `Hello, ${name}! \u{1F600} $5`
+let d = "/* not a comment */"
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (string
+      (string_content)
+      (escape_sequence)
+      (string_content)
+      (escape_sequence)))
+  (let_declaration
+    (identifier)
+    (string
+      (string_content)))
+  (let_declaration
+    (identifier)
+    (template_string
+      (string_content)
+      (template_substitution
+        (identifier))
+      (string_content)
+      (escape_sequence)
+      (string_content)
+      (string_content)
+      (string_content)))
+  (let_declaration
+    (identifier)
+    (string
+      (string_content))))
+
+======================================================================
+Tagged templates
+======================================================================
+
+let s = css`a > b { color: ${accent}; }`
+let q = sql`select * from t where id = ${id}`
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (tagged_template
+      (identifier)
+      (string_content)
+      (template_substitution
+        (identifier))
+      (string_content)))
+  (let_declaration
+    (identifier)
+    (tagged_template
+      (identifier)
+      (string_content)
+      (template_substitution
+        (identifier)))))
+
+======================================================================
+Operators and their order
+======================================================================
+
+let x = a + b * c - d / e % f
+let y = !a && b || c ?? d
+let z = xs | map(f) | sum()
+let w = -a.b[0](c)
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (binary_expression
+      (binary_expression
+        (identifier)
+        (binary_expression
+          (identifier)
+          (identifier)))
+      (binary_expression
+        (binary_expression
+          (identifier)
+          (identifier))
+        (identifier))))
+  (let_declaration
+    (identifier)
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (unary_expression
+            (identifier))
+          (identifier))
+        (identifier))
+      (identifier)))
+  (let_declaration
+    (identifier)
+    (binary_expression
+      (binary_expression
+        (identifier)
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier))))
+      (call_expression
+        (identifier)
+        (arguments))))
+  (let_declaration
+    (identifier)
+    (unary_expression
+      (call_expression
+        (index_expression
+          (member_expression
+            (identifier)
+            (property_identifier))
+          (number))
+        (arguments
+          (identifier))))))
+
+======================================================================
+try and the ternary
+======================================================================
+
+let a = r?
+let b = r?.name
+let c = ok ? 1 : 2
+let d = parse(s)? + 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (try_expression
+      (identifier)))
+  (let_declaration
+    (identifier)
+    (member_expression
+      (try_expression
+        (identifier))
+      (property_identifier)))
+  (let_declaration
+    (identifier)
+    (ternary_expression
+      (identifier)
+      (number)
+      (number)))
+  (let_declaration
+    (identifier)
+    (binary_expression
+      (try_expression
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier))))
+      (number))))
+
+======================================================================
+Lambdas
+======================================================================
+
+let f = x => x * 2
+let g = (a, b) => a + b
+let h = (x: int): str => str(x)
+let k = () => {
+    1
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (lambda
+      (identifier)
+      (binary_expression
+        (identifier)
+        (number))))
+  (let_declaration
+    (identifier)
+    (lambda
+      (parameters
+        (parameter
+          (identifier))
+        (parameter
+          (identifier)))
+      (binary_expression
+        (identifier)
+        (identifier))))
+  (let_declaration
+    (identifier)
+    (lambda
+      (parameters
+        (parameter
+          (identifier)
+          (named_type
+            (type_identifier))))
+      (named_type
+        (type_identifier))
+      (call_expression
+        (identifier)
+        (arguments
+          (identifier)))))
+  (let_declaration
+    (identifier)
+    (lambda
+      (parameters)
+      (block
+        (expression_statement
+          (number))))))
+
+======================================================================
+Maps, lists and spreads
+======================================================================
+
+let m = { a: 1, "b c": 2, d, ...rest, type: 3, if: 4 }
+let l = [1, ...xs, 3]
+let e = {}
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (map
+      (map_entry
+        (property_identifier)
+        (number))
+      (map_entry
+        (string
+          (string_content))
+        (number))
+      (shorthand
+        (property_identifier))
+      (spread
+        (identifier))
+      (map_entry
+        (property_identifier)
+        (number))
+      (map_entry
+        (property_identifier)
+        (number))))
+  (let_declaration
+    (identifier)
+    (list
+      (number)
+      (spread
+        (identifier))
+      (number)))
+  (let_declaration
+    (identifier)
+    (map)))
+
+======================================================================
+Control flow
+======================================================================
+
+let a = if x > 0 { 1 } else if x < 0 { -1 } else { 0 }
+for x in xs => print(x)
+for [i, v] in enumerate(xs) {
+    print(i)
+}
+while n > 0 {
+    n -= 1
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (if_expression
+      (binary_expression
+        (identifier)
+        (number))
+      (block
+        (expression_statement
+          (number)))
+      (if_expression
+        (binary_expression
+          (identifier)
+          (number))
+        (block
+          (expression_statement
+            (unary_expression
+              (number))))
+        (block
+          (expression_statement
+            (number))))))
+  (expression_statement
+    (for_expression
+      (identifier)
+      (identifier)
+      (call_expression
+        (identifier)
+        (arguments
+          (identifier)))))
+  (expression_statement
+    (for_expression
+      (list_pattern
+        (identifier)
+        (identifier))
+      (call_expression
+        (identifier)
+        (arguments
+          (identifier)))
+      (block
+        (expression_statement
+          (call_expression
+            (identifier)
+            (arguments
+              (identifier)))))))
+  (expression_statement
+    (while_expression
+      (binary_expression
+        (identifier)
+        (number))
+      (block
+        (assignment
+          (identifier)
+          (number))))))
+
+======================================================================
+match
+======================================================================
+
+match v {
+    0 => "zero"
+    1 | 2 => "few"
+    -1 => "minus"
+    n if n > 100 => "many"
+    [first, ..rest] => first
+    { kind: "a", name } => name
+    str as s => s
+    _ => null
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (match_expression
+      (identifier)
+      (match_arm
+        (number)
+        (string
+          (string_content)))
+      (match_arm
+        (alternative_pattern
+          (number)
+          (number))
+        (string
+          (string_content)))
+      (match_arm
+        (number)
+        (string
+          (string_content)))
+      (match_arm
+        (identifier)
+        (binary_expression
+          (identifier)
+          (number))
+        (string
+          (string_content)))
+      (match_arm
+        (list_pattern
+          (identifier)
+          (identifier))
+        (identifier))
+      (match_arm
+        (record_pattern
+          (field_pattern
+            (property_identifier)
+            (string
+              (string_content)))
+          (field_pattern
+            (property_identifier)))
+        (identifier))
+      (match_arm
+        (as_pattern
+          (identifier)
+          (identifier))
+        (identifier))
+      (match_arm
+        (identifier)
+        (null)))))
+
+======================================================================
+Assignments
+======================================================================
+
+x = 1
+x += 2
+el.value = ""
+m[k] -= 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (number))
+  (assignment
+    (identifier)
+    (number))
+  (assignment
+    (member_expression
+      (identifier)
+      (property_identifier))
+    (string))
+  (assignment
+    (index_expression
+      (identifier)
+      (identifier))
+    (number)))
+
+======================================================================
+An empty map and a lone name are maps, a statement makes a block
+======================================================================
+
+let a = {}
+let b = { x }
+let c = { x = 1 }
+let d = { f(x) }
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (map))
+  (let_declaration
+    (identifier)
+    (map
+      (shorthand
+        (property_identifier))))
+  (let_declaration
+    (identifier)
+    (block
+      (assignment
+        (identifier)
+        (number))))
+  (let_declaration
+    (identifier)
+    (block
+      (expression_statement
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier)))))))

@@ -40,3 +40,25 @@ jobs:
       # No QUILLO_BIN here: the tests that need the server are skipped.
       - name: Tests, the plugin, and the Plugin Verifier on both ends of its range
         run: ./gradlew test buildPlugin verifyPluginStructure verifyPlugin
+
+  tree-sitter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tree-sitter
+    steps:
+      - uses: actions/checkout@v4
+      # The corpus test parses every example.
+      - uses: actions/checkout@v4
+        with:
+          repository: quillolang/examples
+          path: examples
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: The grammar, its trees, highlights and queries, and the examples parsed
+        env:
+          QUILLO_CORPUS: ${{ github.workspace }}/examples
+        run: npm ci && npm test
+      - name: The committed parser is the grammar's
+        run: git diff --exit-code src/

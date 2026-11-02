@@ -1,0 +1,150 @@
+======================================================================
+import, client, preload and preconnect
+======================================================================
+
+import lib/forum.qwe use latest, older as past
+import ./greet.qwe use hello
+import ../shared/auth.qwe use *
+client /assets/l.js use L
+client module "https://esm.sh/three" use * as THREE
+preload "https://a.b/c.js" use Chart
+preconnect https://cdn.example/a.js use A
+
+----------------------------------------------------------------------
+
+(source_file
+  (import_statement
+    (unquoted_path)
+    (import_names
+      (import_name
+        (identifier))
+      (import_name
+        (identifier)
+        (identifier))))
+  (import_statement
+    (unquoted_path)
+    (import_names
+      (import_name
+        (identifier))))
+  (import_statement
+    (unquoted_path)
+    (import_names
+      (import_name
+        (wildcard))))
+  (import_statement
+    (unquoted_path)
+    (import_names
+      (import_name
+        (identifier))))
+  (import_statement
+    (string
+      (string_content))
+    (import_names
+      (import_name
+        (wildcard)
+        (identifier))))
+  (import_statement
+    (string
+      (string_content))
+    (import_names
+      (import_name
+        (identifier))))
+  (import_statement
+    (unquoted_path)
+    (import_names
+      (import_name
+        (identifier)))))
+
+======================================================================
+use on the next line
+======================================================================
+
+client "https://a.b/c.js"
+    use confetti
+fn next() = 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (import_statement
+    (string
+      (string_content))
+    (import_names
+      (import_name
+        (identifier))))
+  (function_definition
+    (identifier)
+    (parameters)
+    (number)))
+
+======================================================================
+0.6's use lines
+======================================================================
+
+use lib/auth
+use "lib/auth.qwe"
+use a as b, c from redis.qwer
+use Chart with preload from "/js/chart.js"
+
+----------------------------------------------------------------------
+
+(source_file
+  (use_statement
+    (unquoted_path))
+  (use_statement
+    (string
+      (string_content)))
+  (use_statement
+    (import_names
+      (import_name
+        (identifier)
+        (identifier))
+      (import_name
+        (identifier)))
+    (unquoted_path))
+  (use_statement
+    (import_names
+      (import_name
+        (identifier)))
+    (string
+      (string_content))))
+
+======================================================================
+The words of an import are names elsewhere
+======================================================================
+
+client = 1
+let x = client / 2
+import(1)
+let t = type
+state.x = 3
+site + 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (assignment
+    (soft_identifier)
+    (number))
+  (let_declaration
+    (identifier)
+    (binary_expression
+      (soft_identifier)
+      (number)))
+  (expression_statement
+    (call_expression
+      (soft_identifier)
+      (arguments
+        (number))))
+  (let_declaration
+    (identifier)
+    (soft_identifier))
+  (assignment
+    (member_expression
+      (soft_identifier)
+      (property_identifier))
+    (number))
+  (expression_statement
+    (binary_expression
+      (soft_identifier)
+      (number))))

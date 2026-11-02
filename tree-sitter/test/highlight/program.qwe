@@ -1,0 +1,88 @@
+import lib/forum.qwe use latest, older as past
+// <- keyword.import
+//     ^ string.special.path
+//                   ^ keyword.import
+//                       ^ function
+//                                      ^ keyword.import
+
+site shop = "https://shop.example.com"
+// <- keyword
+//   ^ module
+
+private fn add(a: int, b: int = 10) -> int ! str with db = a + b
+// <- keyword.modifier
+//      ^ keyword.function
+//         ^ function
+//             ^ variable.parameter
+//                ^ type.builtin
+//                                               ^ keyword
+//                                                    ^ attribute
+
+server fn save(text: str) = db.exec("insert into notes (body) values (?)", text)
+// <- keyword.modifier
+//                          ^ module.builtin
+//                             ^ function.method.call
+
+type User = { name: str, age: int = 0 }
+// <- keyword.type
+//   ^ type.definition
+//            ^ variable.member
+
+route GET /users/:id(int) = find_user(id)
+// <- keyword
+//    ^ constant.builtin
+//        ^ string.special.url
+//                ^ variable.parameter
+//                   ^ type.builtin
+//                          ^ function.call
+
+route POST /notes { json: { body: str } } = save(body)
+//                                ^ type.builtin
+
+let total = len(items) + 12.50m
+// <- keyword
+//  ^ variable
+//          ^ function.builtin
+//                       ^ number
+
+let style_sheet = css`a { color: ${accent}; }`
+//                ^ function.macro
+
+let client = 1
+//  ^ variable
+
+let MAX_ROWS = 100
+//  ^ constant
+
+let ok = r? && true ?? null
+//        ^ operator
+//             ^ boolean
+//                     ^ constant.builtin
+
+match v {
+// <- keyword.conditional
+    User => 1
+//  ^ type
+    _ => 2
+}
+
+for x in xs => print(x)
+// <- keyword.repeat
+//    ^ keyword.repeat
+
+component Counter(start: int = 0) {
+// <- keyword.function
+//        ^ type
+    state count = start
+//  ^ keyword
+//        ^ variable
+    <button.big #go @click={() => { count += 1 }} disabled>{count}</button>
+//  ^ tag.delimiter
+//   ^ tag
+//          ^ tag.attribute
+//               ^ tag.attribute
+//                  ^ keyword
+//                                                ^ tag.attribute
+    <Card title="x"/>
+//   ^ type
+}

@@ -1,0 +1,44 @@
+{
+  "name": "tree-sitter-quillo",
+  "version": "0.1.0",
+  "description": "Quillo grammar for tree-sitter: .qwe files (a .qwer file is Rust: use tree-sitter-rust)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quillolang/editors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "incremental",
+    "parsing",
+    "tree-sitter",
+    "quillo"
+  ],
+  "files": [
+    "grammar.js",
+    "tree-sitter.json",
+    "queries/*",
+    "src/**"
+  ],
+  "tree-sitter": [
+    {
+      "scope": "source.quillo",
+      "file-types": [
+        "qwe"
+      ],
+      "injection-regex": "^(quillo|qwe)$",
+      "highlights": "queries/highlights.scm",
+      "injections": "queries/injections.scm",
+      "locals": "queries/locals.scm",
+      "folds": "queries/folds.scm",
+      "indents": "queries/indents.scm"
+    }
+  ],
+  "scripts": {
+    "generate": "tree-sitter generate",
+    "test": "tree-sitter generate && tree-sitter test && node test/corpus-files.js && node test/queries.js",
+    "queries": "node scripts/queries.js"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "0.27.1"
+  }
+}

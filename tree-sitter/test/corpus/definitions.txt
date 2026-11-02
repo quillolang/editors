@@ -1,0 +1,245 @@
+======================================================================
+Functions
+======================================================================
+
+fn add(a: int, b: int = 10) -> int = a + b
+fn parse(s: str) -> int ! str with db, http {
+    return 1
+}
+view Card(title: str, children) = <div>{children}</div>
+
+----------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (named_type
+          (type_identifier)))
+      (parameter
+        (identifier)
+        (named_type
+          (type_identifier))
+        (number)))
+    (named_type
+      (type_identifier))
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (function_definition
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (named_type
+          (type_identifier))))
+    (named_type
+      (type_identifier))
+    (named_type
+      (type_identifier))
+    (effects
+      (effect)
+      (effect))
+    (block
+      (expression_statement
+        (return_expression
+          (number)))))
+  (function_definition
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (named_type
+          (type_identifier)))
+      (parameter
+        (identifier)))
+    (element
+      (start_tag
+        (tag_name))
+      (html_expression
+        (identifier))
+      (end_tag
+        (tag_name)))))
+
+======================================================================
+private, public and server fn
+======================================================================
+
+private fn page_of(n) = n
+public let LIMIT = 20
+server fn save(text: str) = text
+
+----------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    (visibility)
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)))
+    (identifier))
+  (let_declaration
+    (visibility)
+    (identifier)
+    (number))
+  (function_definition
+    (server)
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (named_type
+          (type_identifier))))
+    (identifier)))
+
+======================================================================
+A component with state
+======================================================================
+
+component Counter(start: int = 0) {
+    state count = start
+    ~step = 1
+    style css`button { color: red; }`
+    <button @click={() => { count += step }}>{count}</button>
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (component_definition
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (named_type
+          (type_identifier))
+        (number)))
+    (block
+      (state_declaration
+        (identifier)
+        (identifier))
+      (state_declaration
+        (identifier)
+        (number))
+      (style_statement
+        (tagged_template
+          (identifier)
+          (string_content)))
+      (expression_statement
+        (element
+          (start_tag
+            (tag_name)
+            (attribute
+              (attribute_name)
+              (attribute_expression
+                (lambda
+                  (parameters)
+                  (block
+                    (assignment
+                      (identifier)
+                      (identifier)))))))
+          (html_expression
+            (identifier))
+          (end_tag
+            (tag_name)))))))
+
+======================================================================
+Types
+======================================================================
+
+type User = { name: str, age: int = 0 }
+type Kind = "a" | "b"
+type Tree = { kids: list<Tree> = [], label: str? }
+
+----------------------------------------------------------------------
+
+(source_file
+  (type_definition
+    (type_identifier)
+    (shape_type
+      (field_type
+        (property_identifier)
+        (named_type
+          (type_identifier)))
+      (field_type
+        (property_identifier)
+        (named_type
+          (type_identifier))
+        (number))))
+  (type_definition
+    (type_identifier)
+    (union_type
+      (literal_type
+        (string
+          (string_content)))
+      (literal_type
+        (string
+          (string_content)))))
+  (type_definition
+    (type_identifier)
+    (shape_type
+      (field_type
+        (property_identifier)
+        (generic_type
+          (type_identifier)
+          (named_type
+            (type_identifier)))
+        (list))
+      (field_type
+        (property_identifier)
+        (optional_type
+          (named_type
+            (type_identifier)))))))
+
+======================================================================
+site, service and mount
+======================================================================
+
+site shop = "https://shop.example.com"
+service billing = "billing.qwe" { timeout: "2s" }
+service /pay = "pay.qwe"
+mount /notes = "notes.qwe"
+
+----------------------------------------------------------------------
+
+(source_file
+  (site_declaration
+    (identifier)
+    (string
+      (string_content)))
+  (service_declaration
+    (identifier)
+    (string
+      (string_content))
+    (map
+      (map_entry
+        (property_identifier)
+        (string
+          (string_content)))))
+  (service_declaration
+    (route_path
+      (path_literal))
+    (string
+      (string_content)))
+  (mount_declaration
+    (route_path
+      (path_literal))
+    (string
+      (string_content))))
+
+======================================================================
+style global
+======================================================================
+
+style global css`body { margin: 0; }`
+
+----------------------------------------------------------------------
+
+(source_file
+  (style_statement
+    (tagged_template
+      (identifier)
+      (string_content))))
