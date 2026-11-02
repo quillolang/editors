@@ -9,7 +9,7 @@ that editor's settings.
 | Editor | Folder | Highlighting | Language server | Debugger | Also | Tested |
 |---|---|---|---|---|---|---|
 | **VS Code** | [`vscode/`](vscode) | TextMate grammar, CSS and SQL in strings | yes | yes, and the browser side | snippets, end tags as you type, Run/Check/New program | in VS Code's TextMate engine; the extension's commands against `quillo` |
-| **Cursor, Windsurf, VSCodium, Gitpod** | [`vscode/`](vscode) | the same | yes | yes | the same | as VS Code: they install from [Open VSX](#vs-code-forks) |
+| **Cursor, Windsurf, VSCodium, Gitpod** | [`vscode/`](vscode) | the same | yes | yes | the same | as VS Code: they take its `.vsix`, or [Open VSX](#vs-code-forks) once a release is there |
 | **IntelliJ IDEA, WebStorm, PyCharm and the other JetBrains IDEs** (2025.3 on) | [`jetbrains/`](jetbrains) | VS Code's grammar | yes, through LSP4IJ | yes (no hit counts or logpoints) | live templates, end tags, run configurations, New Quillo Program | in the IDE platform, 54 tests; the Plugin Verifier |
 | **Android Studio** (Rabbit 2, 2026.2.2, and on) | [`jetbrains/`](jetbrains) | the same | yes | yes | the same | [the Plugin Verifier](#android-studio) |
 | **Zed** | [`zed/`](zed) | tree-sitter | yes | yes | outline, brackets | the extension's Rust tests; built for wasm32-wasip1 |
