@@ -10,7 +10,8 @@ and Android Studio from Rabbit 2 (2026.2.2, build 262), which passes the Plugin 
   `db.one`, `db.query` and `` sql`...` ``, Rust in `.qwer` files. **File icons** for both.
 - **Diagnostics as you type**: unknown names, wrong arguments, type mismatches, effects, component
   props, code that cannot run in the browser, unused variables; in `.qwer` files the Rust
-  compiler's errors, through `cargo check`, and each `pub fn` Quillo cannot export.
+  compiler's errors, through `cargo check`, and each `pub fn` Quillo cannot export; the same for a
+  `.rs` file a program uses (a crate's own `.rs` files, which no `.qwe` file names, are not sent).
 - **End tags**: an element that is never closed is underlined, with a quick fix (Alt+Enter) that
   adds its end tag. Typing a start tag's `>` adds its end tag after the cursor, typing `</`
   finishes the end tag of the element open there, and Enter between the two tags puts the end

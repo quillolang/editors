@@ -7,7 +7,8 @@
   `end-of-defun` over functions, components, types and routes, and imenu.
 - **`quillo-mode`**, on regular expressions and the brackets' depth, where the grammar cannot
   run. A `.qwe` file opens in whichever can; so does a script whose first line runs quillo.
-  A `.qwer` file is Rust, and opens in `rust-ts-mode` or `rust-mode`.
+  A `.qwer` file is Rust, and opens in `rust-ts-mode` or `rust-mode`; so is a `.rs` file a
+  program uses, for which eglot runs rust-analyzer, not quillo (eglot picks a server by mode).
 - **eglot** runs `quillo lsp` for both modes: diagnostics, completion, hover, go to definition,
   references, rename, signature help.
 - **dape** gets a `quillo` configuration for `quillo dap`: `M-x dape RET quillo`, with the

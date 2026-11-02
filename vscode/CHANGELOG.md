@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.15.0
+
+- A `.rs` file a program uses (`import tw.rs use tailwind`, `use "tw.rs"`) goes to quillo lsp, as
+  a `.qwer` file does: what quillo can export, and the Rust compiler's errors. A crate's own `.rs`
+  files, which no `.qwe` file names, stay rust-analyzer's alone: the extension looks for the
+  program as quillo does, in the file's folder and up to three above, not past a `Cargo.toml`.
+- Highlighted: `build "/app.css" = ...`, `accept_calls { ... }`, `<!-- comments -->` in markup,
+  `<!DOCTYPE html>`, and attribute values in single quotes or none (`<img src=a.png/>`).
+- The new builtins: `files`, `markdown_page`, `classes`, `accept_calls`.
+
 ## 0.14.0
 
 - *Quillo: New program*: the to-do app or a minimal one, in a new folder, with `quillo new`, and

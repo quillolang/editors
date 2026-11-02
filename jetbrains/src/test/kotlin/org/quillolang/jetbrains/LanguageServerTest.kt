@@ -196,6 +196,37 @@ class LanguageServerTest : QuilloTestCase() {
         assertEmpty(servers.get())
     }
 
+    /** A .rs file a program imports is Rust as a .qwer file is: quillo says what it cannot export. */
+    fun testAUsedRsFileReachesTheServer() {
+        myFixture.addFileToProject("main.qwe", "import tw.rs use tailwind\nroute GET / = tailwind()\n")
+        val rs = myFixture.addFileToProject("tw.rs", "pub fn tailwind() -> String { String::new() }\npub fn generic<T>(x: T) -> T { x }\n")
+        myFixture.openFileInEditor(rs.virtualFile)
+        // The matcher runs as a read action that a write cancels; LSP4IJ asks again, as here.
+        val until = System.currentTimeMillis() + 30_000
+        while (true) {
+            val servers = LanguageServiceAccessor.getInstance(project).getLanguageServers(myFixture.file, null, null)
+            waitFor("the matcher") { servers.isDone }
+            if (!servers.isCancelled && !servers.isCompletedExceptionally) {
+                assertFalse("a server for tw.rs", servers.get().isEmpty())
+                break
+            }
+            assertTrue("matched in time", System.currentTimeMillis() < until)
+            settle(200)
+        }
+        waitFor("quillo's word on the generic function") { published().any { "`generic` is not exported" in it.toString() } }
+    }
+
+    /** A crate's own .rs file is rust-analyzer's (or RustRover's) alone. */
+    fun testACratesRsFileDoesNot() {
+        myFixture.addFileToProject("crate/Cargo.toml", "[package]\nname = \"c\"\n")
+        myFixture.addFileToProject("crate/notes.qwe", "// main.rs\n")
+        val rs = myFixture.addFileToProject("crate/src/main.rs", "fn main() {}\npub fn generic<T>(x: T) -> T { x }\n")
+        myFixture.openFileInEditor(rs.virtualFile)
+        val servers = LanguageServiceAccessor.getInstance(project).getLanguageServers(myFixture.file, null, null)
+        waitFor("the matcher") { servers.isDone }
+        assertEmpty(servers.get())
+    }
+
     /** QUILLO_OLD_BIN: a server from before experimental.cssClasses, which reads CSS as Quillo. */
     fun testOldServerSaysNothingAboutCss() {
         val old = System.getenv("QUILLO_OLD_BIN") ?: return

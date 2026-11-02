@@ -19,3 +19,7 @@
 - `site shop = "https://..."`, a script's `#!` line, the newer builtins (`run_after`,
   `local_path`, `stdin`, `exit` and others) and the `bit.` and `later.` modules highlighted, and
   the `site` and `tool` snippets, all from the VS Code extension 0.14.0.
+- A `.rs` file a program uses goes to quillo lsp as a `.qwer` file does; a crate's own, which no
+  `.qwe` file names, does not (matched off the UI thread, as quillo finds a file's program).
+- `build`, `accept_calls`, `<!-- comments -->`, `<!DOCTYPE html>`, unquoted attribute values and
+  the new builtins highlighted, from the VS Code extension 0.15.0.

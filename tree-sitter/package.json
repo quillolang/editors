@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-quillo",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Quillo grammar for tree-sitter: .qwe files (a .qwer file is Rust: use tree-sitter-rust)",
   "repository": {
     "type": "git",
