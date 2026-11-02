@@ -34,7 +34,7 @@ const PREC = {
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'ANY'];
 
 // Words that start a statement of their own shape, and are names everywhere else.
-const SOFT = ['import', 'client', 'preload', 'preconnect', 'type', 'site', 'state', 'style', 'server', 'routes', 'service', 'mount', 'private', 'public'];
+const SOFT = ['import', 'client', 'preload', 'preconnect', 'type', 'site', 'state', 'style', 'server', 'routes', 'service', 'mount', 'private', 'public', 'build', 'accept_calls'];
 
 // Words a map's key or a field may be, though they are keywords elsewhere.
 const KEY_WORDS = ['if', 'else', 'for', 'in', 'match', 'while', 'return', 'reply', 'let', 'fn', 'view', 'component', 'route', 'use', 'as', 'true', 'false', 'null', ...SOFT, ...METHODS];
@@ -111,6 +111,8 @@ module.exports = grammar({
       $.service_declaration,
       $.mount_declaration,
       $.site_declaration,
+      $.build_declaration,
+      $.accept_calls_statement,
       $.style_statement,
       $.state_declaration,
       $.assignment,
@@ -137,6 +139,8 @@ module.exports = grammar({
       optional(seq('->', field('return_type', $._type))),
       optional(seq('!', field('error_type', $._type))),
       optional($.effects),
+      // `server fn refund(id: int) for ["shop"]`: the services it takes calls from.
+      optional(seq('for', field('callers', $.list))),
       $._body,
     ),
 
@@ -266,6 +270,12 @@ module.exports = grammar({
 
     mount_declaration: $ => seq('mount', field('path', $.route_path), '=', field('file', $.string)),
 
+    // `build "/app.css" = tailwind(classes())`: made once the server listens, served there.
+    build_declaration: $ => seq('build', field('path', $.string), '=', field('value', $._expression)),
+
+    // `accept_calls { keys: ... }`: how a service takes calls (the builtin's statement form).
+    accept_calls_statement: $ => seq(alias('accept_calls', $.identifier), field('options', $.map)),
+
     // `site shop = "https://shop.example.com"`
     site_declaration: $ => seq('site', field('name', $.identifier), '=', field('url', $._expression)),
 
@@ -311,6 +321,7 @@ module.exports = grammar({
       $.for_expression,
       $.while_expression,
       $.element,
+      $.document,
     ),
 
     soft_identifier: _ => choice(...SOFT),
@@ -523,6 +534,11 @@ module.exports = grammar({
     ),
 
     // Markup.
+    // `<!DOCTYPE html>` before `<html>`, as an HTML file has it.
+    document: $ => seq($.doctype, $.element),
+
+    doctype: _ => token(seq('<!', /[dD][oO][cC][tT][yY][pP][eE]/, /\s+/, /[hH][tT][mM][lL]/, /\s*/, '>')),
+
     element: $ => choice(
       seq($.start_tag, repeat($._child), $.end_tag),
       $.self_closing_tag,
@@ -555,18 +571,25 @@ module.exports = grammar({
 
     attribute: $ => seq(
       field('name', $.attribute_name),
-      optional(seq('=', field('value', choice($.string, $.attribute_expression)))),
+      optional(seq('=', field('value', choice($.string, $.attribute_expression, $.attribute_value)))),
     ),
 
     attribute_name: _ => /[\p{L}_@:][\p{L}\p{N}_\-:@.]*/,
 
     attribute_expression: $ => seq('{', $._expression, '}'),
 
+    // HTML's unquoted value, `<img src=a.png/>`: to a space, a quote, `<`, `>`, `=`, a brace, a
+    // backtick, or the `/` of `/>`.
+    attribute_value: _ => token(prec(-1, /([^\s"'=<>`{}\/]|\/[^\s"'=<>`{}>])+/)),
+
     spread_attribute: $ => seq('{', '...', $._expression, '}'),
 
     shorthand_attribute: $ => seq('{', choice(alias($.identifier, $.attribute_name), alias($.soft_identifier, $.attribute_name)), '}'),
 
-    _child: $ => choice($.element, $.html_text, $.html_expression),
+    _child: $ => choice($.element, $.html_text, $.html_expression, $.html_comment),
+
+    // `<!-- a note -->`, as HTML has it: left out of the page.
+    html_comment: _ => token(seq('<!--', /([^-]|-[^-]|--+[^->])*/, /-*-->/)),
 
     html_expression: $ => seq('{', optional($._expression), '}'),
   },

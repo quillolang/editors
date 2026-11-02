@@ -1,0 +1,172 @@
+======================================================================
+build and accept_calls
+======================================================================
+
+build "/app.css" = tailwind(classes())
+accept_calls { keys: { shop: env("SHOP_KEY") }, shared: false }
+accept_calls({ shared: true })
+let build = 1
+build.go()
+
+----------------------------------------------------------------------
+
+(source_file
+  (build_declaration
+    (string
+      (string_content))
+    (call_expression
+      (identifier)
+      (arguments
+        (call_expression
+          (identifier)
+          (arguments)))))
+  (accept_calls_statement
+    (identifier)
+    (map
+      (map_entry
+        (property_identifier)
+        (map
+          (map_entry
+            (property_identifier)
+            (call_expression
+              (identifier)
+              (arguments
+                (string
+                  (string_content)))))))
+      (map_entry
+        (property_identifier)
+        (false))))
+  (expression_statement
+    (call_expression
+      (soft_identifier)
+      (arguments
+        (map
+          (map_entry
+            (property_identifier)
+            (true))))))
+  (let_declaration
+    (identifier)
+    (number))
+  (expression_statement
+    (call_expression
+      (member_expression
+        (soft_identifier)
+        (property_identifier))
+      (arguments))))
+
+======================================================================
+A server fn's callers
+======================================================================
+
+server fn refund(id: int) -> int for ["shop", "orders"] = id
+server fn ping() for ["shop"] {
+    1
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    (server)
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (named_type
+          (type_identifier))))
+    (named_type
+      (type_identifier))
+    (list
+      (string
+        (string_content))
+      (string
+        (string_content)))
+    (identifier))
+  (function_definition
+    (server)
+    (identifier)
+    (parameters)
+    (list
+      (string
+        (string_content)))
+    (block
+      (expression_statement
+        (number)))))
+
+======================================================================
+HTML as written: comments, a doctype, quotes and none
+======================================================================
+
+let page =
+    <!DOCTYPE html>
+    <html>
+        <!-- a note -->
+        <body class=main data-x='one two'>
+            <img src=a.png alt='A cat'/>
+            <a href=/docs>docs</a>
+        </body>
+    </html>
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (document
+      (doctype)
+      (element
+        (start_tag
+          (tag_name))
+        (html_comment)
+        (element
+          (start_tag
+            (tag_name)
+            (attribute
+              (attribute_name)
+              (attribute_value))
+            (attribute
+              (attribute_name)
+              (string
+                (string_content))))
+          (element
+            (void_tag
+              (tag_name)
+              (attribute
+                (attribute_name)
+                (attribute_value))
+              (attribute
+                (attribute_name)
+                (string
+                  (string_content)))))
+          (element
+            (start_tag
+              (tag_name)
+              (attribute
+                (attribute_name)
+                (attribute_value)))
+            (html_text)
+            (end_tag
+              (tag_name)))
+          (end_tag
+            (tag_name)))
+        (end_tag
+          (tag_name))))))
+
+======================================================================
+Rust files in use and import lines
+======================================================================
+
+use "tw.rs"
+import lib/tw.rs use tailwind
+
+----------------------------------------------------------------------
+
+(source_file
+  (use_statement
+    (string
+      (string_content)))
+  (import_statement
+    (unquoted_path)
+    (import_names
+      (import_name
+        (identifier)))))
