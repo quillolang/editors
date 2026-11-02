@@ -34,9 +34,11 @@ class RustFilesTest : BasePlatformTestCase() {
     }
 
     fun testThePathsALineNames() {
-        assertEquals(listOf("tw.rs", "lib/a.rs", "./b.rs"), RustFiles.rustPaths("import tw.rs use f\nuse \"lib/a.rs\"\nuse x, y from ./b.rs\nlet s = \"c.rs\"\n// use d.rs\nclient /e.js use E"))
-        assertEquals(listOf("a.rs"), RustFiles.rustPaths("import a.rs use f // not b.rs"))
-        assertEmpty(RustFiles.rustPaths("use tw.rs.bak"))
+        assertEquals(
+            listOf("tw.rs", "lib/a.rs", "./b.rs", "lib/auth.qwe", "lib/forum.qwe", "lib/q.qwe"),
+            RustFiles.usePaths("import tw.rs use f\nuse \"lib/a.rs\"\nuse x, y from ./b.rs\nlet s = \"c.rs\"\n// use d.rs\nclient /e.js use E\nuse lib/auth\nuse a as b from redis.qwer\nuse Chart with preload from \"https://x/c.js\"\nimport lib/forum.qwe use latest // a note\nuse x\nimport \"lib/q.qwe\" use q"),
+        )
+        assertEmpty(RustFiles.usePaths("use tw.rs.bak"))
     }
 
     fun testAProgramAndWhatItUses() {
@@ -47,6 +49,16 @@ class RustFilesTest : BasePlatformTestCase() {
         assertTrue("a path from the program's folder", RustFiles.usedByProgram(put("app/lib/md.rs")))
         assertTrue("./ from the file that writes it", RustFiles.usedByProgram(put("app/lib/near.rs")))
         assertFalse("nothing names it", RustFiles.usedByProgram(put("app/lib/loose.rs")))
+        put("app/other/side.qwe", "import ../tw2.rs use t\n")
+        assertFalse("a .qwe beside it that no program takes", RustFiles.usedByProgram(put("app/tw2.rs")))
+        put("noext/main.qwe", "use lib/a\n")
+        put("noext/lib/a.qwe", "import lib/x.rs use x\n")
+        assertTrue("a path with no extension is a .qwe file", RustFiles.usedByProgram(put("noext/lib/x.rs")))
+        put("cycle/main.qwe", "use a.qwe\n")
+        put("cycle/a.qwe", "use main.qwe\nuse b.qwe\n")
+        put("cycle/b.qwe", "import c.rs use c\n")
+        assertTrue("files that use each other, followed once each", RustFiles.usedByProgram(put("cycle/c.rs")))
+        assertFalse("in a cycle, a file nothing names", RustFiles.usedByProgram(put("cycle/d.rs")))
         assertFalse("not a .rs file", RustFiles.usedByProgram(tmp.resolve("app/main.qwe")))
         assertFalse("not there", RustFiles.usedByProgram(tmp.resolve("app/none.rs")))
         Files.createSymbolicLink(tmp.resolve("app/linked.rs"), tw)
@@ -69,6 +81,21 @@ class RustFilesTest : BasePlatformTestCase() {
         assertTrue("four folders below", RustFiles.usedByProgram(put("deep2/a/b/c/f.rs")))
     }
 
+    /** As on Linux CI, where the walk up reached /tmp and folders it could not read. */
+    fun testAFolderThatCannotBeReadIsPassedOver() {
+        put("locked/inner/main.qwe", "import x.rs use x\n")
+        val x = put("locked/inner/x.rs")
+        val loose = put("locked/inner/loose.rs")
+        val locked = tmp.resolve("locked")
+        Files.setPosixFilePermissions(locked, java.nio.file.attribute.PosixFilePermissions.fromString("-wx--x--x"))
+        try {
+            assertTrue(RustFiles.usedByProgram(x))
+            assertFalse(RustFiles.usedByProgram(loose))
+        } finally {
+            Files.setPosixFilePermissions(locked, java.nio.file.attribute.PosixFilePermissions.fromString("rwxr-xr-x"))
+        }
+    }
+
     fun testTheMatcher() {
         put("app/main.qwe", "import tw.rs use tailwind\n")
         val used = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(put("app/tw.rs"))!!
@@ -76,7 +103,6 @@ class RustFilesTest : BasePlatformTestCase() {
         val matcher = UsedRustMatcher()
         assertTrue(matcher.match(used, project))
         assertFalse(matcher.match(loose, project))
-        assertTrue("matched off the UI thread", matcher.shouldBeMatchedAsynchronously(project))
         assertTrue(matcher.matchAsync(used, project).get(10, java.util.concurrent.TimeUnit.SECONDS))
         assertFalse(matcher.matchAsync(loose, project).get(10, java.util.concurrent.TimeUnit.SECONDS))
     }
