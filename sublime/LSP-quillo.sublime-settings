@@ -1,0 +1,7 @@
+{
+	// quillo lsp: the language server built into the quillo binary. A full path if quillo
+	// is not on the PATH Sublime Text sees.
+	"command": ["quillo", "lsp"],
+	"selector": "source.quillo | source.qwer",
+	"enabled": true,
+}

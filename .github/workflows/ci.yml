@@ -106,3 +106,16 @@ jobs:
           node-version: 22
       - name: languages.toml and the queries, against what Helix reads
         run: npm ci && npm test
+
+  sublime:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sublime
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: The grammars are VS Code's, the settings parse, the plugin registers quillo
+        run: python3 build.py --check && python3 -m unittest discover -s test
