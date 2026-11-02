@@ -143,3 +143,19 @@ jobs:
       - run: sudo apt-get install -y vim
       - name: Filetypes, syntax, indentation and the error format, in Vim
         run: vim -Nu NONE -i NONE -es -S test/run.vim
+
+  highlighters:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: highlighters
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Shiki, highlight.js, Prism and KDE's syntax file on a sample
+        run: npm ci && npm test
