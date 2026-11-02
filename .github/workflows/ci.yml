@@ -24,3 +24,19 @@ jobs:
         env:
           QUILLO_EXAMPLES: ${{ github.workspace }}/examples
         run: npm ci && npm test && npx vsce package
+
+  jetbrains:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: jetbrains
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      # No QUILLO_BIN here: the tests that need the server are skipped.
+      - name: Tests, the plugin, and the Plugin Verifier on both ends of its range
+        run: ./gradlew test buildPlugin verifyPluginStructure verifyPlugin
