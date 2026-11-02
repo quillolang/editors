@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language>
+<!-- Quillo for KDE's syntax files: Kate, KDevelop, and pandoc (its syntax-definition option names this
+     file), which the book can print with. The builtins and modules are the VS Code extension's grammar's
+     (test/kde.py checks). -->
+<language name="Quillo" section="Sources" version="1" kateversion="5.0" extensions="*.qwe" mimetype="text/x-quillo" license="MIT" author="quillolang">
+  <highlighting>
+    <list name="keywords">
+      <item>let</item>
+      <item>fn</item>
+      <item>view</item>
+      <item>component</item>
+      <item>route</item>
+      <item>use</item>
+      <item>as</item>
+      <item>with</item>
+      <item>from</item>
+      <item>if</item>
+      <item>else</item>
+      <item>match</item>
+      <item>for</item>
+      <item>in</item>
+      <item>while</item>
+      <item>return</item>
+      <item>reply</item>
+    </list>
+    <list name="literals">
+      <item>true</item>
+      <item>false</item>
+      <item>null</item>
+    </list>
+    <list name="types">
+      <item>int</item>
+      <item>float</item>
+      <item>dec</item>
+      <item>num</item>
+      <item>str</item>
+      <item>date</item>
+      <item>bool</item>
+      <item>list</item>
+      <item>map</item>
+      <item>html</item>
+      <item>any</item>
+      <item>response</item>
+    </list>
+    <list name="builtins">
+      <item>print</item>
+      <item>str</item>
+      <item>int</item>
+      <item>float</item>
+      <item>dec</item>
+      <item>len</item>
+      <item>type_of</item>
+      <item>upper</item>
+      <item>lower</item>
+      <item>trim</item>
+      <item>split</item>
+      <item>join</item>
+      <item>contains</item>
+      <item>starts_with</item>
+      <item>ends_with</item>
+      <item>replace</item>
+      <item>slice</item>
+      <item>map</item>
+      <item>filter</item>
+      <item>find</item>
+      <item>any</item>
+      <item>all</item>
+      <item>reduce</item>
+      <item>sum</item>
+      <item>min</item>
+      <item>max</item>
+      <item>sort</item>
+      <item>sort_by</item>
+      <item>reverse</item>
+      <item>first</item>
+      <item>last</item>
+      <item>push</item>
+      <item>range</item>
+      <item>enumerate</item>
+      <item>keys</item>
+      <item>values</item>
+      <item>get</item>
+      <item>has</item>
+      <item>set</item>
+      <item>remove</item>
+      <item>merge</item>
+      <item>err</item>
+      <item>is_err</item>
+      <item>unwrap</item>
+      <item>raw</item>
+      <item>escape</item>
+      <item>url_encode</item>
+      <item>env</item>
+      <item>now</item>
+      <item>sleep</item>
+      <item>file</item>
+      <item>redirect</item>
+      <item>respond</item>
+      <item>read_file</item>
+      <item>write_file</item>
+      <item>random</item>
+      <item>random_int</item>
+      <item>uuid</item>
+      <item>abs</item>
+      <item>round</item>
+      <item>floor</item>
+      <item>ceil</item>
+      <item>sqrt</item>
+      <item>pow</item>
+      <item>unique</item>
+      <item>flatten</item>
+      <item>zip</item>
+      <item>take</item>
+      <item>drop</item>
+      <item>count</item>
+      <item>group_by</item>
+      <item>index_of</item>
+      <item>repeat</item>
+      <item>format_number</item>
+      <item>live</item>
+      <item>publish</item>
+      <item>watch</item>
+      <item>unwatched</item>
+      <item>delete_file</item>
+      <item>check_program</item>
+      <item>join_on</item>
+      <item>markdown</item>
+      <item>highlight</item>
+      <item>run_script</item>
+      <item>sql_name</item>
+      <item>sql_param</item>
+      <item>ask</item>
+      <item>notify</item>
+      <item>translations</item>
+      <item>locale_from</item>
+      <item>locale</item>
+      <item>with_locale</item>
+      <item>t</item>
+      <item>schedule</item>
+      <item>allow_cross_site</item>
+      <item>tenant</item>
+      <item>tenant_from</item>
+      <item>with_tenant</item>
+      <item>save_upload</item>
+      <item>read_upload</item>
+      <item>js</item>
+      <item>js_new</item>
+      <item>parallel</item>
+      <item>every</item>
+      <item>stream</item>
+      <item>events</item>
+      <item>listen</item>
+      <item>receive</item>
+      <item>url</item>
+      <item>css</item>
+      <item>sql</item>
+      <item>navigate</item>
+      <item>set_cookie</item>
+      <item>delete_cookie</item>
+      <item>session</item>
+      <item>set_session</item>
+      <item>end_session</item>
+      <item>sessions</item>
+      <item>renew_session</item>
+      <item>end_sessions</item>
+      <item>user_sessions</item>
+      <item>rate_limit</item>
+      <item>rate_limit_reset</item>
+      <item>security_headers</item>
+      <item>csp</item>
+      <item>csp_nonce</item>
+      <item>idempotent</item>
+      <item>args</item>
+      <item>cookie</item>
+      <item>cursor_index</item>
+      <item>defer</item>
+      <item>error</item>
+      <item>exit</item>
+      <item>filled</item>
+      <item>js_has</item>
+      <item>local_path</item>
+      <item>new_tenant</item>
+      <item>normalize</item>
+      <item>page_updated</item>
+      <item>platform</item>
+      <item>read_line</item>
+      <item>ready</item>
+      <item>run_after</item>
+      <item>site_headers</item>
+      <item>stdin</item>
+      <item>style_with</item>
+      <item>waiting</item>
+    </list>
+    <list name="modules">
+      <item>json</item>
+      <item>db</item>
+      <item>http</item>
+      <item>udp</item>
+      <item>channel</item>
+      <item>media</item>
+      <item>crypto</item>
+      <item>image</item>
+      <item>math</item>
+      <item>stats</item>
+      <item>vec</item>
+      <item>date</item>
+      <item>money</item>
+      <item>re</item>
+      <item>bit</item>
+      <item>later</item>
+    </list>
+    <contexts>
+      <context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces/>
+        <RegExpr attribute="Shebang" String="^#!.*$" column="0"/>
+        <Detect2Chars attribute="Comment" context="LineComment" char="/" char1="/"/>
+        <Detect2Chars attribute="Comment" context="BlockComment" char="/" char1="*" beginRegion="Comment"/>
+        <RegExpr attribute="Keyword" firstNonSpace="true" String="(import|client|preload|preconnect)(?=\s+(module\s+)?(&quot;[^&quot;]*&quot;|[^\s&quot;]+)\s+use\b)" context="Import"/>
+        <RegExpr attribute="Keyword" firstNonSpace="true" String="(route|routes|mount|service)\b" context="RouteHead"/>
+        <RegExpr attribute="Keyword" firstNonSpace="true" String="(private|public|server|state|site|type|style)\b(?=\s+[A-Za-z_])"/>
+        <RegExpr attribute="Keyword" String="\b(fn|view|component)\b" context="DefinitionName"/>
+        <keyword attribute="Keyword" String="keywords"/>
+        <keyword attribute="Constant" String="literals"/>
+        <keyword attribute="Type" String="types"/>
+        <RegExpr attribute="Builtin" String="\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting)\b(?=\s*\()"/>
+        <RegExpr attribute="Builtin" String="\b(json|db|http|udp|channel|media|crypto|image|math|stats|vec|date|money|re|bit|later)(?=\.)"/>
+        <RegExpr attribute="Function" String="\b[A-Za-z_]\w*(?=\s*\(|`)"/>
+        <RegExpr attribute="Number" String="\b(0[xX][0-9a-fA-F_]+|\d[\d_]*(\.\d[\d_]*)?([eE][+-]?\d+)?m?)\b"/>
+        <DetectChar attribute="String" context="String" char="&quot;"/>
+        <DetectChar attribute="String" context="StringSingle" char="'"/>
+        <DetectChar attribute="String" context="Template" char="`"/>
+        <RegExpr attribute="Tag" String="&lt;/?[A-Za-z][\w-]*" context="Tag"/>
+        <DetectChar attribute="Normal Text" context="Braces" char="{" beginRegion="Brace"/>
+        <DetectIdentifier/>
+      </context>
+      <context name="Braces" attribute="Normal Text" lineEndContext="#stay">
+        <DetectChar attribute="Normal Text" context="#pop" char="}" endRegion="Brace"/>
+        <IncludeRules context="Normal"/>
+      </context>
+      <context name="DefinitionName" attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <RegExpr attribute="Function" String="[A-Za-z_]\w*" context="#pop"/>
+      </context>
+      <context name="LineComment" attribute="Comment" lineEndContext="#pop"/>
+      <context name="BlockComment" attribute="Comment" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="Comment"/>
+      </context>
+      <context name="Import" attribute="Normal Text" lineEndContext="#pop">
+        <DetectSpaces/>
+        <RegExpr attribute="Keyword" String="module\b"/>
+        <RegExpr attribute="Path" String="(&quot;[^&quot;]*&quot;|[^\s&quot;]+)(?=\s+use\b)"/>
+        <RegExpr attribute="Keyword" String="use\b" context="#pop"/>
+      </context>
+      <context name="RouteHead" attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <RegExpr attribute="Constant" String="(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)\b"/>
+        <RegExpr attribute="Path" String="/[^\s{=?|]*" context="#pop"/>
+        <DetectIdentifier attribute="Normal Text" context="#pop"/>
+      </context>
+      <context name="String" attribute="String" lineEndContext="#stay">
+        <RegExpr attribute="Escape" String="\\(u\{[0-9a-fA-F]+\}|u[0-9a-fA-F]{4}|.)"/>
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
+      </context>
+      <context name="StringSingle" attribute="String" lineEndContext="#stay">
+        <RegExpr attribute="Escape" String="\\(u\{[0-9a-fA-F]+\}|u[0-9a-fA-F]{4}|.)"/>
+        <DetectChar attribute="String" context="#pop" char="'"/>
+      </context>
+      <context name="Template" attribute="String" lineEndContext="#stay">
+        <RegExpr attribute="Escape" String="\\(u\{[0-9a-fA-F]+\}|u[0-9a-fA-F]{4}|.)"/>
+        <Detect2Chars attribute="Interpolation" context="Substitution" char="$" char1="{"/>
+        <DetectChar attribute="String" context="#pop" char="`"/>
+      </context>
+      <context name="Substitution" attribute="Normal Text" lineEndContext="#stay">
+        <DetectChar attribute="Interpolation" context="#pop" char="}"/>
+        <IncludeRules context="Normal"/>
+      </context>
+      <context name="Tag" attribute="Tag" lineEndContext="#stay">
+        <DetectSpaces/>
+        <Detect2Chars attribute="Tag" context="#pop" char="/" char1="&gt;"/>
+        <DetectChar attribute="Tag" context="#pop" char="&gt;"/>
+        <RegExpr attribute="Attribute" String="[.#][\w\-:]+"/>
+        <RegExpr attribute="Attribute" String="[@:]?[A-Za-z_][\w\-:@.]*"/>
+        <DetectChar attribute="Normal Text" char="="/>
+        <DetectChar attribute="String" context="String" char="&quot;"/>
+        <DetectChar attribute="Normal Text" context="Braces" char="{"/>
+      </context>
+    </contexts>
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal"/>
+      <itemData name="Keyword" defStyleNum="dsKeyword"/>
+      <itemData name="Function" defStyleNum="dsFunction"/>
+      <itemData name="Builtin" defStyleNum="dsBuiltIn"/>
+      <itemData name="Constant" defStyleNum="dsConstant"/>
+      <itemData name="Type" defStyleNum="dsDataType"/>
+      <itemData name="Number" defStyleNum="dsDecVal"/>
+      <itemData name="String" defStyleNum="dsString"/>
+      <itemData name="Escape" defStyleNum="dsSpecialChar"/>
+      <itemData name="Interpolation" defStyleNum="dsSpecialChar"/>
+      <itemData name="Path" defStyleNum="dsVerbatimString"/>
+      <itemData name="Comment" defStyleNum="dsComment"/>
+      <itemData name="Shebang" defStyleNum="dsPreprocessor"/>
+      <itemData name="Tag" defStyleNum="dsKeyword"/>
+      <itemData name="Attribute" defStyleNum="dsAttribute"/>
+    </itemDatas>
+  </highlighting>
+  <general>
+    <comments>
+      <comment name="singleLine" start="//"/>
+      <comment name="multiLine" start="/*" end="*/" region="Comment"/>
+    </comments>
+    <keywords casesensitive="1"/>
+  </general>
+</language>

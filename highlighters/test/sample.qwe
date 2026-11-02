@@ -1,0 +1,16 @@
+#!/usr/bin/env quillo
+// A comment
+import lib/forum.qwe use latest, older as past
+site shop = "https://shop.example.com"
+private fn add(a: int, b: int = 10) -> int with db = a + b
+route GET /users/:id(int) = find_user(id)
+let client = 1
+let total = len(items) + 12.50m
+let greeting = `Hello, ${name}!`
+let sheet = css`a { color: red; }`
+let n = db.one("select count(*) from users")
+let ok = if total > 0 { true } else { null }
+component Counter(start: int = 0) {
+    state count = start
+    <button.big @click={() => { count += 1 }} disabled>{count}</button>
+}

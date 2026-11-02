@@ -1,0 +1,14 @@
+{
+  "name": "quillo-highlighters",
+  "private": true,
+  "description": "Quillo for Shiki, highlight.js, Prism and KDE's syntax files (pandoc), with their tests",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node build.mjs --check && node test/shiki.mjs && node test/highlightjs.mjs && node test/prism.mjs && python3 test/kde.py"
+  },
+  "devDependencies": {
+    "highlight.js": "11.12.0",
+    "prismjs": "1.30.0",
+    "shiki": "4.6.0"
+  }
+}
