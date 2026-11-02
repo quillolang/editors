@@ -16,3 +16,8 @@ component Counter(start: int = 0) {
     state count = start
     <button @click={() => { count += 1 }} disabled>{count}</button>
 }
+build "/app.css" = tailwind(classes())
+accept_calls { shared: false }
+let page = <div class=box alt='A cat'><!-- a note --><img src=a.png/></div>
+let doc = <!DOCTYPE html>
+let build = 1

@@ -20,7 +20,7 @@
     "security_headers", "csp", "csp_nonce", "idempotent", "args", "cookie", "cursor_index",
     "defer", "error", "exit", "filled", "js_has", "local_path", "new_tenant", "normalize",
     "page_updated", "platform", "read_line", "ready", "run_after", "site_headers", "stdin",
-    "style_with", "waiting",
+    "style_with", "waiting", "accept_calls", "classes", "files", "markdown_page",
   ];
   const MODULES = ["json", "db", "http", "udp", "channel", "media", "crypto", "image", "math", "stats", "vec", "date", "money", "re", "bit", "later"];
   const words = (list) => new RegExp("\\b(?:" + list.join("|") + ")\\b");
@@ -30,6 +30,7 @@
     const lang = {
       shebang: { pattern: /^#!.*/, alias: "comment" },
       comment: [
+        { pattern: /<!--[\s\S]*?-->/, greedy: true },
         { pattern: /\/\*[\s\S]*?\*\//, greedy: true },
         { pattern: /\/\/.*/, greedy: true },
       ],
@@ -50,6 +51,9 @@
           string: /[\s\S]+/,
         },
       },
+      // Before strings, which would take the path `build` looks ahead to.
+      build: { pattern: /^(\s*)build\b(?=\s+"[^"]*"\s*=[^=])/m, lookbehind: true, alias: "keyword" },
+      "accept-calls": { pattern: /^(\s*)accept_calls\b(?=\s*\{)/m, lookbehind: true, alias: "builtin" },
       string: { pattern: /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/, greedy: true },
       route: {
         pattern: /^(\s*)(?:route|routes|mount|service)\s+(?:(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)\s+)?\/[^\s{=?|]*/m,
@@ -68,18 +72,21 @@
           keyword: /^\w+|\b(?:module|use)\b/,
         },
       },
+      doctype: { pattern: /<!doctype\s+html\s*>/i, alias: "prolog" },
       soft: {
         pattern: /^(\s*)(?:private|public|server|state|site|type|style(?:\s+global)?)\b(?=\s+[A-Za-z_])/m,
         lookbehind: true,
         alias: "keyword",
       },
       tag: {
-        pattern: /<\/?[A-Za-z][\w-]*(?:[.#][\w\-:{}.]*)*(?:\s+(?:[@:]?[A-Za-z_][\w\-:@.]*(?:=(?:"[^"]*"|\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})*\}))?|\{[^}]*\}))*\s*\/?>/,
+        pattern: /<\/?[A-Za-z][\w-]*(?:[.#][\w\-:{}.]*)*(?:\s+(?:[@:]?[A-Za-z_][\w\-:@.]*(?:=(?:"[^"]*"|'[^']*'|\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})*\}|(?:[^\s"'=<>`{}\/]|\/(?!>))+))?|\{[^}]*\}))*\s*\/?>/,
         greedy: true,
         inside: {
+          // HTML's unquoted value, which `/>` ends: <img src=a.png/>.
+          "attr-value-unquoted": { pattern: /(=)(?:[^\s"'=<>`{}\/]|\/(?!>))+/, lookbehind: true, alias: ["attr-value", "string"] },
           "attr-value": {
-            pattern: /=(?:"[^"]*"|\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})*\})/,
-            inside: { punctuation: /^=\{?|\}$/, string: /^"[^"]*"$/, rest: expression },
+            pattern: /=(?:"[^"]*"|'[^']*'|\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})*\}|(?:[^\s"'=<>`{}\/]|\/(?!>))+)/,
+            inside: { punctuation: /^=\{?|\}$/, string: /^(?:"[^"]*"|'[^']*'|[^{].*)$/, rest: expression },
           },
           "attr-name": /(?:^|\s)[@:]?[A-Za-z_][\w\-:@.]*/,
           punctuation: /^<\/?|\/?>$/,

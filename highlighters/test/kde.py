@@ -88,6 +88,8 @@ def match(r, line, pos):
         return m.end() if m else None
     if t == "DetectChar":
         return pos + 1 if line[pos] == r.get("char") else None
+    if t == "StringDetect":
+        return pos + len(r.get("String")) if line.startswith(r.get("String"), pos) else None
     if t == "Detect2Chars":
         return pos + 2 if line[pos : pos + 2] == r.get("char") + r.get("char1") else None
     if t == "RegExpr":
@@ -95,7 +97,7 @@ def match(r, line, pos):
             return None
         if r.get("firstNonSpace") == "true" and line[:pos].strip():
             return None
-        m = re.compile(r.get("String")).match(line, pos)
+        m = re.compile(r.get("String"), re.I if r.get("insensitive") == "true" else 0).match(line, pos)
         return m.end() if m and m.end() > pos else None
     if t == "keyword":
         if pos > 0 and line[pos - 1] not in DELIMS:
@@ -113,7 +115,7 @@ def match(r, line, pos):
 def switch(stack, to):
     if not to or to == "#stay":
         return
-    for part in re.findall(r"#pop|[^#]+", to):
+    for part in re.findall(r"#pop|[^#!]+", to):
         if part == "#pop":
             if len(stack) > 1:
                 stack.pop()
@@ -202,6 +204,19 @@ for n, text, want in [
 # An indented route, in a group, is a route too.
 group = read("routes /admin {\n    route GET /users = users()\n}\n")
 check("a route in a group", [s for t, s in group[1] if t == "route"] == ["Keyword"] and [s for t, s in group[1] if t == "/users"] == ["Path"], group[1])
+for n, text, want in [
+    (17, "build", "Keyword"),
+    (17, "classes", "Builtin"),
+    (18, "accept_calls", "Builtin"),
+    (19, "box", "String"),
+    (19, "'A cat'", "String"),
+    (19, "<!-- a note -->", "Comment"),
+    (19, "a.png", "String"),
+    (20, "<!DOCTYPE html>", "Doctype"),
+]:
+    got = style(n, text)
+    check("line %d: %s is %s" % (n, text, want), got == want, got)
+check("the tag after an unquoted value closes", style(19, "</div") == "Tag", lines[18])
 # Back to code after the markup: the line after the element is read from Normal.
 check("after the tag, code", style(16, "}") == "Normal Text", style(16, "}"))
 

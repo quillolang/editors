@@ -32,6 +32,21 @@
 	</array>
 	<key>repository</key>
 	<dict>
+		<key>accept-calls</key>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>support.function.builtin.quillo</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>accept_calls { keys: ... }: how a service takes calls, the statement form of the builtin.</string>
+			<key>match</key>
+			<string>^\s*(accept_calls)(?=\s*\{)</string>
+		</dict>
 		<key>arrow-param</key>
 		<dict>
 			<key>match</key>
@@ -69,13 +84,28 @@
 				</dict>
 			</array>
 		</dict>
+		<key>build</key>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.other.build.quillo</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>build "/app.css" = expr: made once the server listens, served at that path. Only at a line's start with a string and `=`; elsewhere `build` is a name.</string>
+			<key>match</key>
+			<string>^\s*(build)(?=\s+"[^"]*"\s*=(?!=))</string>
+		</dict>
 		<key>call</key>
 		<dict>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>match</key>
-					<string>\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting)\b(?=\s*\()</string>
+					<string>\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting|accept_calls|classes|files|markdown_page)\b(?=\s*\()</string>
 					<key>name</key>
 					<string>support.function.builtin.quillo</string>
 				</dict>
@@ -344,6 +374,36 @@
 				</dict>
 			</array>
 		</dict>
+		<key>doctype</key>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.tag.begin.quillo</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.other.doctype.quillo</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.tag.quillo</string>
+				</dict>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.tag.end.quillo</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>&lt;!DOCTYPE html&gt; before &lt;html&gt;, as an HTML file has it (any case).</string>
+			<key>match</key>
+			<string>(&lt;!)((?i:doctype))\s+((?i:html))\s*(&gt;)</string>
+		</dict>
 		<key>escape</key>
 		<dict>
 			<key>match</key>
@@ -369,6 +429,10 @@
 			<string>(?=&lt;/)</string>
 			<key>patterns</key>
 			<array>
+				<dict>
+					<key>include</key>
+					<string>#html-comment</string>
+				</dict>
 				<dict>
 					<key>include</key>
 					<string>#html-void</string>
@@ -424,6 +488,33 @@
 			</dict>
 			<key>match</key>
 			<string>(&lt;/)([A-Za-z][\w-]*)\s*(&gt;)</string>
+		</dict>
+		<key>html-comment</key>
+		<dict>
+			<key>begin</key>
+			<string>&lt;!--</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.comment.begin.quillo</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>&lt;!-- a note --&gt;, as HTML has it: left out of the page.</string>
+			<key>end</key>
+			<string>--&gt;</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.comment.end.quillo</string>
+				</dict>
+			</dict>
+			<key>name</key>
+			<string>comment.block.html.quillo</string>
 		</dict>
 		<key>html-element</key>
 		<dict>
@@ -517,6 +608,10 @@
 			<array>
 				<dict>
 					<key>include</key>
+					<string>#html-comment</string>
+				</dict>
+				<dict>
+					<key>include</key>
 					<string>#html-children</string>
 				</dict>
 				<dict>
@@ -567,6 +662,25 @@
 					<string>[A-Za-z_:][\w:.-]*</string>
 					<key>name</key>
 					<string>entity.other.attribute-name.quillo</string>
+				</dict>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.separator.key-value.quillo</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>string.unquoted.attribute-value.quillo</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>HTML's unquoted value: &lt;img src=a.png/&gt;; `/&gt;` still ends the tag.</string>
+					<key>match</key>
+					<string>(=)\s*((?:[^\s"'=&lt;&gt;`{}/]|/(?!&gt;))+)</string>
 				</dict>
 				<dict>
 					<key>match</key>
@@ -654,6 +768,10 @@
 			<array>
 				<dict>
 					<key>include</key>
+					<string>#html-comment</string>
+				</dict>
+				<dict>
+					<key>include</key>
 					<string>#comment</string>
 				</dict>
 				<dict>
@@ -700,6 +818,25 @@
 					<string>[A-Za-z_:][\w:.-]*</string>
 					<key>name</key>
 					<string>entity.other.attribute-name.quillo</string>
+				</dict>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.separator.key-value.quillo</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>string.unquoted.attribute-value.quillo</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>HTML's unquoted value: &lt;img src=a.png/&gt;; `/&gt;` still ends the tag.</string>
+					<key>match</key>
+					<string>(=)\s*((?:[^\s"'=&lt;&gt;`{}/]|/(?!&gt;))+)</string>
 				</dict>
 				<dict>
 					<key>match</key>
@@ -1273,6 +1410,14 @@
 				</dict>
 				<dict>
 					<key>include</key>
+					<string>#build</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#accept-calls</string>
+				</dict>
+				<dict>
+					<key>include</key>
 					<string>#typedef</string>
 				</dict>
 				<dict>
@@ -1286,6 +1431,10 @@
 				<dict>
 					<key>include</key>
 					<string>#type-generic</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#doctype</string>
 				</dict>
 				<dict>
 					<key>include</key>

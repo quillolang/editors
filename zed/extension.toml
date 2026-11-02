@@ -1,6 +1,6 @@
 id = "quillo"
 name = "Quillo"
-version = "0.1.0"
+version = "0.2.0"
 schema_version = 1
 authors = ["quillolang"]
 description = "Quillo: highlighting, outline and brackets from tree-sitter-quillo; diagnostics, completion, hover and go to definition from quillo lsp; a debugger through quillo dap."
@@ -8,7 +8,7 @@ repository = "https://github.com/quillolang/editors"
 
 [grammars.quillo]
 repository = "https://github.com/quillolang/editors"
-rev = "7e6868b77af4e08a010371b9ee7ad8ebc72050d1"
+rev = "2ed38483546431bca7be64f7257f0197b51983a8"
 path = "tree-sitter"
 
 [language_servers.quillo]

@@ -23,7 +23,7 @@
     "security_headers", "csp", "csp_nonce", "idempotent", "args", "cookie", "cursor_index",
     "defer", "error", "exit", "filled", "js_has", "local_path", "new_tenant", "normalize",
     "page_updated", "platform", "read_line", "ready", "run_after", "site_headers", "stdin",
-    "style_with", "waiting",
+    "style_with", "waiting", "accept_calls", "classes", "files", "markdown_page",
   ];
   const MODULES = ["json", "db", "http", "udp", "channel", "media", "crypto", "image", "math", "stats", "vec", "date", "money", "re", "bit", "later"];
   const TYPES = ["int", "float", "dec", "num", "str", "date", "bool", "list", "map", "html", "fn", "any", "response"];
@@ -65,6 +65,13 @@
       begin: [/^\s*/, /(?:private|public|server|state|site|type|style(?:\s+global)?)\b/, /(?=\s+[A-Za-z_])/],
       beginScope: { 2: "keyword" },
     };
+    // `build "/app.css" = ...`, and `accept_calls { ... }`, the builtin's statement form.
+    const BUILD = { begin: [/^\s*/, /build\b/, /(?=\s+"[^"]*"\s*=[^=])/], beginScope: { 2: "keyword" } };
+    const ACCEPT = { begin: [/^\s*/, /accept_calls\b/, /(?=\s*\{)/], beginScope: { 2: "built_in" } };
+    // HTML as written: <!-- comments --> and <!DOCTYPE html>.
+    const HTML_COMMENT = hljs.COMMENT("<!--", "-->");
+    // highlight.js drops a mode's own flags, so the case is spelt out.
+    const DOCTYPE = { className: "meta", begin: /<![dD][oO][cC][tT][yY][pP][eE]\s+[hH][tT][mM][lL]\s*>/ };
     const DEFINITION = {
       begin: [/\b(?:fn|view|component)\b/, /\s+/, IDENT],
       beginScope: { 1: "keyword", 3: "title.function" },
@@ -84,15 +91,22 @@
       { className: "selector-id", begin: /#[\w-]+/, relevance: 0 },
       { begin: /=\{/, end: /\}/, keywords: KEYWORDS, contains: [] },
       { className: "string", begin: '"', end: '"' },
+      { className: "string", begin: "'", end: "'" },
+      // HTML's unquoted value, which `/>` ends: <img src=a.png/>.
+      { className: "string", match: /(?<==)(?:[^\s"'=<>`{}/]|\/(?!>))+/ },
     ];
     TAG.contains[0].starts.contains = ATTRS;
     const ALL = [
       hljs.SHEBANG({ binary: "quillo" }),
       hljs.C_LINE_COMMENT_MODE,
       hljs.C_BLOCK_COMMENT_MODE,
+      HTML_COMMENT,
+      DOCTYPE,
       ROUTE,
       IMPORT,
       SOFT,
+      BUILD,
+      ACCEPT,
       DEFINITION,
       ...STRINGS,
       TAGGED,

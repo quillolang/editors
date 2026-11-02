@@ -53,9 +53,9 @@
     "receive" "url" "css" "sql" "navigate" "set_cookie" "delete_cookie" "session" "set_session"
     "end_session" "sessions" "renew_session" "end_sessions" "user_sessions" "rate_limit"
     "rate_limit_reset" "security_headers" "csp" "csp_nonce" "idempotent" "args" "cookie"
-    "cursor_index" "defer" "error" "exit" "filled" "js_has" "local_path" "new_tenant" "normalize"
-    "page_updated" "platform" "read_line" "ready" "run_after" "site_headers" "stdin" "style_with"
-    "waiting")
+    "cursor_index" "defer" "error" "exit" "filled" "js_has" "local_path" "new_tenant"
+    "normalize" "page_updated" "platform" "read_line" "ready" "run_after" "site_headers" "stdin"
+    "style_with" "waiting" "accept_calls" "classes" "files" "markdown_page")
   "Quillo's builtin functions, as the VS Code extension's grammar has them.")
 
 (defconst quillo--modules
@@ -66,7 +66,8 @@
 (defconst quillo--keywords
   '("let" "fn" "view" "component" "route" "routes" "use" "import" "client" "preload"
     "preconnect" "module" "from" "as" "with" "if" "else" "match" "for" "in" "while" "return"
-    "reply" "type" "state" "style" "global" "site" "service" "mount" "server" "private" "public")
+    "reply" "type" "state" "style" "global" "site" "service" "mount" "server" "private" "public"
+    "build")
   "Quillo's keywords, the words that are keywords only in their own statement too.")
 
 ;;;; The syntax table, for both modes
@@ -93,11 +94,13 @@
    :language 'quillo
    :feature 'comment
    '((comment) @font-lock-comment-face
-     (shebang) @font-lock-preprocessor-face)
+     (html_comment) @font-lock-comment-face
+     (shebang) @font-lock-preprocessor-face
+     (doctype) @font-lock-preprocessor-face)
 
    :language 'quillo
    :feature 'keyword
-   `([,@(seq-filter (lambda (k) (not (member k '("import" "client" "preload" "preconnect" "type" "state" "style" "site" "service" "mount" "server" "private" "public" "routes" "module" "global" "from" "with")))) quillo--keywords)]
+   `([,@(seq-filter (lambda (k) (not (member k '("import" "client" "preload" "preconnect" "type" "state" "style" "site" "service" "mount" "server" "private" "public" "routes" "module" "global" "from" "with" "build")))) quillo--keywords)]
      @font-lock-keyword-face
      (import_statement ["import" "client" "preload" "preconnect" "module" "use"] @font-lock-keyword-face)
      (use_statement ["use" "from" "with" "preload" "preconnect"] @font-lock-keyword-face)
@@ -107,6 +110,8 @@
      (site_declaration "site" @font-lock-keyword-face)
      (service_declaration "service" @font-lock-keyword-face)
      (mount_declaration "mount" @font-lock-keyword-face)
+     (build_declaration "build" @font-lock-keyword-face)
+     (function_definition "for" @font-lock-keyword-face)
      (route_group "routes" @font-lock-keyword-face)
      (effects "with" @font-lock-keyword-face)
      (server) @font-lock-keyword-face
@@ -131,6 +136,7 @@
      (template_string) @font-lock-string-face
      (tagged_template (string_content) @font-lock-string-face)
      (unquoted_path) @font-lock-string-face
+     (attribute_value) @font-lock-string-face
      (route_path) @font-lock-string-face)
 
    :language 'quillo
@@ -150,7 +156,8 @@
    `(((call_expression function: (identifier) @font-lock-builtin-face)
       (:match ,(rx-to-string `(seq bos (or ,@quillo--builtins) eos)) @font-lock-builtin-face))
      ((member_expression object: (identifier) @font-lock-builtin-face)
-      (:match ,(rx-to-string `(seq bos (or ,@quillo--modules) eos)) @font-lock-builtin-face)))
+      (:match ,(rx-to-string `(seq bos (or ,@quillo--modules) eos)) @font-lock-builtin-face))
+     (accept_calls_statement (identifier) @font-lock-builtin-face))
 
    :language 'quillo
    :feature 'constant
@@ -277,6 +284,12 @@
      . font-lock-keyword-face)
     (,(rx bol (* space) (or "private" "public" "server" "state" "style" "site" "type") symbol-end)
      . font-lock-keyword-face)
+    (,(rx bol (* space) (group "build") (+ space) "\"" (* (not (any "\""))) "\"" (* space) "=" (not (any "=")))
+     (1 font-lock-keyword-face))
+    (,(rx bol (* space) (group "accept_calls") (* space) "{") (1 font-lock-builtin-face))
+    (,(rx "<!--" (*? anything) "-->") 0 font-lock-comment-face t)
+    (,(rx "<!" (any "dD") (any "oO") (any "cC") (any "tT") (any "yY") (any "pP") (any "eE") (+ space) "html" (* space) ">")
+     . font-lock-preprocessor-face)
     (,(rx symbol-start (or "true" "false" "null") symbol-end) . font-lock-constant-face)
     (,(rx-to-string `(seq symbol-start (group (or ,@quillo--builtins)) (* space) "(") t) (1 font-lock-builtin-face))
     (,(rx-to-string `(seq symbol-start (group (or ,@quillo--modules)) ".") t) (1 font-lock-builtin-face))
