@@ -1,0 +1,7 @@
+{
+  "name": "quillo-helix-check",
+  "private": true,
+  "description": "Checks helix/languages.toml and the queries against what Helix reads",
+  "scripts": { "test": "node test/check.js" },
+  "devDependencies": { "smol-toml": "1.4.2" }
+}
