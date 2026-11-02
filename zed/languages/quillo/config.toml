@@ -1,0 +1,15 @@
+name = "Quillo"
+grammar = "quillo"
+path_suffixes = ["qwe"]
+first_line_pattern = '^#!.*\bquillo\b'
+line_comments = ["// "]
+tab_size = 4
+debuggers = ["Quillo"]
+brackets = [
+  { start = "{", end = "}", close = true, newline = true },
+  { start = "[", end = "]", close = true, newline = true },
+  { start = "(", end = ")", close = true, newline = true },
+  { start = "\"", end = "\"", close = true, newline = false, not_in = ["string", "comment"] },
+  { start = "'", end = "'", close = true, newline = false, not_in = ["string", "comment"] },
+  { start = "`", end = "`", close = true, newline = false, not_in = ["string", "comment"] },
+]

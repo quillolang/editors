@@ -62,3 +62,19 @@ jobs:
         run: npm ci && npm test
       - name: The committed parser is the grammar's
         run: git diff --exit-code src/
+
+  zed:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zed
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The test looks for the grammar's commit.
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip1
+      - name: The extension's tests, and the build Zed makes
+        run: cargo test && cargo build --release --target wasm32-wasip1

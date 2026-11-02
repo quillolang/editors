@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Quillo",
+  "description": "A debug.json configuration for quillo dap: the program it runs, as `quillo run` would.",
+  "type": "object",
+  "required": [
+    "program"
+  ],
+  "properties": {
+    "program": {
+      "type": "string",
+      "description": "The .qwe file to run."
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Options for `quillo run`, such as [\"--port\", \"8080\", \"--watch\"].",
+      "default": [
+        "--watch"
+      ]
+    },
+    "cwd": {
+      "type": "string",
+      "description": "The folder to run in."
+    },
+    "stopOnEntry": {
+      "type": "boolean",
+      "description": "Stop at the program's first statement.",
+      "default": false
+    },
+    "request": {
+      "type": "string",
+      "enum": [
+        "launch"
+      ],
+      "default": "launch",
+      "description": "quillo dap launches the program."
+    }
+  },
+  "additionalProperties": true
+}
