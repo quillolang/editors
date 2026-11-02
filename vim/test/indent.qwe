@@ -1,0 +1,20 @@
+fn f(x) {
+    if x {
+        let m = {
+            a: 1,
+        }
+    }
+}
+route GET / =
+    <div>
+        <p>text</p>
+        <br>
+    </div>
+let xs = [
+    1,
+]
+route GET /a =
+    one()
+let after = 2
+fn g() =
+    h()

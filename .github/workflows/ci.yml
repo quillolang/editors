@@ -132,3 +132,14 @@ jobs:
           python-version: "3.12"
       - name: quillo-mode.el, its queries against the grammar
         run: (cd tree-sitter && npm ci) && python3 emacs/test/check.py
+
+  vim:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vim
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y vim
+      - name: Filetypes, syntax, indentation and the error format, in Vim
+        run: vim -Nu NONE -i NONE -es -S test/run.vim
