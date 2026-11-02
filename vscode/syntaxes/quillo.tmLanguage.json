@@ -14,6 +14,9 @@
     "statements": {
       "patterns": [
         {
+          "include": "#shebang"
+        },
+        {
           "include": "#comment"
         },
         {
@@ -24,6 +27,9 @@
         },
         {
           "include": "#use"
+        },
+        {
+          "include": "#site"
         },
         {
           "include": "#typedef"
@@ -574,8 +580,12 @@
         {
           "match": "\\b(state)\\s+([A-Za-z_][A-Za-z0-9_]*)(?=\\s*=(?!=))",
           "captures": {
-            "1": { "name": "storage.type.quillo" },
-            "2": { "name": "variable.other.state.quillo" }
+            "1": {
+              "name": "storage.type.quillo"
+            },
+            "2": {
+              "name": "variable.other.state.quillo"
+            }
           }
         }
       ]
@@ -692,7 +702,7 @@
       ]
     },
     "module-call": {
-      "match": "\\b(json|db|http|udp|channel|media|crypto|image|math|stats|vec|date|money|re)(\\.)([a-z_]\\w*)",
+      "match": "\\b(json|db|http|udp|channel|media|crypto|image|math|stats|vec|date|money|re|bit|later)(\\.)([a-z_]\\w*)",
       "captures": {
         "1": {
           "name": "support.module.quillo"
@@ -708,7 +718,7 @@
     "call": {
       "patterns": [
         {
-          "match": "\\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent)\\b(?=\\s*\\()",
+          "match": "\\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting)\\b(?=\\s*\\()",
           "name": "support.function.builtin.quillo"
         },
         {
@@ -1291,6 +1301,23 @@
           ]
         }
       ]
+    },
+    "shebang": {
+      "comment": "`#!/usr/bin/env quillo` on a script's first line: skipped, so `./tool.qwe` runs.",
+      "match": "\\A#!.*$",
+      "name": "comment.line.shebang.quillo"
+    },
+    "site": {
+      "comment": "site shop = \"https://shop.example.com\": a deployed Quillo site, its server fns called as shop.notes(). Only at a line's start with a name and `=`; elsewhere `site` is a name.",
+      "match": "^\\s*(site)\\s+([A-Za-z_]\\w*)(?=\\s*=(?!=))",
+      "captures": {
+        "1": {
+          "name": "keyword.other.site.quillo"
+        },
+        "2": {
+          "name": "variable.other.declaration.quillo"
+        }
+      }
     }
   },
   "injections": {

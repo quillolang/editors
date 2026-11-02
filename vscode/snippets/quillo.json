@@ -24,6 +24,16 @@
     "body": ["preload \"${1:https://}\" use ${0:Name}"],
     "description": "A script for the browser, fetched from the page's head"
   },
+  "site": {
+    "prefix": "site",
+    "body": ["site ${1:shop} = \"${2:https://}\""],
+    "description": "A deployed Quillo site, its server fns called as shop.notes() (server side)"
+  },
+  "tool": {
+    "prefix": "tool",
+    "body": ["#!/usr/bin/env quillo", "let line = read_line()", "while line != null {", "\t$0", "\tline = read_line()", "}"],
+    "description": "A script as a command-line tool, reading its input a line at a time"
+  },
   "fn": {
     "prefix": "fn",
     "body": ["fn ${1:name}(${2}) = ${0:null}"],

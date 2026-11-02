@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.14.0
+
+- *Quillo: New program*: the to-do app or a minimal one, in a new folder, with `quillo new`, and
+  the folder opened (in a new window when one is open). Needs a `quillo` that has `new`; an older
+  one is told to update.
+- `site shop = "https://..."` highlighted, `site` staying a name elsewhere, and a script's `#!`
+  line on the first line only.
+- The newer builtins highlighted: `run_after`, `page_updated`, `js_has`, `cursor_index`,
+  `local_path`, `site_headers`, `normalize`, `stdin`, `read_line`, `exit`, `args`, `platform`,
+  `filled`, `error`, `cookie`, `new_tenant` and more, and the `bit.` and `later.` modules.
+- Snippets: `site`, and `tool`, a script that reads its input a line at a time.
+
 ## 0.13.0
 
 - The file first: `import lib/a.qwe use b`, `client /assets/l.js use L`, `preload` and
