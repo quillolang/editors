@@ -1,7 +1,8 @@
 # Quillo for JetBrains IDEs
 
 Language support for [Quillo](https://github.com/quillolang/quillo), the small web language, in
-IntelliJ IDEA, WebStorm, PyCharm, GoLand, RustRover and the other JetBrains IDEs, from 2025.3 on.
+IntelliJ IDEA, WebStorm, PyCharm, GoLand, RustRover and the other JetBrains IDEs, from 2025.3 on,
+and Android Studio from Rabbit 2 (2026.2.2, build 262), which passes the Plugin Verifier.
 
 - **Highlighting** for `.qwe` and `.qwer` files, with the same grammars as the VS Code extension:
   routes and paths, `import` lines (`./` and `../` too), `site shop = "..."`, a script's `#!` line,
