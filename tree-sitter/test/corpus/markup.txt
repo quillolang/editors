@@ -1,0 +1,203 @@
+======================================================================
+Elements, classes and ids
+======================================================================
+
+let a = <li.todo.done #todo-{t.id} class={x}>text</li>
+let b = <div.w-1/2.md:flex/>
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (element
+      (start_tag
+        (tag_name)
+        (class_selector
+          (selector_name))
+        (class_selector
+          (selector_name))
+        (id_selector
+          (selector_name)
+          (attribute_expression_immediate
+            (member_expression
+              (identifier)
+              (property_identifier))))
+        (attribute
+          (attribute_name)
+          (attribute_expression
+            (identifier))))
+      (html_text)
+      (end_tag
+        (tag_name))))
+  (let_declaration
+    (identifier)
+    (element
+      (self_closing_tag
+        (tag_name)
+        (class_selector
+          (selector_name))
+        (class_selector
+          (selector_name))))))
+
+======================================================================
+Attributes
+======================================================================
+
+let a = <input type="checkbox" checked={done} @change={() => go()} bind:value={v} {...rest} {name} disabled/>
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (element
+      (void_tag
+        (tag_name)
+        (attribute
+          (attribute_name)
+          (string
+            (string_content)))
+        (attribute
+          (attribute_name)
+          (attribute_expression
+            (identifier)))
+        (attribute
+          (attribute_name)
+          (attribute_expression
+            (lambda
+              (parameters)
+              (call_expression
+                (identifier)
+                (arguments)))))
+        (attribute
+          (attribute_name)
+          (attribute_expression
+            (identifier)))
+        (spread_attribute
+          (identifier))
+        (shorthand_attribute
+          (attribute_name))
+        (attribute
+          (attribute_name))))))
+
+======================================================================
+Void elements need no end tag
+======================================================================
+
+let a = <p>one<br>two<img src="a.png">three</p>
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (element
+      (start_tag
+        (tag_name))
+      (html_text)
+      (element
+        (void_tag
+          (tag_name)))
+      (html_text)
+      (element
+        (void_tag
+          (tag_name)
+          (attribute
+            (attribute_name)
+            (string
+              (string_content)))))
+      (html_text)
+      (end_tag
+        (tag_name)))))
+
+======================================================================
+Text, expressions and comments in markup
+======================================================================
+
+let a =
+    <div>
+        a // b is text
+        // this is a comment
+        {/* so is this */}
+        {count} items
+        {for x in xs => <span>{x}</span>}
+    </div>
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (element
+      (start_tag
+        (tag_name))
+      (html_text)
+      (comment)
+      (html_expression
+        (comment))
+      (html_expression
+        (identifier))
+      (html_text)
+      (html_expression
+        (for_expression
+          (identifier)
+          (identifier)
+          (element
+            (start_tag
+              (tag_name))
+            (html_expression
+              (identifier))
+            (end_tag
+              (tag_name)))))
+      (end_tag
+        (tag_name)))))
+
+======================================================================
+Components in markup
+======================================================================
+
+let p = <Page title="Home"><Card title={t}/></Page>
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (element
+      (start_tag
+        (tag_name)
+        (attribute
+          (attribute_name)
+          (string
+            (string_content))))
+      (element
+        (self_closing_tag
+          (tag_name)
+          (attribute
+            (attribute_name)
+            (attribute_expression
+              (identifier)))))
+      (end_tag
+        (tag_name)))))
+
+======================================================================
+A comparison is not markup
+======================================================================
+
+let a = x < y
+let b = x<y
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (let_declaration
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier))))

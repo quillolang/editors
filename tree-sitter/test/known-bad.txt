@@ -1,0 +1,2 @@
+# Files quillo itself refuses, kept to test that it does: each must have an error
+# here. A path from ~/dev (the folder holding quillo-editors), one a line.
