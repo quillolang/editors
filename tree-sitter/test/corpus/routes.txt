@@ -170,3 +170,61 @@ route GET /y = reply 302
       (path_literal))
     (reply_expression
       (number))))
+
+======================================================================
+a path with @ and a parameter after it
+======================================================================
+
+route GET /@:name = name
+route GET /c++/a@b = 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    (http_method)
+    (route_path
+      (path_literal)
+      (path_parameter
+        (identifier)))
+    (identifier))
+  (route
+    (http_method)
+    (route_path
+      (path_literal)
+      (path_literal))
+    (number)))
+
+======================================================================
+a route and a group with effects
+======================================================================
+
+route GET /notes with db = 1
+routes /reports | signed_in with db, time {
+    route GET /now with time = 2
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    (http_method)
+    (route_path
+      (path_literal))
+    (effects
+      (effect))
+    (number))
+  (route_group
+    (route_path
+      (path_literal))
+    (identifier)
+    (effects
+      (effect)
+      (effect))
+    (route
+      (http_method)
+      (route_path
+        (path_literal))
+      (effects
+        (effect))
+      (number))))

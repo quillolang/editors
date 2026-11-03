@@ -2239,6 +2239,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "effects",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2280,6 +2290,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "effects",
+          "named": true
+        },
         {
           "type": "route",
           "named": true

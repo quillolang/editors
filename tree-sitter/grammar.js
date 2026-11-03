@@ -192,6 +192,8 @@ module.exports = grammar({
       field('path', $.route_path),
       optional(seq('?', field('query', $.record_pattern))),
       optional(field('request', $.record_pattern)),
+      // `with db`, what the route may do (quillo 0.7).
+      optional($.effects),
       $._body,
     ),
 
@@ -203,9 +205,11 @@ module.exports = grammar({
       repeat(seq($._path_slash, optional($._path_part))),
     ),
 
-    _path_part: $ => choice($.path_literal, $.path_parameter, $.path_rest),
+    // A parameter may follow a prefix in its piece, `/@:name`, and a piece holds what a URL's
+    // path takes as it is, `@+!$&` among it (quillo FEEDBACK53.md, Q-683).
+    _path_part: $ => choice(seq($.path_literal, optional($.path_parameter)), $.path_parameter, $.path_rest),
 
-    path_literal: _ => token.immediate(/[\p{L}\p{N}\-._~%]+/),
+    path_literal: _ => token.immediate(/[\p{L}\p{N}\-._~%@+!$&]+/),
 
     path_parameter: $ => seq(
       token.immediate(':'),
@@ -221,6 +225,7 @@ module.exports = grammar({
       field('path', $.route_path),
       repeat(seq('|', field('middleware', $._expression))),
       optional(field('request', $.record_pattern)),
+      optional($.effects),
       '{',
       optional(sepTrail(choice($.route, $.route_group), $._terminator)),
       '}',
