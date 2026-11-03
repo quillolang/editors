@@ -42,7 +42,7 @@ args = { program = "{0}", args = ["--watch"], stopOnEntry = true }
 
 [[grammar]]
 name = "quillo"
-source = { git = "https://github.com/quillolang/editors", rev = "2ed38483546431bca7be64f7257f0197b51983a8", subpath = "tree-sitter" }
+source = { git = "https://github.com/quillolang/editors", rev = "81740502b5aa10844cf02e5d13198e5bccde3dd7", subpath = "tree-sitter" }
 
 # A .qwer file is Rust, with Rust's grammar and queries; quillo lsp says what it exports.
 [[language]]
