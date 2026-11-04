@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.16.0
+
+- `quillo lsp` is told whether the folder is trusted (`initializationOptions.trusted`), and
+  compiles a `.qwer` or `.rs` file only there, when it is saved: `cargo check` runs the
+  dependencies' build scripts and macros, and opening a file from a cloned repository ran them
+  (FEEDBACK51.md, Q-653). In Restricted Mode the extension still highlights and checks Quillo;
+  trusting the folder starts the server again with the compiler on. Needs quillo 0.7.
+
 ## 0.15.0
 
 - A `.rs` file a program uses (`import tw.rs use tailwind`, `use "tw.rs"`) goes to quillo lsp, as

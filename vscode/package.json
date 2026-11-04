@@ -2,7 +2,7 @@
   "name": "quillo-lang",
   "displayName": "Quillo",
   "description": "Quillo language support: highlighting, diagnostics, quick fixes, hover, go to definition, completion, end tags closed as you type, outline (via `quillo lsp`) and debugging (via `quillo dap`).",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "publisher": "quillolang",
   "icon": "icon.png",
   "license": "MIT",
@@ -16,6 +16,12 @@
   },
   "engines": {
     "vscode": "^1.82.0"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In a folder not trusted, .qwer files are not compiled: cargo check would run their dependencies' build scripts."
+    }
   },
   "categories": [
     "Programming Languages",

@@ -88,6 +88,9 @@ async function startClient() {
         { scheme: "file", language: "rust", pattern: "**/*.rs" },
       ],
       synchronize: { fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{qwe,qwer,rs}") },
+      // `cargo check` runs a .qwer's dependencies' build scripts: the server compiles one only
+      // in a folder trusted here (FEEDBACK51.md, Q-653).
+      initializationOptions: { trusted: vscode.workspace.isTrusted },
       // A server from before `experimental.cssClasses` would read CSS as
       // Quillo and mark it all as errors: it is not sent CSS files. A .rs file
       // no program uses is a crate's, and is rust-analyzer's alone.
@@ -368,7 +371,9 @@ async function activate(context) {
     vscode.workspace.onDidChangeTextDocument(closeTags),
     vscode.workspace.onDidChangeConfiguration(async (e) => {
       if (e.affectsConfiguration("quillo.path")) await restartClient();
-    })
+    }),
+    // Trusted now: started again, to say so.
+    vscode.workspace.onDidGrantWorkspaceTrust(restartClient)
   );
   await startClient();
 }
