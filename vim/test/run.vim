@@ -113,6 +113,25 @@ call assert_notequal('quilloStatement', s:At(35, 'mcp'), 'mcp at the end of its 
 call s:Is(36, 'server', 'quilloStatement')
 call s:Is(36, 'mcp', 'quilloStatement')
 call s:Is(36, 'ping', 'quilloFunction')
+" FEEDBACK56: the `//!` instructions and `///` are comments; `server` after `public` starts its
+" definition; a tool's questions and the door's tokens are builtins; a group's `/*x` is a path.
+call s:Is(37, 'Notes are private', 'quilloLineComment')
+call s:Is(38, 'Adds a note', 'quilloLineComment')
+call s:Is(39, 'public', 'quilloStatement')
+call s:Is(39, 'server', 'quilloStatement')
+call s:Is(39, 'save', 'quilloFunction')
+call s:Is(40, 'revoke_mcp_token', 'quilloBuiltin')
+call s:Is(40, 'confirm', 'quilloBuiltin')
+call s:Is(40, 'ask', 'quilloBuiltin')
+call s:Is(41, 'mcp_token(', 'quilloBuiltin')
+call s:Is(41, 'mcp_tokens', 'quilloBuiltin')
+call s:Is(42, '/*x', 'quilloRoutePath')
+call s:Is(42, 'with', 'quilloKeyword')
+call s:Is(43, '/*m', 'quilloRoutePath')
+call s:Is(43, 'a.qwe', 'quilloString')
+call s:Is(44, 'server', 'quilloStatement')
+call s:Is(44, 'hidden', 'quilloFunction')
+call assert_notequal('quilloStatement', s:At(45, 'server'), 'let server is a name')
 
 " Indentation: every line of indent.qwe is where its indent puts it.
 execute 'edit ' . fnameescape(s:here . '/test/indent.qwe')

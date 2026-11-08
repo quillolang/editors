@@ -23,7 +23,8 @@
     "security_headers", "csp", "csp_nonce", "idempotent", "args", "cookie", "cursor_index",
     "defer", "error", "exit", "filled", "js_has", "local_path", "new_tenant", "normalize",
     "page_updated", "platform", "read_line", "ready", "run_after", "site_headers", "stdin",
-    "style_with", "waiting", "accept_calls", "classes", "files", "markdown_page",
+    "style_with", "waiting", "accept_calls", "classes", "files", "markdown_page", "confirm",
+    "mcp_token", "mcp_tokens", "revoke_mcp_token",
   ];
   const MODULES = ["json", "db", "http", "udp", "channel", "media", "crypto", "image", "math", "stats", "vec", "date", "money", "re", "bit", "later"];
   const TYPES = ["int", "float", "dec", "num", "str", "date", "bool", "list", "map", "html", "fn", "any", "response"];
@@ -64,6 +65,11 @@
     const SOFT = {
       begin: [/^\s*/, /(?:private|public|server|state|site|type|style(?:\s+global)?)\b/, /(?=\s+[A-Za-z_])/],
       beginScope: { 2: "keyword" },
+    };
+    // `public server fn x()`: `server` after `private` or `public` starts its definition too.
+    const VISIBLE_SERVER = {
+      begin: [/^\s*/, /(?:private|public)/, /[ \t]+/, /server\b/, /(?=\s+fn\b)/],
+      beginScope: { 2: "keyword", 4: "keyword" },
     };
     // `build "/app.css" = ...`, and `accept_calls { ... }`, the builtin's statement form.
     const BUILD = { begin: [/^\s*/, /build\b/, /(?=\s+"[^"]*"\s*=[^=])/], beginScope: { 2: "keyword" } };
@@ -118,6 +124,7 @@
       SERVICE_TOOL,
       ROUTE,
       IMPORT,
+      VISIBLE_SERVER,
       SOFT,
       BUILD,
       ACCEPT,

@@ -15,14 +15,15 @@ that editor's settings.
 | **Zed** | [`zed/`](zed) | tree-sitter | yes | yes | outline, brackets | the extension's Rust tests; built for wasm32-wasip1 |
 | **Neovim** | [`neovim/`](neovim) | tree-sitter (nvim-treesitter or a built parser) | yes, `vim.lsp.config` or nvim-lspconfig | yes, nvim-dap | folds, indents | in LuaJIT against a stand-in for Neovim's API |
 | **Helix** | [`helix/`](helix) | tree-sitter | yes | yes | textobjects, indents | `languages.toml` and every capture against what Helix reads |
-| **Emacs** (29 on) | [`emacs/`](emacs) | tree-sitter, or regular expressions without it | yes, eglot | yes, dape | imenu, defuns, indentation | its queries against the grammar; read as Lisp |
+| **Emacs** (29 on) | [`emacs/`](emacs) | tree-sitter, or regular expressions without it | yes, eglot | yes, dape | imenu, defuns, indentation | its queries against the grammar; read as Lisp; `quillo-mode` in `emacs --batch` where Emacs is installed |
 | **Sublime Text 4** | [`sublime/`](sublime) | VS Code's grammar | yes, with the LSP package | no | build system (run, check) | the grammars rule for rule; the settings; the error pattern on `quillo check` |
 | **Vim** (no LSP needed) | [`vim/`](vim) | a syntax file | [any Vim LSP client](vim/README.md#a-language-server-too) | no | `:make` runs `quillo check`, indentation | in Vim 9 |
 | **Visual Studio** (Windows) | none | [VS Code's grammar](#visual-studio) | not yet | no | | instructions only |
 | **Eclipse** | none | [VS Code's grammar, through TM4E](#eclipse) | yes, through LSP4E | yes, LSP4E's debug adapter launcher | | instructions only |
 
-Neovim, Helix, Emacs, Sublime Text, Zed, Eclipse and Visual Studio have not been run on the
-machine these were made on: their tests stand in for each editor where it cannot be run.
+Neovim, Helix, Sublime Text, Zed, Eclipse and Visual Studio have not been run on the machine
+these were made on, nor Emacs's `quillo-ts-mode`: their tests stand in for each editor where it
+cannot be run.
 
 Built on the same grammars:
 

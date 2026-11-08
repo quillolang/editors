@@ -2,10 +2,12 @@
 closed), its tree-sitter queries compile against tree-sitter-quillo (each feature's, with
 the keyword list and :match predicates as Emacs builds them), the node types its indent rules,
 defuns and imenu name are the grammar's, every face is one Emacs 29 has, and its lists are
-the VS Code grammar's. Run: python3 test/check.py (from emacs/)."""
+the VS Code grammar's. Where Emacs 29 or later is on the PATH, `quillo-mode` (the regular
+expressions) also colours a sample in Emacs itself. Run: python3 test/check.py (from emacs/)."""
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -163,6 +165,72 @@ check("eglot runs quillo lsp", "(,quillo-program \"lsp\")" in SRC)
 check("dape runs quillo dap", 'command-args ("dap")' in SRC and ":request \"launch\"" in SRC)
 check("it provides quillo-mode", "(provide 'quillo-mode)" in SRC and SRC.rstrip().endswith(";;; quillo-mode.el ends here"))
 check("lexical binding", SRC.splitlines()[0].endswith("-*- lexical-binding: t; -*-"))
+
+# In Emacs: `quillo-mode` colours a sample, each (line, word) given the face at its first place on
+# that line (FEEDBACK56: the `//!` instructions and `/* */` are comments, `server` after `public`
+# starts its definition, a tool's questions and the door's tokens are builtins).
+EMACS_SAMPLE = """//! Notes are private to the user who wrote them.
+/// Adds a note.
+public server fn save(text: str) = text
+let gone = revoke_mcp_token(id) /* a block
+   comment */ && confirm("Sure?") && ask("Who?", { a: "A" }, "a") != null
+let t = mcp_token({ max_age: 60 }) ?? mcp_tokens()
+  private server fn hidden() = 1
+let server = 1
+fn mcp total() = len(x)
+"""
+EMACS_WANT = [
+    (1, "Notes are private", "font-lock-comment-face"),
+    (2, "Adds a note", "font-lock-comment-face"),
+    (3, "public", "font-lock-keyword-face"),
+    (3, "server", "font-lock-keyword-face"),
+    (3, "save", "font-lock-function-name-face"),
+    (4, "revoke_mcp_token", "font-lock-builtin-face"),
+    (4, "a block", "font-lock-comment-face"),
+    (5, "comment", "font-lock-comment-face"),
+    (5, "confirm", "font-lock-builtin-face"),
+    (5, "ask", "font-lock-builtin-face"),
+    (6, "mcp_token", "font-lock-builtin-face"),
+    (6, "mcp_tokens", "font-lock-builtin-face"),
+    (7, "server", "font-lock-keyword-face"),
+    (8, "server", "font-lock-variable-name-face"),
+    (9, "mcp", "font-lock-keyword-face"),
+    (9, "len", "font-lock-builtin-face"),
+]
+emacs = shutil.which("emacs")
+major = 0
+if emacs:
+    r = subprocess.run([emacs, "--batch", "-Q", "--eval", "(princ emacs-major-version)"], capture_output=True, text=True, timeout=60)
+    major = int(r.stdout.strip() or 0)
+if major < 29:
+    print("(no Emacs 29 or later on the PATH: quillo-mode was not run in Emacs)")
+else:
+    tmp = tempfile.mkdtemp()
+    src, asks = os.path.join(tmp, "s.qwe"), os.path.join(tmp, "asks.txt")
+    open(src, "w").write(EMACS_SAMPLE)
+    open(asks, "w").write("".join("%d\t%s\n" % (n, w) for n, w, _ in EMACS_WANT))
+    lisp = """(progn
+  (load (expand-file-name "quillo-mode.el" "%s") nil t)
+  (let ((asks (with-temp-buffer (insert-file-contents "%s") (split-string (buffer-string) "\\n" t))))
+    (with-temp-buffer
+      (insert-file-contents "%s")
+      (quillo-mode)
+      (font-lock-ensure)
+      (dolist (ask asks)
+        (let* ((parts (split-string ask "\\t")) (n (string-to-number (car parts))) (word (cadr parts)))
+          (goto-char (point-min))
+          (forward-line (1- n))
+          (let ((face (and (search-forward word (line-end-position) t)
+                           (get-text-property (match-beginning 0) 'face))))
+            (princ (format "%%d\\t%%s\\t%%s\\n" n word (if (consp face) (car face) face)))))))))""" % (HERE, asks, src)
+    r = subprocess.run([emacs, "--batch", "-Q", "--eval", lisp], capture_output=True, text=True, timeout=120)
+    got = {}
+    for line in r.stdout.splitlines():
+        n, word, face = line.split("\t")
+        got[(int(n), word)] = face
+    check("Emacs %d colours the sample in quillo-mode" % major, r.returncode == 0 and len(got) == len(EMACS_WANT), (r.returncode, r.stderr[-400:]))
+    for n, word, want in EMACS_WANT:
+        check("in Emacs, line %d: %s is %s" % (n, word, want), got.get((n, word)) == want, got.get((n, word)))
 
 print("%s Emacs checks %s" % (("%d of %d" % (failed, count)) if failed else "all %d" % count, "failed" if failed else "passed"))
 sys.exit(1 if failed else 0)

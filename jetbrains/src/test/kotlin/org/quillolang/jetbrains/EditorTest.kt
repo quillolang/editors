@@ -139,6 +139,28 @@ class EditorTest : BasePlatformTestCase() {
         assertTrue(scopeOf("bit"), "support.module" in scopeOf("bit"))
     }
 
+    /** `/* ... */` is a comment, over lines too, where it was code; in a route group's path `/*` is a wildcard. */
+    fun testBlockComments() {
+        myFixture.configureByText("main.qwe", "let a = 1 /* a\nnote */ + 2\nroutes /*x with db {\n}\nlet b = 3\n")
+        val note = tokens().first { "note" in it.first }.second
+        assertTrue(note, "comment.block" in note)
+        assertTrue(scopeOf("2"), "constant.numeric" in scopeOf("2"))
+        val wildcard = tokens().first { it.first == "*" }.second
+        assertTrue(wildcard, "keyword.operator.wildcard" in wildcard)
+        assertTrue(scopeOf("b"), "variable.other.declaration" in scopeOf("b"))
+    }
+
+    /** A tool's questions and the MCP door's tokens are builtins; `//!` is a comment (quillo FEEDBACK56.md). */
+    fun testTheToolsBuiltins() {
+        myFixture.configureByText("main.qwe", "//! Notes are private.\npublic server fn save(t: str) = confirm(t)\nlet k = mcp_tokens() ?? revoke_mcp_token(id) ?? mcp_token()\n")
+        val instructions = tokens().first { "Notes are private" in it.first }.second
+        assertTrue(instructions, "comment" in instructions)
+        assertTrue(scopeOf("server"), "storage.modifier.server" in scopeOf("server"))
+        for (name in listOf("confirm", "mcp_tokens", "revoke_mcp_token", "mcp_token")) {
+            assertTrue(scopeOf(name), "support.function.builtin" in scopeOf(name))
+        }
+    }
+
     fun testARelativeImport() {
         myFixture.configureByText("main.qwe", "import ../shared/auth.qwe use login\n")
         assertTrue(scopeOf("../shared/auth.qwe"), "string.unquoted.path" in scopeOf("../shared/auth.qwe"))

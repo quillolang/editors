@@ -23,6 +23,9 @@
           "include": "#route"
         },
         {
+          "include": "#route-prefix"
+        },
+        {
           "include": "#import"
         },
         {
@@ -112,8 +115,76 @@
       ]
     },
     "comment": {
-      "name": "comment.line.double-slash.quillo",
-      "match": "//.*$"
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.quillo",
+          "match": "//.*$"
+        },
+        {
+          "comment": "/* ... */, over lines too, to the first */ (they do not nest), as quillo's lexer reads it. A route's path is read before it, so route GET /*rest and routes /*x are paths.",
+          "name": "comment.block.quillo",
+          "begin": "/\\*",
+          "end": "\\*/",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.begin.quillo"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.end.quillo"
+            }
+          }
+        }
+      ]
+    },
+    "route-prefix": {
+      "comment": "`routes /admin {` and `mount /blog = ...`: a path, as quillo reads it, so `/*` there is a wildcard, not a comment.",
+      "match": "^\\s*(?:(routes)|(mount))[ \\t]+(/[^\\s?{=|]*)",
+      "captures": {
+        "1": {
+          "name": "keyword.other.route.quillo"
+        },
+        "2": {
+          "name": "keyword.other.quillo"
+        },
+        "3": {
+          "name": "string.unquoted.path.quillo",
+          "patterns": [
+            {
+              "match": "(:)([A-Za-z_]\\w*)(?:(\\()(int|float|dec|num|str)(\\)))?",
+              "captures": {
+                "1": {
+                  "name": "punctuation.definition.parameter.quillo"
+                },
+                "2": {
+                  "name": "variable.parameter.path.quillo"
+                },
+                "3": {
+                  "name": "punctuation.section.parens.quillo"
+                },
+                "4": {
+                  "name": "support.type.quillo"
+                },
+                "5": {
+                  "name": "punctuation.section.parens.quillo"
+                }
+              }
+            },
+            {
+              "match": "(\\*)([A-Za-z_]\\w*)?",
+              "captures": {
+                "1": {
+                  "name": "keyword.operator.wildcard.quillo"
+                },
+                "2": {
+                  "name": "variable.parameter.path.quillo"
+                }
+              }
+            }
+          ]
+        }
+      }
     },
     "route": {
       "match": "\\b(route)\\s+(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|ANY)\\s+(/[^\\s?{=]*)",
@@ -787,7 +858,7 @@
     "call": {
       "patterns": [
         {
-          "match": "\\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting|accept_calls|classes|files|markdown_page)\\b(?=\\s*\\()",
+          "match": "\\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting|accept_calls|classes|files|markdown_page|confirm|mcp_token|mcp_tokens|revoke_mcp_token)\\b(?=\\s*\\()",
           "name": "support.function.builtin.quillo"
         },
         {

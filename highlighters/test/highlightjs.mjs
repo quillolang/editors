@@ -37,6 +37,12 @@ check("an HTML comment", has("comment", "&lt;!-- a note --&gt;"), html.match(/a 
 check("a doctype", has("meta", "&lt;!DOCTYPE html&gt;"));
 check("an unquoted value", has("string", "box") && has("string", "a.png"), html.match(/class.{0,80}/)?.[0]);
 check("a single-quoted value", has("string", "&#x27;A cat&#x27;"), html.match(/alt.{0,60}/)?.[0]);
+// FEEDBACK56: the `//!` instructions and `///` are comments, as `/* */` over lines is.
+check("//! is a comment", has("comment", "//! Notes are private to the user who wrote them."));
+check("/// is a comment", has("comment", "/// Adds a note."));
+check("a block comment over lines", has("comment", "/* a block\n   comment */"), html.match(/a block.{0,40}/s)?.[0]);
+check("public server: both keywords", html.includes('<span class="hljs-keyword">public</span> <span class="hljs-keyword">server</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">save</span>'), html.match(/public[^\n]*save/)?.[0]);
+check("the tools' builtins", has("built_in", "revoke_mcp_token") && has("built_in", "confirm"));
 // `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
 // FEEDBACK56.md, Q-853): each line alone, its spans in turn ("!" a span it has not).
 const inTurn = (line, want) => {
@@ -68,6 +74,15 @@ for (const [line, want] of [
   ['service mcp /* note */ = "x.qwe"', ["!keyword:mcp", "comment:/* note */"]],
   ["let mcp = mcp(1)", ["!keyword:mcp"]],
   ["fn mcp", ["!keyword:mcp"]],
+  // `server` after `private` or `public` starts its definition too; elsewhere it is a name.
+  ["public server fn save(text: str) = text", ["keyword:public", "keyword:server", "keyword:fn", "title function_:save"]],
+  ["  private server fn x() = 1", ["keyword:private", "keyword:server", "keyword:fn"]],
+  ["public server = 1", ["!keyword:server"]],
+  // A tool's questions and the door's tokens.
+  ['if !confirm("Sure?") { return err("no") }', ["built_in:confirm"]],
+  ['let k = ask("Who?", { a: "A", b: "B" }, "a")', ["built_in:ask"]],
+  ["let t = mcp_token({ max_age: 60 }) ?? mcp_tokens()", ["built_in:mcp_token", "built_in:mcp_tokens"]],
+  ["routes /*x with db { }", ["keyword:routes", "string:/*x", "!comment:/*x with db { }"]],
 ]) {
   const bad = inTurn(line, want);
   check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);

@@ -67,6 +67,25 @@ class Grammars(unittest.TestCase):
                     # Another grammar: Sublime's own CSS, SQL, Rust, or $self.
                     self.assertTrue(inc in ("$self", "$base") or inc.split("#")[0] in ("source.css", "source.sql", "source.rust", "source.toml"), inc)
 
+    def test_block_comments_and_the_tools_builtins(self):
+        """`/* ... */` is a comment (it was shown as code), and a route group's path is read first,
+        so `routes /*x` stays a path; `confirm`, `mcp_token` and the rest are builtins (quillo
+        FEEDBACK56.md)."""
+        g = plist("Quillo.tmLanguage")
+        repo = g["repository"]
+        block = [r for r in repo["comment"]["patterns"] if r.get("name") == "comment.block.quillo"]
+        self.assertEqual(len(block), 1, repo["comment"])
+        begin, end = re.compile(block[0]["begin"]), re.compile(block[0]["end"])
+        self.assertTrue(begin.match("/* a note") and end.search("a note */"))
+        self.assertIn({"include": "#route-prefix"}, repo["statements"]["patterns"])
+        prefix = re.compile(repo["route-prefix"]["match"])
+        self.assertEqual(prefix.match("routes /*x with db {").group(3), "/*x")
+        self.assertEqual(prefix.match('mount /*m = "a.qwe"').group(3), "/*m")
+        self.assertIsNone(prefix.match("let mount = 1"))
+        builtins = re.search(r"\\b\((.*?)\)\\b", repo["call"]["patterns"][0]["match"]).group(1).split("|")
+        for name in ["confirm", "ask", "mcp_token", "mcp_tokens", "revoke_mcp_token"]:
+            self.assertIn(name, builtins)
+
     def test_a_script_by_its_first_line(self):
         first = re.compile(plist("Quillo.tmLanguage")["firstLineMatch"])
         for yes in ["#!/usr/bin/env quillo", "#!/usr/local/bin/quillo run"]:

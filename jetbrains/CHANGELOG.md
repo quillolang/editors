@@ -24,3 +24,8 @@
   its folder and three above, followed through what they use).
 - `build`, `accept_calls`, `<!-- comments -->`, `<!DOCTYPE html>`, unquoted attribute values and
   the new builtins highlighted, from the VS Code extension 0.15.0.
+- Tools for AI clients: the `mcp` of `fn mcp name()`, `server fn mcp` and `service mcp`
+  highlighted, `/* ... */` comments as comments (they were code), the builtins `confirm`,
+  `mcp_token`, `mcp_tokens` and `revoke_mcp_token`, and the live templates `fnmcp`,
+  `serverfnmcp`, `servicemcp`, `confirm`, `ask` and `instructions`, from the VS Code extension
+  0.17.0.

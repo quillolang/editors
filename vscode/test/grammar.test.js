@@ -248,6 +248,25 @@ const cases = [
   ['let d = <div class=box id=main>x</div>', "x", "meta.jsx.children.quillo"],
   ['import tw.rs use tailwind', "tw.rs", "string.unquoted.path.quillo"],
   ['use "tw.rs"', "tw.rs", "string.quoted.double.quillo"],
+  // FEEDBACK56: what a tool asks the person, the door's tokens, the `//!` instructions, `/* */`.
+  ['if !confirm("Delete it?") { return err("not deleted") }', "confirm", "support.function.builtin.quillo"],
+  ['let who = ask("Who can see it?", { public: "Everyone", draft: "Only me" }, "draft")', "ask", "support.function.builtin.quillo"],
+  ['let token = mcp_token({ max_age: 7 * 24 * 3600 })', "mcp_token", "support.function.builtin.quillo"],
+  ['for t in mcp_tokens() { print(t.id) }', "mcp_tokens", "support.function.builtin.quillo"],
+  ['let gone = revoke_mcp_token(id, { user })', "revoke_mcp_token", "support.function.builtin.quillo"],
+  ['//! Notes are private to the user who wrote them.', "//! Notes are private", "comment.line.double-slash.quillo"],
+  ['/// Adds a note.', "/// Adds a note.", "comment.line.double-slash.quillo"],
+  ['public server fn save(text: str) = text', "server", "storage.modifier.server.quillo"],
+  ['let x = 1 /* one */ + 2', " one ", "comment.block.quillo"],
+  ['let x = 1 /* one */ + 2', "/*", "punctuation.definition.comment.begin.quillo"],
+  ['let x = 1 /* one */ + 2', "2", "constant.numeric.integer.quillo"],
+  ['route GET /a /* note */', " note ", "comment.block.quillo"],
+  ['route get /*x*/', "x", "comment.block.quillo"],
+  ['let s = "/* not one */"', "/* not one */", "string.quoted.double.quillo"],
+  ['let p = <p>t /* text */ u</p>', "t /* text */ u", "meta.jsx.children.quillo"],
+  ['let a = <a /* c */ href="x">y</a>', " c ", "comment.block.quillo"],
+  ['routes /admin with db {', "routes", "keyword.other.route.quillo"],
+  ['routes /admin with db {', "/admin", "string.unquoted.path.quillo"],
 ];
 
 // Lines tokenized in turn: [lines, line index, token text, scope]. A type
@@ -262,6 +281,13 @@ const blocks = [
   // The SQL string may start on the line after db.query(.
   [["for t in db.query(", "    \"select * from tasks where id = ?\", pid) {", "}", "let after = 1"], 1, "tasks", "meta.embedded.block.sql"],
   [["for t in db.query(", "    \"select * from tasks where id = ?\", pid) {", "}", "let after = 1"], 3, "let", "storage.type.let.quillo"],
+  // A block comment over lines, to the first `*/` (they do not nest); code after it.
+  [["let a = 1 /* a note", "   let b = 2", "   */ let c = 3"], 1, "let b = 2", "comment.block.quillo"],
+  [["let a = 1 /* a note", "   let b = 2", "   */ let c = 3"], 2, "let", "storage.type.let.quillo"],
+  [["/* one /* two */", "let d = 4"], 1, "let", "storage.type.let.quillo"],
+  // A wildcard in a group's path opens no comment.
+  [["routes /*x with db {", "    route GET /a = 1", "}", "let after = 1"], 3, "let", "storage.type.let.quillo"],
+  [["mount /*m = \"a.qwe\"", "let after = 1"], 1, "let", "storage.type.let.quillo"],
 ];
 
 // `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
@@ -291,6 +317,18 @@ const tags = [
   ["fn mcp", [["mcp", "!storage.modifier.mcp.quillo"]]],
 ];
 
+// `/*` starts a comment, but in a route's path (`route GET`, `routes`, `mount`), where it is a
+// wildcard, as quillo reads it; the same shape as `tags`.
+const comments = [
+  ["route GET /*rest = respond(404, rest) // last", [["*", "keyword.operator.wildcard.quillo"], ["rest", "!comment.block.quillo"], ["respond", "support.function.builtin.quillo"], ["// last", "comment.line.double-slash.quillo"]]],
+  ["routes /*x with db { }", [["routes", "keyword.other.route.quillo"], ["*", "keyword.operator.wildcard.quillo"], ["with", "keyword.other.with.quillo"]]],
+  ['mount /*m = "a.qwe"', [["mount", "keyword.other.quillo"], ["*", "keyword.operator.wildcard.quillo"], ["a.qwe", "string.quoted.double.quillo"]]],
+  ['service mcp /* note */ = "x.qwe"', [["mcp", "!storage.modifier.mcp.quillo"], [" note ", "comment.block.quillo"], ["x.qwe", "string.quoted.double.quillo"]]],
+  ["let y = a /*/ still */ + 1", [["/ still ", "comment.block.quillo"], ["1", "constant.numeric.integer.quillo"]]],
+  ["//*x", [["//*x", "comment.line.double-slash.quillo"]]],
+  ["let mount = 1", [["mount", "!keyword.other.quillo"]]],
+];
+
 (async () => {
   const grammar = await registry.loadGrammar("source.quillo");
   let failed = 0;
@@ -318,7 +356,7 @@ const tags = [
       console.log(`FAIL ${JSON.stringify(text)} on line ${n + 1} of ${JSON.stringify(lines)}\n  want ${scope}${state.depth > 1 ? " (and the state is still nested at the end)" : ""}\n  got  ${tok ? tok.scopes.join(" ") : "(no token)"}`);
     }
   }
-  for (const [line, want] of tags) {
+  for (const [line, want] of [...tags, ...comments]) {
     const toks = grammar.tokenizeLine(line, vsctm.INITIAL).tokens.map((t) => ({ text: line.slice(t.startIndex, t.endIndex), scopes: t.scopes }));
     let at = 0;
     for (const [text, scope] of want) {
@@ -481,6 +519,6 @@ const tags = [
   } else {
     console.log("(no Rust grammar found: the .qwer cases were skipped)");
   }
-  console.log(failed ? `${failed} failed` : `all ${cases.length + blocks.length + tags.length + rustCases} grammar cases passed`);
+  console.log(failed ? `${failed} failed` : `all ${cases.length + blocks.length + tags.length + comments.length + rustCases} grammar cases passed`);
   process.exit(failed ? 1 : 0);
 })();

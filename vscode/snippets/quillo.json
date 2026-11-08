@@ -54,6 +54,36 @@
     "body": ["server fn ${1:name}(${2}) {", "\t$0", "}"],
     "description": "A function the browser can call"
   },
+  "fn mcp": {
+    "prefix": "fnmcp",
+    "body": ["/// ${1:What it does, as the model reads it.}", "fn mcp ${2:name}(${3}) -> ${4:map} with ${5:db} {", "\t$0", "}"],
+    "description": "A tool for AI clients: its /// is what the model reads, its types the schema"
+  },
+  "server fn mcp": {
+    "prefix": "serverfnmcp",
+    "body": ["/// ${1:What it does, as the model reads it.}", "server fn mcp ${2:name}(${3}) -> ${4:map} with ${5:db} {", "\t$0", "}"],
+    "description": "A tool for AI clients that the program's pages call too"
+  },
+  "service mcp": {
+    "prefix": "servicemcp",
+    "body": ["service mcp /${1:billing} = \"${2:billing.qwe}\""],
+    "description": "A service whose own tools the program offers as billing.<name>"
+  },
+  "confirm": {
+    "prefix": "confirm",
+    "body": ["if !confirm(\"${1:Delete it?}\") { return err(\"${2:not done: the user said no}\") }", "$0"],
+    "description": "In a tool, the person's yes before it changes anything; the AI client asks"
+  },
+  "ask": {
+    "prefix": "ask",
+    "body": ["let ${1:who} = ask(\"${2:Who can see it?}\", { ${3:public}: \"${4:Everyone}\", ${5:draft}: \"${6:Only me, as a draft}\" }, \"${7:draft}\")", "$0"],
+    "description": "In a tool, the key of the choice the person picks; the default where no one can be asked"
+  },
+  "instructions": {
+    "prefix": "instructions",
+    "body": ["//! ${1:Notes are private to the user who wrote them.}", "//! ${2:Use search_notes before add_note, so a note is not written twice.}", "$0"],
+    "description": "What AI clients are told of the tools: the //! block at the top of the main file"
+  },
   "view": {
     "prefix": "view",
     "body": ["view ${1:Name}(${2:children}) =", "\t<${3:div}>{${2:children}}</${3:div}>"],

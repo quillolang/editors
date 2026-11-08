@@ -44,6 +44,15 @@ check("service mcp /billing's tag", JSON.stringify(line("service mcp /billing")[
 check("service mcp crm's tag", JSON.stringify(line("service mcp crm")[1]) === JSON.stringify(["mcp", tool]), line("service mcp crm"));
 check("service mcp = ... names a service", !line('service mcp = "').some(([, s]) => s === tool), line('service mcp = "'));
 check("service mcp /* note */ names a service", !line("service mcp /*").some(([, s]) => s === tool), line("service mcp /*"));
+// FEEDBACK56: `/* */` is a comment, over lines too (it was code), but a wildcard in a group's path;
+// `//!` and `///` are comments; a tool's questions and the door's tokens are builtins.
+check("service mcp /* note */'s comment", line("service mcp /*").some(([t, s]) => t === "note" && s === "comment.block.quillo"), line("service mcp /*"));
+check("a block comment over lines", line("let gone").some(([t, s]) => t === "a block" && s === "comment.block.quillo") && line("   comment */").some(([t, s]) => t === "comment" && s === "comment.block.quillo"), [line("let gone"), line("   comment */")]);
+check("code after the block comment", line("   comment */").some(([t, s]) => t === "confirm" && s === "support.function.builtin.quillo"), line("   comment */"));
+check("revoke_mcp_token is a builtin", scoped("revoke_mcp_token", "support.function.builtin"), scopesOf("revoke_mcp_token"));
+check("routes /*x is a path", line("routes /*x").some(([t, s]) => t === "*" && s === "keyword.operator.wildcard.quillo") && !line("routes /*x").some(([, s]) => s.startsWith("comment")), line("routes /*x"));
+check("//! is a comment", scoped("//! Notes are private to the user who wrote them.", "comment.line"), scopesOf("//! Notes are private to the user who wrote them."));
+check("/// is a comment", scoped("/// Adds a note.", "comment.line"), scopesOf("/// Adds a note."));
 // The grammar is the VS Code extension's, with Shiki's name, aliases and embedded languages.
 const vs = JSON.parse(fs.readFileSync(path.join(here, "../vscode/syntaxes/quillo.tmLanguage.json"), "utf8"));
 const { name, displayName, aliases, embeddedLangs, ...rest } = grammar;

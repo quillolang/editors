@@ -252,6 +252,33 @@ for line, want in [
     check("%r: %s" % (line, ", ".join("%s %s" % w for w in want)), ok, merged)
 # Back to code after the markup: the line after the element is read from Normal.
 check("after the tag, code", style(16, "}") == "Normal Text", style(16, "}"))
+# FEEDBACK56: the `//!` instructions and `///` are comments, `/* */` over lines too; `server` after
+# `public` starts its definition; a tool's questions and the door's tokens are builtins.
+for n, text, want in [
+    (29, "//! Notes are private", "Comment"),
+    (30, "/// Adds a note.", "Comment"),
+    (31, "public", "Keyword"),
+    (31, "server", "Keyword"),
+    (31, "save", "Function"),
+    (32, "revoke_mcp_token", "Builtin"),
+    (32, "a block", "Comment"),
+    (33, "comment */", "Comment"),
+    (33, "confirm", "Builtin"),
+    (34, "/*x", "Path"),
+    (34, "with", "Keyword"),
+]:
+    got = style(n, text)
+    check("line %d: %s is %s" % (n, text, want), got == want, got)
+for line, want in [
+    ("  private server fn x() = 1", {"server": "Keyword", "fn": "Keyword", "x": "Function"}),
+    ("public server = 1", {"server": "Normal Text"}),
+    ('let k = ask("Who?", { a: "A" }, "a") ?? mcp_tokens()', {"ask": "Builtin", "mcp_tokens": "Builtin"}),
+]:
+    words = {}
+    for t, s in read(line)[0]:
+        for w in re.findall(r"\w+", t):
+            words.setdefault(w, s)
+    check("%r: %s" % (line, want), all(words.get(w) == s for w, s in want.items()), words)
 
 print("%s KDE checks %s" % (("%d of %d" % (failed, count)) if failed else "all %d" % count, "failed" if failed else "passed"))
 sys.exit(1 if failed else 0)

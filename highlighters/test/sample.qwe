@@ -26,3 +26,9 @@ service mcp /billing = "billing.qwe"
 service mcp crm = "https://crm.example.com/mcp"
 service mcp = "mcp.qwe"
 service mcp /* note */ = "x.qwe"
+//! Notes are private to the user who wrote them.
+/// Adds a note.
+public server fn save(text: str) = text
+let gone = revoke_mcp_token(id) /* a block
+   comment */ && confirm("Sure?")
+routes /*x with db { }

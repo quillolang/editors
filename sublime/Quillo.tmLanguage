@@ -105,7 +105,7 @@
 			<array>
 				<dict>
 					<key>match</key>
-					<string>\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting|accept_calls|classes|files|markdown_page)\b(?=\s*\()</string>
+					<string>\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting|accept_calls|classes|files|markdown_page|confirm|mcp_token|mcp_tokens|revoke_mcp_token)\b(?=\s*\()</string>
 					<key>name</key>
 					<string>support.function.builtin.quillo</string>
 				</dict>
@@ -119,10 +119,41 @@
 		</dict>
 		<key>comment</key>
 		<dict>
-			<key>match</key>
-			<string>//.*$</string>
-			<key>name</key>
-			<string>comment.line.double-slash.quillo</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>match</key>
+					<string>//.*$</string>
+					<key>name</key>
+					<string>comment.line.double-slash.quillo</string>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>/\*</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.definition.comment.begin.quillo</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>/* ... */, over lines too, to the first */ (they do not nest), as quillo's lexer reads it. A route's path is read before it, so route GET /*rest and routes /*x are paths.</string>
+					<key>end</key>
+					<string>\*/</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.definition.comment.end.quillo</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>comment.block.quillo</string>
+				</dict>
+			</array>
 		</dict>
 		<key>component-name</key>
 		<dict>
@@ -1429,6 +1460,83 @@
 			<key>match</key>
 			<string>\b(route)\s+(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|ANY)\s+(/[^\s?{=]*)</string>
 		</dict>
+		<key>route-prefix</key>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.other.route.quillo</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.other.quillo</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>string.unquoted.path.quillo</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>captures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.definition.parameter.quillo</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>variable.parameter.path.quillo</string>
+								</dict>
+								<key>3</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.section.parens.quillo</string>
+								</dict>
+								<key>4</key>
+								<dict>
+									<key>name</key>
+									<string>support.type.quillo</string>
+								</dict>
+								<key>5</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.section.parens.quillo</string>
+								</dict>
+							</dict>
+							<key>match</key>
+							<string>(:)([A-Za-z_]\w*)(?:(\()(int|float|dec|num|str)(\)))?</string>
+						</dict>
+						<dict>
+							<key>captures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.operator.wildcard.quillo</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>variable.parameter.path.quillo</string>
+								</dict>
+							</dict>
+							<key>match</key>
+							<string>(\*)([A-Za-z_]\w*)?</string>
+						</dict>
+					</array>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>`routes /admin {` and `mount /blog = ...`: a path, as quillo reads it, so `/*` there is a wildcard, not a comment.</string>
+			<key>match</key>
+			<string>^\s*(?:(routes)|(mount))[ \t]+(/[^\s?{=|]*)</string>
+		</dict>
 		<key>shebang</key>
 		<dict>
 			<key>comment</key>
@@ -1491,6 +1599,10 @@
 				<dict>
 					<key>include</key>
 					<string>#route</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#route-prefix</string>
 				</dict>
 				<dict>
 					<key>include</key>

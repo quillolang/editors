@@ -50,6 +50,12 @@ check("a doctype", is("doctype", "<!DOCTYPE html>"), typesOf("<!DOCTYPE html>"))
 check("an unquoted value", toks.some(([ty, tx]) => ty.includes("attr-value") && ty.includes("string") && tx === "box") && toks.some(([ty, tx]) => ty.includes("string") && tx === "a.png"), toks.filter(([ty]) => ty.includes("attr-value")).slice(-8));
 check("a single-quoted value", toks.some(([ty, tx]) => ty.includes("string") && tx === "'A cat'"), toks.filter(([ty]) => ty.includes("attr-value")).slice(-8));
 check("/> after an unquoted value closes the tag", toks.some(([ty, tx]) => ty.includes("tag") && ty.includes("punctuation") && tx === "/>"));
+// FEEDBACK56: the `//!` instructions and `///` are comments, as `/* */` over lines is.
+check("//! is a comment", is("comment", "//! Notes are private to the user who wrote them."), typesOf("//! Notes are private to the user who wrote them."));
+check("/// is a comment", is("comment", "/// Adds a note."), typesOf("/// Adds a note."));
+check("a block comment over lines", is("comment", "/* a block\n   comment */"), toks.filter(([, tx]) => tx.includes("a block")));
+check("the tools' builtins", is("builtin", "revoke_mcp_token") && is("builtin", "confirm"), [typesOf("revoke_mcp_token"), typesOf("confirm")]);
+check("routes /*x is a path", is("path", "/*x"), typesOf("/*x"));
 // `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
 // FEEDBACK56.md, Q-853): each line alone, its tokens in turn ("!" a token it has not).
 const inTurn = (line, want) => {
@@ -85,6 +91,11 @@ for (const [line, want] of [
   ['service mcp /* note */ = "x.qwe"', ["!keyword:mcp", "comment:/* note */"]],
   ["let mcp = mcp(1)", ["!keyword:mcp"]],
   ["fn mcp", ["!keyword:mcp"]],
+  // `server` after `private` or `public` starts its definition too.
+  ["public server fn save(text: str) = text", ["keyword:public", "keyword:server", "keyword:fn", "function:save"]],
+  ["  private server fn x() = 1", ["keyword:private", "keyword:server", "keyword:fn"]],
+  ['let k = ask("Who?", { a: "A", b: "B" }, "a")', ["builtin:ask"]],
+  ["let t = mcp_token({ max_age: 60 }) ?? mcp_tokens()", ["builtin:mcp_token", "builtin:mcp_tokens"]],
 ]) {
   const bad = inTurn(line, want);
   check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);

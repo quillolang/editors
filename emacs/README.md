@@ -46,4 +46,7 @@ the `:match` predicates as Emacs builds them; it needs `npm ci` in `../tree-sitt
 node types and fields the indent rules, defuns and imenu name, that every face is one Emacs 29
 has, and that the builtin and module lists are the VS Code grammar's.
 
-Not yet run in Emacs itself.
+Where Emacs 29 or later is on the PATH, it also opens a sample in `quillo-mode` (the regular
+expressions) in `emacs --batch` and checks the face of each part: comments (`//!`, `/* */`
+over lines), keywords (`public server fn`), builtins. `quillo-ts-mode` is not run in Emacs
+itself: that needs the grammar built for it.

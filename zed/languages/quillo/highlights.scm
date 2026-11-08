@@ -55,7 +55,8 @@
   "rate_limit_reset" "security_headers" "csp" "csp_nonce" "idempotent" "args" "cookie"
   "cursor_index" "defer" "error" "exit" "filled" "js_has" "local_path" "new_tenant" "normalize"
   "page_updated" "platform" "read_line" "ready" "run_after" "site_headers" "stdin" "style_with"
-  "waiting" "accept_calls" "classes" "files" "markdown_page"))
+  "waiting" "accept_calls" "classes" "files" "markdown_page" "confirm" "mcp_token" "mcp_tokens"
+  "revoke_mcp_token"))
 
 ((member_expression
   object: (identifier) @type)

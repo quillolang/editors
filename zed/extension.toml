@@ -1,6 +1,6 @@
 id = "quillo"
 name = "Quillo"
-version = "0.2.0"
+version = "0.3.0"
 schema_version = 1
 authors = ["quillolang"]
 description = "Quillo: highlighting, outline and brackets from tree-sitter-quillo; diagnostics, completion, hover and go to definition from quillo lsp; a debugger through quillo dap."
