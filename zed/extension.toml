@@ -8,7 +8,7 @@ repository = "https://github.com/quillolang/editors"
 
 [grammars.quillo]
 repository = "https://github.com/quillolang/editors"
-rev = "81740502b5aa10844cf02e5d13198e5bccde3dd7"
+rev = "4906e2f0890b96305821335d3cb3dd7c871e2b52"
 path = "tree-sitter"
 
 [language_servers.quillo]

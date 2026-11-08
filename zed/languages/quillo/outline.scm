@@ -3,10 +3,12 @@
 (function_definition
   (server)? @context
   ["fn" "view"] @context
+  (mcp)? @context
   name: (identifier) @name) @item
 
 (component_definition
   "component" @context
+  (mcp)? @context
   name: (identifier) @name) @item
 
 (type_definition

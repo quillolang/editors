@@ -135,6 +135,9 @@
 
 (visibility) @keyword.storage.modifier
 
+; `fn mcp total()`, `service mcp /billing`: the tag of a tool (quillo FEEDBACK56.md, Q-853).
+(mcp) @keyword.storage.modifier
+
 (server) @keyword.storage.modifier
 
 [
