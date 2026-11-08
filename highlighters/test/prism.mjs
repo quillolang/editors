@@ -50,6 +50,45 @@ check("a doctype", is("doctype", "<!DOCTYPE html>"), typesOf("<!DOCTYPE html>"))
 check("an unquoted value", toks.some(([ty, tx]) => ty.includes("attr-value") && ty.includes("string") && tx === "box") && toks.some(([ty, tx]) => ty.includes("string") && tx === "a.png"), toks.filter(([ty]) => ty.includes("attr-value")).slice(-8));
 check("a single-quoted value", toks.some(([ty, tx]) => ty.includes("string") && tx === "'A cat'"), toks.filter(([ty]) => ty.includes("attr-value")).slice(-8));
 check("/> after an unquoted value closes the tag", toks.some(([ty, tx]) => ty.includes("tag") && ty.includes("punctuation") && tx === "/>"));
+// `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
+// FEEDBACK56.md, Q-853): each line alone, its tokens in turn ("!" a token it has not).
+const inTurn = (line, want) => {
+  const got = flat(Prism.tokenize(line, Prism.languages.quillo)).filter(([, tx]) => tx.trim());
+  const has = (k, w) => {
+    const [type, text] = [w.slice(0, w.indexOf(":")), w.slice(w.indexOf(":") + 1)];
+    return got[k][1].trim() === text && got[k][0].split(" ").includes(type);
+  };
+  let at = 0;
+  for (const w of want) {
+    if (w.startsWith("!")) {
+      if (got.some((_, k) => has(k, w.slice(1)))) return got;
+      continue;
+    }
+    const i = got.findIndex((_, k) => k >= at && has(k, w));
+    if (i < 0) return got;
+    at = i + 1;
+  }
+  return null;
+};
+for (const [line, want] of [
+  ["fn mcp total_today() = 1", ["keyword:fn", "keyword:mcp", "function:total_today"]],
+  ["public server fn mcp add_note(text: str) = text", ["keyword:public", "keyword:server", "keyword:fn", "keyword:mcp", "function:add_note"]],
+  ["fn\tmcp\ttabbed() = 1", ["keyword:mcp", "function:tabbed"]],
+  ["fn mcp mcp() = 1", ["keyword:fn", "keyword:mcp", "function:mcp"]],
+  ["fn mcp(x) = x + 1", ["keyword:fn", "function:mcp", "!keyword:mcp"]],
+  ["fn mcp (x) = x", ["function:mcp", "!keyword:mcp"]],
+  ["view mcp(x) = x", ["function:mcp", "!keyword:mcp"]],
+  ["view mcp Card() = 1", ["keyword:mcp", "function:Card"]],
+  ['service mcp /billing = "billing.qwe"', ["keyword:service", "keyword:mcp", "path:/billing"]],
+  ['service mcp crm = "https://crm.example.com/mcp"', ["keyword:service", "keyword:mcp"]],
+  ['service mcp = "mcp.qwe"', ["!keyword:mcp"]],
+  ['service mcp /* note */ = "x.qwe"', ["!keyword:mcp", "comment:/* note */"]],
+  ["let mcp = mcp(1)", ["!keyword:mcp"]],
+  ["fn mcp", ["!keyword:mcp"]],
+]) {
+  const bad = inTurn(line, want);
+  check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
+}
 check("the alias qwe", Prism.languages.qwe === Prism.languages.quillo);
 check("the builtins are the VS Code grammar's", JSON.stringify(listIn("prism/prism-quillo.js", "BUILTINS")) === JSON.stringify(BUILTINS));
 check("the modules are the VS Code grammar's", JSON.stringify(listIn("prism/prism-quillo.js", "MODULES")) === JSON.stringify(MODULES));

@@ -30,6 +30,20 @@ check("CSS by CSS's grammar", parts.some((p) => own(p, "css") && p.text.trim() =
 check("SQL by SQL's grammar", parts.some((p) => own(p, "sql") && /select/i.test(p.text)), parts.filter((p) => p.text.includes("select")).map((p) => p.scopes));
 check("a tag", scoped("button", "entity.name.tag"), scopesOf("button"));
 check("every character is kept", lines.map((l) => l.map((t) => t.content).join("")).join("\n") === sample);
+// `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
+// FEEDBACK56.md, Q-853): the sample's lines, each word's last scope in turn.
+const line = (start) => {
+  const n = sample.split("\n").findIndex((l) => l.startsWith(start));
+  return lines[n].flatMap((t) => t.explanation.map((e) => [e.content.trim(), e.scopes.at(-1).scopeName])).filter(([t]) => t);
+};
+const tool = "storage.modifier.mcp.quillo";
+check("server fn mcp's tag and name", JSON.stringify(line("public server fn mcp").slice(0, 5)) === JSON.stringify([["public", "storage.modifier.visibility.quillo"], ["server", "storage.modifier.server.quillo"], ["fn", "storage.type.function.quillo"], ["mcp", tool], ["add_note", "entity.name.function.quillo"]]), line("public server fn mcp"));
+check("fn mcp mcp(): the tag, then the name", JSON.stringify(line("fn mcp mcp()").slice(1, 3)) === JSON.stringify([["mcp", tool], ["mcp", "entity.name.function.quillo"]]), line("fn mcp mcp()"));
+check("fn mcp(x) names a function", JSON.stringify(line("fn mcp(x)")[1]) === JSON.stringify(["mcp", "entity.name.function.quillo"]), line("fn mcp(x)"));
+check("service mcp /billing's tag", JSON.stringify(line("service mcp /billing")[1]) === JSON.stringify(["mcp", tool]), line("service mcp /billing"));
+check("service mcp crm's tag", JSON.stringify(line("service mcp crm")[1]) === JSON.stringify(["mcp", tool]), line("service mcp crm"));
+check("service mcp = ... names a service", !line('service mcp = "').some(([, s]) => s === tool), line('service mcp = "'));
+check("service mcp /* note */ names a service", !line("service mcp /*").some(([, s]) => s === tool), line("service mcp /*"));
 // The grammar is the VS Code extension's, with Shiki's name, aliases and embedded languages.
 const vs = JSON.parse(fs.readFileSync(path.join(here, "../vscode/syntaxes/quillo.tmLanguage.json"), "utf8"));
 const { name, displayName, aliases, embeddedLangs, ...rest } = grammar;

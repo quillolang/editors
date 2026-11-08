@@ -10,6 +10,11 @@
 // - html_text: markup text, to the next `<`, `{` or `}`. `//` is a comment there only
 //   at the start of a line.
 // - _void_tag_name: `br`, `img`, `input` and the other elements with no end tag.
+// - _mcp_tag, _service_mcp_tag: `mcp`, the tag of a tool, as quillo's highlighter's `mcp_tag`
+//   reads it (src/highlight.rs; FEEDBACK56.md, Q-853). After `fn`, `view` or `component`, it
+//   is the tag with spaces or tabs and then a name after it on its line; after `service`, a
+//   name or a `/` that starts no comment. So `fn mcp(x)`, `fn mcp` at a line's end,
+//   `service mcp = "mcp.qwe"` and `service mcp /* note */ = ...` name something `mcp`.
 
 #include "tree_sitter/parser.h"
 
@@ -22,6 +27,8 @@ enum TokenType {
   PATH_SLASH,
   HTML_TEXT,
   VOID_TAG_NAME,
+  MCP_TAG,
+  SERVICE_MCP_TAG,
   ERROR_SENTINEL,
 };
 
@@ -150,6 +157,27 @@ static bool scan_void_tag_name(TSLexer *lexer) {
   return false;
 }
 
+// A name's start: a letter or `_`. Past ASCII every character counts, as iswalpha's answer
+// there hangs on the locale; one that is no letter is an error in quillo too.
+static inline bool is_name_start(int32_t c) {
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c > 0x7f;
+}
+
+// `mcp` with spaces or tabs after it, then a name, or with `path` a `/` that starts no comment.
+static bool scan_mcp_tag(TSLexer *lexer, bool path) {
+  for (const char *w = "mcp"; *w; w++) {
+    if (lexer->lookahead != *w) return false;
+    advance(lexer);
+  }
+  lexer->mark_end(lexer);
+  if (lexer->lookahead != ' ' && lexer->lookahead != '\t') return false;
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') advance(lexer);
+  if (is_name_start(lexer->lookahead)) return true;
+  if (!path || lexer->lookahead != '/') return false;
+  advance(lexer);
+  return lexer->lookahead != '/' && lexer->lookahead != '*';
+}
+
 bool tree_sitter_quillo_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid) {
   (void)payload;
   // Error recovery asks for every token at once: leave it to the grammar's own.
@@ -168,6 +196,13 @@ bool tree_sitter_quillo_external_scanner_scan(void *payload, TSLexer *lexer, con
 
   while (lexer->lookahead == ' ' || lexer->lookahead == '\t' || lexer->lookahead == '\r') skip(lexer);
 
+  // Only spaces between: `fn` and `mcp` on two lines is no tag either, as in quillo's highlighter.
+  if ((valid[MCP_TAG] || valid[SERVICE_MCP_TAG]) && lexer->lookahead == 'm') {
+    bool service = valid[SERVICE_MCP_TAG];
+    if (!scan_mcp_tag(lexer, service)) return false;
+    lexer->result_symbol = service ? SERVICE_MCP_TAG : MCP_TAG;
+    return true;
+  }
   if (valid[NEWLINE] && lexer->lookahead == '\n') {
     advance(lexer);
     lexer->mark_end(lexer);

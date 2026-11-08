@@ -106,6 +106,20 @@ class EditorTest : BasePlatformTestCase() {
         assertTrue(scopeOf("shop"), "variable.other.declaration" in scopeOf("shop"))
     }
 
+    /** `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo FEEDBACK56.md, Q-853). */
+    fun testMcpIsATagOnlyBeforeAName() {
+        myFixture.configureByText(
+            "main.qwe",
+            "fn mcp total() = 1\nfn mcp mcp() = 2\nfn mcp(x) = x\nservice mcp crm = \"https://crm.example.com/mcp\"\nservice mcp = \"mcp.qwe\"\n",
+        )
+        val all = tokens().filter { it.first.trim() == "mcp" }
+        assertEquals(all.toString(), 6, all.size)
+        for (i in listOf(0, 1, 4)) assertTrue(all[i].second, "storage.modifier.mcp" in all[i].second)
+        for (i in listOf(2, 3)) assertTrue(all[i].second, "entity.name.function" in all[i].second)
+        assertFalse(all[5].second, "storage.modifier.mcp" in all[5].second)
+        assertTrue(scopeOf("total"), "entity.name.function" in scopeOf("total"))
+    }
+
     /**
      * VS Code reads `\A` as the document's start. The IDE's lexer reads it as each line's, so a `#!`
      * after the first line is a comment here too: a line `quillo check` refuses anyway.

@@ -68,6 +68,16 @@ syntax match quilloModule "\<\(json\|db\|http\|udp\|channel\|media\|crypto\|imag
 " Definitions, after calls so their names are not taken for one.
 syntax match quilloFunction "\(\<\(fn\|view\)\s\+\)\@<=\h\w*"
 syntax match quilloType "\(\<component\s\+\)\@<=\u\w*"
+" `fn mcp total()`, `server fn mcp add_note()`: `mcp` with a name after it on its line is the tag
+" of a tool; `fn mcp(x)` and the second `mcp` of `fn mcp mcp()` name a function (quillo
+" FEEDBACK56.md, Q-853). Defined after the definitions, so the tag wins where both start.
+syntax match quilloFunction "\(\<\(fn\|view\)\s\+mcp\s\+\)\@<=\h\w*"
+syntax match quilloType "\(\<component\s\+mcp\s\+\)\@<=\u\w*"
+syntax match quilloStatement "\(\<\(fn\|view\|component\)\s\+\)\@<=mcp\ze\s\+\h"
+" `service mcp /billing = ...`, `service mcp crm = ...`: the tag, with a path or a name after it;
+" `service mcp = ...` and `service mcp /* note */ = ...` name a service `mcp`.
+syntax match quilloStatement "\(^\s*service\s\+\)\@<=mcp\ze\s\+\(\h\|/[/*]\@!\)"
+syntax match quilloRoutePath "\(^\s*service\s\+mcp\s\+\)\@<=/[/*]\@![^ \t{=|]*"
 
 " Braces nest, so a `}` or `>` inside one closes nothing outside it.
 syntax region quilloBraces start="{" end="}" transparent contains=TOP

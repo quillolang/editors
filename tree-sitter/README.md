@@ -25,6 +25,11 @@ The grammar follows quillo's own parser (`src/parser.rs`, `src/lexer.rs`), with
 - **`client`, `import`, `type`, `site`, `state`, `style`, `server`, `routes`, `service`,
   `mount`, `private` and `public`** start their statements and are names everywhere else:
   `client = 1`, `{ state, type }`, `(type: str) => ...`.
+- **`mcp`**, the tag of a tool, is one only right after `fn`, `view` or `component` with a
+  name after it on its line (`fn mcp total()`, `server fn mcp add_note()`), or after `service`
+  with a name or a path (`service mcp /billing = "billing.qwe"`); the scanner decides, as
+  quillo's highlighter does. `fn mcp(x)`, the second `mcp` of `fn mcp mcp()`,
+  `service mcp = "mcp.qwe"`, `service mcp /* note */ = ...` and `mcp` anywhere else are names.
 - `{}` and `{ x }` are maps, as quillo reads them; `{ x = 1 }` is a block.
 
 ## Queries

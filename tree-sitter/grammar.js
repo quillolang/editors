@@ -11,6 +11,9 @@
  *   the start of a line, as in the parser.
  * - `client`, `import`, `type`, `site`, `state`, `style` and the other words that start
  *   a statement only in their own shape stay names elsewhere: `client = 1`.
+ * - `mcp` is the tag of a tool after `fn`, `view`, `component` or `service` with a name
+ *   (or, after `service`, a path) after it on its line, as quillo's `mcp_tag` reads it; the
+ *   scanner decides. It is a name everywhere else: `fn mcp(x)`, `service mcp = ...`.
  */
 
 /// <reference types="tree-sitter-cli/dsl" />
@@ -61,6 +64,8 @@ module.exports = grammar({
     $._path_slash,
     $.html_text,
     $._void_tag_name,
+    $._mcp_tag,
+    $._service_mcp_tag,
     $._error_sentinel,
   ],
 
@@ -134,6 +139,10 @@ module.exports = grammar({
       optional($.visibility),
       optional(field('server', alias('server', $.server))),
       choice('fn', 'view'),
+      // `fn mcp total()`, `server fn mcp add_note()`: a tool (quillo FEEDBACK56.md, Q-853).
+      // The scanner takes `mcp` as the tag only with a name after it on its line, so
+      // `fn mcp(x)` and `fn mcp mcp()` name a function `mcp`.
+      optional(field('mcp', alias($._mcp_tag, $.mcp))),
       field('name', $.identifier),
       field('parameters', $.parameters),
       optional(seq('->', field('return_type', $._type))),
@@ -153,6 +162,8 @@ module.exports = grammar({
     component_definition: $ => seq(
       optional($.visibility),
       'component',
+      // `component mcp Card()`, which quillo check refuses: no component is a tool.
+      optional(field('mcp', alias($._mcp_tag, $.mcp))),
       field('name', $.identifier),
       field('parameters', $.parameters),
       $._body,
@@ -267,6 +278,10 @@ module.exports = grammar({
 
     service_declaration: $ => seq(
       'service',
+      // `service mcp /billing = "billing.qwe"`, `service mcp crm = "https://..."`: the tag,
+      // with a path or a name after it on its line; `service mcp = "mcp.qwe"` is a service
+      // named `mcp`, and so is `service mcp /* note */ = ...` (quillo FEEDBACK56.md, Q-853).
+      optional(field('mcp', alias($._service_mcp_tag, $.mcp))),
       choice(field('name', $.identifier), field('path', $.route_path)),
       '=',
       field('file', $.string),

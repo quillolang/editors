@@ -309,6 +309,27 @@
           ]
         },
         {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "mcp",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_mcp_tag"
+                },
+                "named": true,
+                "value": "mcp"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
           "type": "FIELD",
           "name": "name",
           "content": {
@@ -544,6 +565,27 @@
         {
           "type": "STRING",
           "value": "component"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "mcp",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_mcp_tag"
+                },
+                "named": true,
+                "value": "mcp"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "FIELD",
@@ -1513,6 +1555,27 @@
         {
           "type": "STRING",
           "value": "service"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "mcp",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_service_mcp_tag"
+                },
+                "named": true,
+                "value": "mcp"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "CHOICE",
@@ -4936,6 +4999,14 @@
     {
       "type": "SYMBOL",
       "name": "_void_tag_name"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_mcp_tag"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_service_mcp_tag"
     },
     {
       "type": "SYMBOL",

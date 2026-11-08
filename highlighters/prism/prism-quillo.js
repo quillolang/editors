@@ -55,6 +55,17 @@
       build: { pattern: /^(\s*)build\b(?=\s+"[^"]*"\s*=[^=])/m, lookbehind: true, alias: "keyword" },
       "accept-calls": { pattern: /^(\s*)accept_calls\b(?=\s*\{)/m, lookbehind: true, alias: "builtin" },
       string: { pattern: /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/, greedy: true },
+      // `service mcp /billing = ...`, `service mcp crm = ...`: the tag of a tool, with a path or a name
+      // after it; `service mcp = ...` and `service mcp /* note */ = ...` name a service `mcp` (quillo
+      // FEEDBACK56.md, Q-853).
+      "service-tool": {
+        pattern: /^(\s*)service[ \t]+mcp(?=[ \t]+(?:[A-Za-z_]|\/(?![/*])))(?:[ \t]+\/[^\s{=?|]*)?/m,
+        lookbehind: true,
+        inside: {
+          keyword: /^service\b|\bmcp\b/,
+          path: { pattern: /\/\S*/, alias: "url" },
+        },
+      },
       route: {
         pattern: /^(\s*)(?:route|routes|mount|service)\s+(?:(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)\s+)?\/[^\s{=?|]*/m,
         lookbehind: true,
@@ -92,6 +103,15 @@
           punctuation: /^<\/?|\/?>$/,
           "tag-name": { pattern: /^[A-Za-z][\w-]*/, alias: "tag" },
           selector: /[.#][\w\-:]+/,
+        },
+      },
+      // `fn mcp total()`: `mcp` with a name after it on its line is the tag of a tool; `fn mcp(x)`
+      // and the second `mcp` of `fn mcp mcp()` name a function.
+      "tool-definition": {
+        pattern: /\b(?:fn|view|component)\s+mcp[ \t]+[A-Za-z_]\w*/,
+        inside: {
+          keyword: /^\w+|\bmcp\b(?=[ \t])/,
+          function: /\w+$/,
         },
       },
       "function-definition": { pattern: /(\b(?:fn|view|component)\s+)[A-Za-z_]\w*/, lookbehind: true, alias: "function" },

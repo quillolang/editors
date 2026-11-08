@@ -356,7 +356,8 @@
           }
         },
         {
-          "match": "\\b(server)\\s+(fn)\\s+([A-Za-z_]\\w*)",
+          "comment": "`server fn mcp add_note()`: `mcp` with a name after it on its line is the tag of a tool; `server fn mcp()` names a function `mcp` (quillo FEEDBACK56.md, Q-853).",
+          "match": "\\b(server)\\s+(fn)\\s+(?:(mcp)[ \\t]+(?=[A-Za-z_]))?([A-Za-z_]\\w*)",
           "captures": {
             "1": {
               "name": "storage.modifier.server.quillo"
@@ -365,7 +366,40 @@
               "name": "storage.type.function.quillo"
             },
             "3": {
+              "name": "storage.modifier.mcp.quillo"
+            },
+            "4": {
               "name": "entity.name.function.quillo"
+            }
+          }
+        },
+        {
+          "comment": "`fn mcp total()`: the tag of a tool, with a name after it on its line; `fn mcp(x)` and the second `mcp` of `fn mcp mcp()` name a function (quillo FEEDBACK56.md, Q-853).",
+          "match": "\\b(fn)\\s+(mcp)[ \\t]+([A-Za-z_]\\w*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.function.quillo"
+            },
+            "2": {
+              "name": "storage.modifier.mcp.quillo"
+            },
+            "3": {
+              "name": "entity.name.function.quillo"
+            }
+          }
+        },
+        {
+          "comment": "`component mcp Card()` and `view mcp Card()`, which quillo check refuses: the tag all the same, as quillo highlights it.",
+          "match": "\\b(component)\\s+(mcp)[ \\t]+([A-Za-z_]\\w*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.component.quillo"
+            },
+            "2": {
+              "name": "storage.modifier.mcp.quillo"
+            },
+            "3": {
+              "name": "entity.name.type.component.quillo"
             }
           }
         },
@@ -377,6 +411,20 @@
             },
             "2": {
               "name": "entity.name.type.component.quillo"
+            }
+          }
+        },
+        {
+          "match": "\\b(view)\\s+(mcp)[ \\t]+([A-Za-z_]\\w*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.view.quillo"
+            },
+            "2": {
+              "name": "storage.modifier.mcp.quillo"
+            },
+            "3": {
+              "name": "entity.name.type.view.quillo"
             }
           }
         },
@@ -421,6 +469,18 @@
             },
             "2": {
               "name": "support.constant.effect.quillo"
+            }
+          }
+        },
+        {
+          "comment": "`service mcp /billing = ...`, `service mcp crm = ...`: the tag, with a path or a name after it on its line; `service mcp = ...` and `service mcp /* note */ = ...` name a service `mcp` (quillo FEEDBACK56.md, Q-853).",
+          "match": "\\b(service)[ \\t]+(mcp)(?=[ \\t]+(?:[A-Za-z_]|/(?![/*])))",
+          "captures": {
+            "1": {
+              "name": "keyword.other.quillo"
+            },
+            "2": {
+              "name": "storage.modifier.mcp.quillo"
             }
           }
         }

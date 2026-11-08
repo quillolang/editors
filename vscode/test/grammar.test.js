@@ -264,6 +264,33 @@ const blocks = [
   [["for t in db.query(", "    \"select * from tasks where id = ?\", pid) {", "}", "let after = 1"], 3, "let", "storage.type.let.quillo"],
 ];
 
+// `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
+// FEEDBACK56.md, Q-853): [line, [token text, the scope it has, or "!" and one it has not]...],
+// the tokens in turn, so `fn mcp mcp()`'s second `mcp` is the name.
+const tags = [
+  ["fn mcp total_today() = 1", [["fn", "storage.type.function.quillo"], ["mcp", "storage.modifier.mcp.quillo"], ["total_today", "entity.name.function.quillo"]]],
+  ["public fn mcp search(q: str) = q", [["public", "storage.modifier.visibility.quillo"], ["mcp", "storage.modifier.mcp.quillo"], ["search", "entity.name.function.quillo"]]],
+  ["server fn mcp add_note(text: str) with db = text", [["server", "storage.modifier.server.quillo"], ["fn", "storage.type.function.quillo"], ["mcp", "storage.modifier.mcp.quillo"], ["add_note", "entity.name.function.quillo"]]],
+  ["public server fn mcp ping() = 1", [["public", "storage.modifier.visibility.quillo"], ["mcp", "storage.modifier.mcp.quillo"], ["ping", "entity.name.function.quillo"]]],
+  ["fn\tmcp\ttabbed() = 1", [["mcp", "storage.modifier.mcp.quillo"], ["tabbed", "entity.name.function.quillo"]]],
+  ["fn mcp mcp() = 1", [["mcp", "storage.modifier.mcp.quillo"], ["mcp", "entity.name.function.quillo"]]],
+  ["fn mcp(x) = x + 1", [["mcp", "entity.name.function.quillo"]]],
+  ["fn mcp (x) = x", [["mcp", "entity.name.function.quillo"]]],
+  ["server fn mcp() = 1", [["mcp", "entity.name.function.quillo"]]],
+  ["server fn mcp mcp() = 1", [["mcp", "storage.modifier.mcp.quillo"], ["mcp", "entity.name.function.quillo"]]],
+  ["view mcp(x) = x", [["mcp", "entity.name.type.view.quillo"]]],
+  ["view mcp Card() = 1", [["mcp", "storage.modifier.mcp.quillo"], ["Card", "entity.name.type.view.quillo"]]],
+  ["component mcp Card() = 1", [["mcp", "storage.modifier.mcp.quillo"], ["Card", "entity.name.type.component.quillo"]]],
+  ['service mcp /billing = "billing.qwe"', [["service", "keyword.other.quillo"], ["mcp", "storage.modifier.mcp.quillo"]]],
+  ['service mcp crm = "https://crm.example.com/mcp"', [["service", "keyword.other.quillo"], ["mcp", "storage.modifier.mcp.quillo"], ["crm", "!storage.modifier.mcp.quillo"]]],
+  ['service mcp = "mcp.qwe"', [["service", "keyword.other.quillo"], ["mcp", "!storage.modifier.mcp.quillo"]]],
+  ['service mcp /* note */ = "x.qwe"', [["mcp", "!storage.modifier.mcp.quillo"]]],
+  ["service mcp // note", [["mcp", "!storage.modifier.mcp.quillo"]]],
+  ["let mcp = mcp(1)", [["mcp", "!storage.modifier.mcp.quillo"], ["mcp", "entity.name.function.call.quillo"]]],
+  ["let a = x.mcp + mcp", [["mcp", "!storage.modifier.mcp.quillo"], ["mcp", "!storage.modifier.mcp.quillo"]]],
+  ["fn mcp", [["mcp", "!storage.modifier.mcp.quillo"]]],
+];
+
 (async () => {
   const grammar = await registry.loadGrammar("source.quillo");
   let failed = 0;
@@ -289,6 +316,19 @@ const blocks = [
     if (!tok || !tok.scopes.includes(scope) || state.depth > 1) {
       failed++;
       console.log(`FAIL ${JSON.stringify(text)} on line ${n + 1} of ${JSON.stringify(lines)}\n  want ${scope}${state.depth > 1 ? " (and the state is still nested at the end)" : ""}\n  got  ${tok ? tok.scopes.join(" ") : "(no token)"}`);
+    }
+  }
+  for (const [line, want] of tags) {
+    const toks = grammar.tokenizeLine(line, vsctm.INITIAL).tokens.map((t) => ({ text: line.slice(t.startIndex, t.endIndex), scopes: t.scopes }));
+    let at = 0;
+    for (const [text, scope] of want) {
+      const i = toks.findIndex((t, k) => k >= at && t.text === text);
+      const not = scope.startsWith("!");
+      if (i < 0 || toks[i].scopes.includes(not ? scope.slice(1) : scope) === not) {
+        failed++;
+        console.log(`FAIL ${JSON.stringify(text)} in ${JSON.stringify(line)}\n  want ${scope}\n  got  ${i < 0 ? "(no token)" : toks[i].scopes.join(" ")}`);
+      }
+      if (i >= 0) at = i + 1;
     }
   }
   // With VS Code's SQL grammar: keywords and strings inside the SQL.
@@ -441,6 +481,6 @@ const blocks = [
   } else {
     console.log("(no Rust grammar found: the .qwer cases were skipped)");
   }
-  console.log(failed ? `${failed} failed` : `all ${cases.length + blocks.length + rustCases} grammar cases passed`);
+  console.log(failed ? `${failed} failed` : `all ${cases.length + blocks.length + tags.length + rustCases} grammar cases passed`);
   process.exit(failed ? 1 : 0);
 })();

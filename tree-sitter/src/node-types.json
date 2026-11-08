@@ -670,6 +670,16 @@
           }
         ]
       },
+      "mcp": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "mcp",
+            "named": true
+          }
+        ]
+      },
       "name": {
         "multiple": false,
         "required": true,
@@ -1086,6 +1096,16 @@
           },
           {
             "type": "union_type",
+            "named": true
+          }
+        ]
+      },
+      "mcp": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "mcp",
             "named": true
           }
         ]
@@ -2384,6 +2404,16 @@
           }
         ]
       },
+      "mcp": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "mcp",
+            "named": true
+          }
+        ]
+      },
       "name": {
         "multiple": false,
         "required": false,
@@ -3295,6 +3325,10 @@
   {
     "type": "match",
     "named": false
+  },
+  {
+    "type": "mcp",
+    "named": true
   },
   {
     "type": "module",

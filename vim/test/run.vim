@@ -15,6 +15,13 @@ function! s:Is(lnum, text, group) abort
   call assert_equal(a:group, s:At(a:lnum, a:text), 'line ' . a:lnum . ': ' . a:text)
 endfunction
 
+" The group of the second `text` on the line: `fn mcp mcp()`'s name.
+function! s:IsSecond(lnum, text, group) abort
+  let col = stridx(getline(a:lnum), a:text, stridx(getline(a:lnum), a:text) + 1) + 1
+  call assert_true(col > 0, 'line ' . a:lnum . ' has ' . a:text . ' twice')
+  call assert_equal(a:group, synIDattr(synID(a:lnum, col, 1), 'name'), 'line ' . a:lnum . ': the second ' . a:text)
+endfunction
+
 " Filetypes.
 execute 'edit ' . fnameescape(s:here . '/test/sample.qwe')
 call assert_equal('quillo', &filetype, '.qwe')
@@ -79,6 +86,33 @@ call s:Is(21, 'a.png', 'quilloUnquoted')
 call assert_notequal('quilloUnquoted', s:At(21, '/>'), '/> ends the value')
 call s:Is(22, 'DOCTYPE', 'quilloDoctype')
 call assert_notequal('quilloStatement', s:At(23, 'build'), 'build is a name here')
+" `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
+" FEEDBACK56.md, Q-853).
+call s:Is(24, 'public', 'quilloStatement')
+call s:Is(24, 'mcp', 'quilloStatement')
+call s:Is(24, 'add_note', 'quilloFunction')
+call s:Is(25, 'mcp', 'quilloStatement')
+call s:IsSecond(25, 'mcp', 'quilloFunction')
+call s:Is(26, 'mcp', 'quilloFunction')
+call s:Is(27, 'service', 'quilloStatement')
+call s:Is(27, 'mcp', 'quilloStatement')
+call s:Is(27, '/billing', 'quilloRoutePath')
+call s:Is(28, 'mcp', 'quilloStatement')
+call assert_notequal('quilloStatement', s:At(28, 'crm'), 'the service is crm')
+call assert_notequal('quilloStatement', s:At(29, 'mcp'), 'a service named mcp')
+call assert_notequal('quilloStatement', s:At(30, 'mcp'), 'a service named mcp, then a comment')
+call s:Is(30, 'note', 'quilloBlockComment')
+call s:Is(31, 'mcp', 'quilloStatement')
+call s:Is(31, 'Card', 'quilloType')
+call s:Is(32, 'mcp', 'quilloFunction')
+call assert_notequal('quilloStatement', s:At(33, 'mcp'), 'let mcp is a name')
+call assert_notequal('quilloStatement', synIDattr(synID(33, 11, 1), 'name'), 'mcp(1) is a call')
+call s:Is(34, 'mcp', 'quilloStatement')
+call s:Is(34, 'tabbed', 'quilloFunction')
+call assert_notequal('quilloStatement', s:At(35, 'mcp'), 'mcp at the end of its line is no tag')
+call s:Is(36, 'server', 'quilloStatement')
+call s:Is(36, 'mcp', 'quilloStatement')
+call s:Is(36, 'ping', 'quilloFunction')
 
 " Indentation: every line of indent.qwe is where its indent puts it.
 execute 'edit ' . fnameescape(s:here . '/test/indent.qwe')

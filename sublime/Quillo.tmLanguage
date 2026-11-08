@@ -281,11 +281,66 @@
 						<key>3</key>
 						<dict>
 							<key>name</key>
+							<string>storage.modifier.mcp.quillo</string>
+						</dict>
+						<key>4</key>
+						<dict>
+							<key>name</key>
 							<string>entity.name.function.quillo</string>
 						</dict>
 					</dict>
+					<key>comment</key>
+					<string>`server fn mcp add_note()`: `mcp` with a name after it on its line is the tag of a tool; `server fn mcp()` names a function `mcp` (quillo FEEDBACK56.md, Q-853).</string>
 					<key>match</key>
-					<string>\b(server)\s+(fn)\s+([A-Za-z_]\w*)</string>
+					<string>\b(server)\s+(fn)\s+(?:(mcp)[ \t]+(?=[A-Za-z_]))?([A-Za-z_]\w*)</string>
+				</dict>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>storage.type.function.quillo</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>storage.modifier.mcp.quillo</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>entity.name.function.quillo</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>`fn mcp total()`: the tag of a tool, with a name after it on its line; `fn mcp(x)` and the second `mcp` of `fn mcp mcp()` name a function (quillo FEEDBACK56.md, Q-853).</string>
+					<key>match</key>
+					<string>\b(fn)\s+(mcp)[ \t]+([A-Za-z_]\w*)</string>
+				</dict>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>storage.type.component.quillo</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>storage.modifier.mcp.quillo</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>entity.name.type.component.quillo</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>`component mcp Card()` and `view mcp Card()`, which quillo check refuses: the tag all the same, as quillo highlights it.</string>
+					<key>match</key>
+					<string>\b(component)\s+(mcp)[ \t]+([A-Za-z_]\w*)</string>
 				</dict>
 				<dict>
 					<key>captures</key>
@@ -303,6 +358,28 @@
 					</dict>
 					<key>match</key>
 					<string>\b(component)\s+([A-Z]\w*)</string>
+				</dict>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>storage.type.view.quillo</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>storage.modifier.mcp.quillo</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>entity.name.type.view.quillo</string>
+						</dict>
+					</dict>
+					<key>match</key>
+					<string>\b(view)\s+(mcp)[ \t]+([A-Za-z_]\w*)</string>
 				</dict>
 				<dict>
 					<key>captures</key>
@@ -371,6 +448,25 @@
 					</dict>
 					<key>match</key>
 					<string>\b(with)\s+((?:(?:db|http|fs|env|time|random|net)\s*,?\s*)+)</string>
+				</dict>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>keyword.other.quillo</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>storage.modifier.mcp.quillo</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>`service mcp /billing = ...`, `service mcp crm = ...`: the tag, with a path or a name after it on its line; `service mcp = ...` and `service mcp /* note */ = ...` name a service `mcp` (quillo FEEDBACK56.md, Q-853).</string>
+					<key>match</key>
+					<string>\b(service)[ \t]+(mcp)(?=[ \t]+(?:[A-Za-z_]|/(?![/*])))</string>
 				</dict>
 			</array>
 		</dict>

@@ -217,6 +217,39 @@ for n, text, want in [
     got = style(n, text)
     check("line %d: %s is %s" % (n, text, want), got == want, got)
 check("the tag after an unquoted value closes", style(19, "</div") == "Tag", lines[18])
+# `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
+# FEEDBACK56.md, Q-853): each line alone, its words in turn.
+for line, want in [
+    ("fn mcp total_today() = 1", [("fn", "Keyword"), ("mcp", "Keyword"), ("total_today", "Function")]),
+    ("public server fn mcp add_note(text: str) = text", [("public", "Keyword"), ("fn", "Keyword"), ("mcp", "Keyword"), ("add_note", "Function")]),
+    ("server fn mcp add_note(text: str) = text", [("server", "Keyword"), ("fn", "Keyword"), ("mcp", "Keyword"), ("add_note", "Function")]),
+    ("fn\tmcp\ttabbed() = 1", [("mcp", "Keyword"), ("tabbed", "Function")]),
+    ("fn mcp mcp() = 1", [("fn", "Keyword"), ("mcp", "Keyword"), ("mcp", "Function")]),
+    ("fn mcp(x) = x + 1", [("fn", "Keyword"), ("mcp", "Function")]),
+    ("fn mcp (x) = x", [("mcp", "Function")]),
+    ("view mcp(x) = x", [("mcp", "Function")]),
+    ("component mcp Card() = 1", [("mcp", "Keyword"), ("Card", "Function")]),
+    ('service mcp /billing = "billing.qwe"', [("service", "Keyword"), ("mcp", "Keyword"), ("/billing", "Path")]),
+    ('service mcp crm = "https://crm.example.com/mcp"', [("service", "Keyword"), ("mcp", "Keyword"), ("crm", "Normal Text")]),
+    ('service mcp = "mcp.qwe"', [("service", "Keyword"), ("mcp", "Normal Text")]),
+    ('service mcp /* note */ = "x.qwe"', [("mcp", "Normal Text"), ("/* note */", "Comment")]),
+    ("let mcp = mcp(1)", [("mcp", "Normal Text"), ("mcp", "Function")]),
+]:
+    merged = []
+    for t, s in read(line)[0]:
+        if merged and merged[-1][1] == s == "Comment":
+            merged[-1] = (merged[-1][0] + t, s)
+        else:
+            merged.append((t, s))
+    merged = [(t, s) for t, s in merged if t.strip()]
+    at, ok = 0, True
+    for text, sty in want:
+        i = next((k for k in range(at, len(merged)) if merged[k][0] == text), None)
+        if i is None or merged[i][1] != sty:
+            ok = False
+            break
+        at = i + 1
+    check("%r: %s" % (line, ", ".join("%s %s" % w for w in want)), ok, merged)
 # Back to code after the markup: the line after the element is read from Normal.
 check("after the tag, code", style(16, "}") == "Normal Text", style(16, "}"))
 

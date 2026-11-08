@@ -19,3 +19,10 @@ accept_calls { shared: false }
 let page = <div class=box alt='A cat'><!-- a note --><img src=a.png/></div>
 let doc = <!DOCTYPE html>
     <html></html>
+public server fn mcp add_note(text: str) = text
+fn mcp mcp() = 1
+fn mcp(x) = x + 1
+service mcp /billing = "billing.qwe"
+service mcp crm = "https://crm.example.com/mcp"
+service mcp = "mcp.qwe"
+service mcp /* note */ = "x.qwe"

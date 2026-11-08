@@ -1,0 +1,228 @@
+======================================================================
+A tool: fn mcp and server fn mcp, with public before them
+======================================================================
+
+fn mcp total_today() = 1
+public fn mcp search(q: str) = q
+server fn mcp add_note(text: str) with db = text
+public server fn mcp ping() {
+    1
+}
+fn	mcp	tabbed() = 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    mcp: (mcp)
+    name: (identifier)
+    parameters: (parameters)
+    body: (number))
+  (function_definition
+    (visibility)
+    mcp: (mcp)
+    name: (identifier)
+    parameters: (parameters
+      (parameter
+        name: (identifier)
+        type: (named_type
+          (type_identifier))))
+    body: (identifier))
+  (function_definition
+    server: (server)
+    mcp: (mcp)
+    name: (identifier)
+    parameters: (parameters
+      (parameter
+        name: (identifier)
+        type: (named_type
+          (type_identifier))))
+    (effects
+      (effect))
+    body: (identifier))
+  (function_definition
+    (visibility)
+    server: (server)
+    mcp: (mcp)
+    name: (identifier)
+    parameters: (parameters)
+    body: (block
+      (expression_statement
+        (number))))
+  (function_definition
+    mcp: (mcp)
+    name: (identifier)
+    parameters: (parameters)
+    body: (number)))
+
+======================================================================
+fn mcp(x) is a function named mcp; fn mcp mcp() is a tool named mcp
+======================================================================
+
+fn mcp(x) = x + 1
+fn mcp mcp() = 1
+fn mcp (x) = x
+server fn mcp() = 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameters
+      (parameter
+        name: (identifier)))
+    body: (binary_expression
+      left: (identifier)
+      right: (number)))
+  (function_definition
+    mcp: (mcp)
+    name: (identifier)
+    parameters: (parameters)
+    body: (number))
+  (function_definition
+    name: (identifier)
+    parameters: (parameters
+      (parameter
+        name: (identifier)))
+    body: (identifier))
+  (function_definition
+    server: (server)
+    name: (identifier)
+    parameters: (parameters)
+    body: (number)))
+
+======================================================================
+service mcp: a path or a name after the tag
+======================================================================
+
+service mcp /billing = "billing.qwe"
+service mcp crm = "https://crm.example.com/mcp"
+
+----------------------------------------------------------------------
+
+(source_file
+  (service_declaration
+    mcp: (mcp)
+    path: (route_path
+      (path_literal))
+    file: (string
+      (string_content)))
+  (service_declaration
+    mcp: (mcp)
+    name: (identifier)
+    file: (string
+      (string_content))))
+
+======================================================================
+service mcp = "mcp.qwe" is a service named mcp, and a comment is no path
+======================================================================
+
+service mcp = "mcp.qwe"
+service mcp /* note */ = "x.qwe"
+service /mcp = "mcp.qwe"
+
+----------------------------------------------------------------------
+
+(source_file
+  (service_declaration
+    name: (identifier)
+    file: (string
+      (string_content)))
+  (service_declaration
+    name: (identifier)
+    (comment)
+    file: (string
+      (string_content)))
+  (service_declaration
+    path: (route_path
+      (path_literal))
+    file: (string
+      (string_content))))
+
+======================================================================
+A view named mcp; the tag on a view or a component, which quillo refuses, is still the tag
+======================================================================
+
+view mcp(x) = x
+view mcp Card() = 1
+component mcp Card() = 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameters
+      (parameter
+        name: (identifier)))
+    body: (identifier))
+  (function_definition
+    mcp: (mcp)
+    name: (identifier)
+    parameters: (parameters)
+    body: (number))
+  (component_definition
+    mcp: (mcp)
+    name: (identifier)
+    parameters: (parameters)
+    body: (number)))
+
+======================================================================
+mcp is a name everywhere else
+======================================================================
+
+let mcp = 1
+mcp(2)
+let a = x.mcp + mcp
+let m = { mcp: mcp }
+let f = (mcp) => mcp
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    pattern: (identifier)
+    value: (number))
+  (expression_statement
+    (call_expression
+      function: (identifier)
+      arguments: (arguments
+        (number))))
+  (let_declaration
+    pattern: (identifier)
+    value: (binary_expression
+      left: (member_expression
+        object: (identifier)
+        property: (property_identifier))
+      right: (identifier)))
+  (let_declaration
+    pattern: (identifier)
+    value: (map
+      (map_entry
+        key: (property_identifier)
+        value: (identifier))))
+  (let_declaration
+    pattern: (identifier)
+    value: (lambda
+      parameters: (parameters
+        (parameter
+          name: (identifier)))
+      body: (identifier))))
+
+======================================================================
+A line break after mcp: it is no tag but an error, as in quillo
+======================================================================
+
+fn mcp
+total() = 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    (ERROR
+      (identifier))
+    name: (identifier)
+    parameters: (parameters)
+    body: (number)))

@@ -115,6 +115,8 @@
      (route_group "routes" @font-lock-keyword-face)
      (effects "with" @font-lock-keyword-face)
      (server) @font-lock-keyword-face
+     ;; `fn mcp total()`, `service mcp /billing`: the tag of a tool (quillo FEEDBACK56.md, Q-853).
+     (mcp) @font-lock-keyword-face
      (visibility) @font-lock-keyword-face)
 
    :language 'quillo
@@ -268,10 +270,24 @@
     (,(rx bol (* space) (or "import" "client" "preload" "preconnect") (+ space) (opt "module" (+ space))
           (group (+ (not (any space)))) (+ space) "use" symbol-end)
      (0 font-lock-keyword-face) (1 font-lock-string-face t))
+    ;; `service mcp /billing = ...`, `service mcp crm = ...`: the tag of a tool, with a path or a
+    ;; name after it on its line; `service mcp = ...` and `service mcp /* note */ = ...` name a
+    ;; service `mcp` (quillo FEEDBACK56.md, Q-853).
+    (,(rx bol (* space) (group "service") (+ (any " \t")) (group "mcp") (+ (any " \t"))
+          (or (any alpha "_") (seq "/" (or eol (not (any "/" "*"))))))
+     (1 font-lock-keyword-face) (2 font-lock-keyword-face))
+    (,(rx bol (* space) "service" (+ (any " \t")) "mcp" (+ (any " \t"))
+          (group "/" (not (any space "/" "*" "{" "=" "?" "|")) (* (not (any space "{" "=" "?" "|")))))
+     (1 font-lock-string-face))
     (,(rx bol (* space) (group (or "route" "routes" "mount" "service")) (+ space)
           (opt (group (or "GET" "POST" "PUT" "PATCH" "DELETE" "HEAD" "OPTIONS" "ANY")) (+ space))
           (group "/" (* (not (any space "{" "=" "?" "|")))))
      (1 font-lock-keyword-face) (2 font-lock-constant-face nil t) (3 font-lock-string-face))
+    ;; `fn mcp total()`, `server fn mcp add_note()`: `mcp` with a name after it on its line is
+    ;; the tag of a tool; `fn mcp(x)` and the second `mcp` of `fn mcp mcp()` name a function.
+    (,(rx symbol-start (or "fn" "view" "component") (+ (any " \t")) (group "mcp") (+ (any " \t"))
+          (group (any alpha "_") (* (or word (syntax symbol)))))
+     (1 font-lock-keyword-face) (2 font-lock-function-name-face))
     (,(rx symbol-start (or "fn" "view" "component") (+ space) (group (+ (or word (syntax symbol)))))
      (1 font-lock-function-name-face))
     (,(rx symbol-start "type" (+ space) (group upper (* (or word (syntax symbol)))) (* space) "=")

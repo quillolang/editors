@@ -37,6 +37,41 @@ check("an HTML comment", has("comment", "&lt;!-- a note --&gt;"), html.match(/a 
 check("a doctype", has("meta", "&lt;!DOCTYPE html&gt;"));
 check("an unquoted value", has("string", "box") && has("string", "a.png"), html.match(/class.{0,80}/)?.[0]);
 check("a single-quoted value", has("string", "&#x27;A cat&#x27;"), html.match(/alt.{0,60}/)?.[0]);
+// `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
+// FEEDBACK56.md, Q-853): each line alone, its spans in turn ("!" a span it has not).
+const inTurn = (line, want) => {
+  const got = [...hljs.highlight(line, { language: "quillo" }).value.matchAll(/<span class="hljs-([^"]+)">([^<]*)<\/span>/g)].map((m) => `${m[1]}:${m[2]}`);
+  let at = 0;
+  for (const w of want) {
+    if (w.startsWith("!")) {
+      if (got.includes(w.slice(1))) return got;
+      continue;
+    }
+    const i = got.indexOf(w, at);
+    if (i < 0) return got;
+    at = i + 1;
+  }
+  return null;
+};
+for (const [line, want] of [
+  ["fn mcp total_today() = 1", ["keyword:fn", "keyword:mcp", "title function_:total_today"]],
+  ["public server fn mcp add_note(text: str) = text", ["keyword:public", "keyword:fn", "keyword:mcp", "title function_:add_note"]],
+  ["server fn mcp add_note(text: str) = text", ["keyword:server", "keyword:fn", "keyword:mcp", "title function_:add_note"]],
+  ["fn\tmcp\ttabbed() = 1", ["keyword:mcp", "title function_:tabbed"]],
+  ["fn mcp mcp() = 1", ["keyword:fn", "keyword:mcp", "title function_:mcp"]],
+  ["fn mcp(x) = x + 1", ["keyword:fn", "title function_:mcp", "!keyword:mcp"]],
+  ["fn mcp (x) = x", ["title function_:mcp", "!keyword:mcp"]],
+  ["view mcp(x) = x", ["title function_:mcp", "!keyword:mcp"]],
+  ['service mcp /billing = "billing.qwe"', ["keyword:service", "keyword:mcp", "string:/billing"]],
+  ['service mcp crm = "https://crm.example.com/mcp"', ["keyword:service", "keyword:mcp"]],
+  ['service mcp = "mcp.qwe"', ["!keyword:mcp"]],
+  ['service mcp /* note */ = "x.qwe"', ["!keyword:mcp", "comment:/* note */"]],
+  ["let mcp = mcp(1)", ["!keyword:mcp"]],
+  ["fn mcp", ["!keyword:mcp"]],
+]) {
+  const bad = inTurn(line, want);
+  check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
+}
 check("the language is found by its alias", hljs.getLanguage("qwe") !== undefined);
 check("the builtins are the VS Code grammar's", JSON.stringify(listIn("highlightjs/quillo.js", "BUILTINS")) === JSON.stringify(BUILTINS));
 check("the modules are the VS Code grammar's", JSON.stringify(listIn("highlightjs/quillo.js", "MODULES")) === JSON.stringify(MODULES));

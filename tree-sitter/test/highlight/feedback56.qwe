@@ -1,0 +1,45 @@
+fn mcp total_today() = 1
+// <- keyword.function
+// ^ keyword.modifier
+//     ^ function
+
+public server fn mcp add_note(text: str) = text
+// <- keyword.modifier
+//     ^ keyword.modifier
+//            ^ keyword.function
+//               ^ keyword.modifier
+//                   ^ function
+
+fn mcp mcp() = 1
+// ^ keyword.modifier
+//     ^ function
+
+fn mcp(x) = x + 1
+// ^ function
+// ^ !keyword.modifier
+
+service mcp /billing = "billing.qwe"
+// <- keyword
+//      ^ keyword.modifier
+//          ^ string.special.url
+
+service mcp crm = "https://crm.example.com/mcp"
+//      ^ keyword.modifier
+//          ^ module
+
+service mcp = "mcp.qwe"
+//      ^ module
+//      ^ !keyword.modifier
+
+service mcp /* note */ = "x.qwe"
+//      ^ module
+//      ^ !keyword.modifier
+
+view mcp(x) = x
+//   ^ function
+//   ^ !keyword.modifier
+
+let mcp = mcp(1)
+//  ^ variable
+//  ^ !keyword.modifier
+//        ^ function.call

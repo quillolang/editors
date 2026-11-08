@@ -221,7 +221,8 @@
         <Detect2Chars attribute="Comment" context="LineComment" char="/" char1="/"/>
         <Detect2Chars attribute="Comment" context="BlockComment" char="/" char1="*" beginRegion="Comment"/>
         <RegExpr attribute="Keyword" firstNonSpace="true" String="(import|client|preload|preconnect)(?=\s+(module\s+)?(&quot;[^&quot;]*&quot;|[^\s&quot;]+)\s+use\b)" context="Import"/>
-        <RegExpr attribute="Keyword" firstNonSpace="true" String="(route|routes|mount|service)\b" context="RouteHead"/>
+        <RegExpr attribute="Keyword" firstNonSpace="true" String="(route|routes|mount)\b" context="RouteHead"/>
+        <RegExpr attribute="Keyword" firstNonSpace="true" String="service\b" context="ServiceHead"/>
         <RegExpr attribute="Keyword" firstNonSpace="true" String="(private|public|server|state|site|type|style)\b(?=\s+[A-Za-z_])"/>
         <RegExpr attribute="Keyword" firstNonSpace="true" String="build\b(?=\s+&quot;[^&quot;]*&quot;\s*=[^=])"/>
         <RegExpr attribute="Builtin" firstNonSpace="true" String="accept_calls\b(?=\s*\{)"/>
@@ -248,6 +249,9 @@
       </context>
       <context name="DefinitionName" attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop">
         <DetectSpaces/>
+        <!-- `fn mcp total()`: mcp with a name after it on its line is the tag of a tool; `fn mcp(x)`
+             names a function mcp (quillo FEEDBACK56.md, Q-853). -->
+        <RegExpr attribute="Keyword" String="mcp(?=[ \t]+[A-Za-z_])"/>
         <RegExpr attribute="Function" String="[A-Za-z_]\w*" context="#pop"/>
       </context>
       <context name="HtmlComment" attribute="Comment" lineEndContext="#stay">
@@ -268,6 +272,13 @@
         <RegExpr attribute="Constant" String="(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)\b"/>
         <RegExpr attribute="Path" String="/[^\s{=?|]*" context="#pop"/>
         <DetectIdentifier attribute="Normal Text" context="#pop"/>
+      </context>
+      <!-- `service mcp /billing = ...`, `service mcp crm = ...`: the tag, with a path or a name after it;
+           `service mcp = ...` and `service mcp /* note */ = ...` name a service mcp. -->
+      <context name="ServiceHead" attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <RegExpr attribute="Keyword" String="mcp(?=[ \t]+([A-Za-z_]|/(?![/*])))"/>
+        <IncludeRules context="RouteHead"/>
       </context>
       <context name="String" attribute="String" lineEndContext="#stay">
         <RegExpr attribute="Escape" String="\\(u\{[0-9a-fA-F]+\}|u[0-9a-fA-F]{4}|.)"/>

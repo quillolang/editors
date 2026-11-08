@@ -72,6 +72,19 @@
     const HTML_COMMENT = hljs.COMMENT("<!--", "-->");
     // highlight.js drops a mode's own flags, so the case is spelt out.
     const DOCTYPE = { className: "meta", begin: /<![dD][oO][cC][tT][yY][pP][eE]\s+[hH][tT][mM][lL]\s*>/ };
+    // `fn mcp total()`, `server fn mcp add_note()`: `mcp` with a name after it on its line is the
+    // tag of a tool; `fn mcp(x)` and the second `mcp` of `fn mcp mcp()` name a function (quillo
+    // FEEDBACK56.md, Q-853).
+    const TOOL = {
+      begin: [/\b(?:fn|view|component)\b/, /\s+/, /mcp/, /[ \t]+/, IDENT],
+      beginScope: { 1: "keyword", 3: "keyword", 5: "title.function" },
+    };
+    // `service mcp /billing = ...`, `service mcp crm = ...`: the tag, with a path or a name after it;
+    // `service mcp = ...` and `service mcp /* note */ = ...` name a service `mcp`.
+    const SERVICE_TOOL = {
+      begin: [/^\s*/, /service/, /[ \t]+/, /mcp/, /[ \t]+/, /(?:\/(?![/*])[^\s{=?|]*|(?=[A-Za-z_]))/],
+      beginScope: { 2: "keyword", 4: "keyword", 6: "string" },
+    };
     const DEFINITION = {
       begin: [/\b(?:fn|view|component)\b/, /\s+/, IDENT],
       beginScope: { 1: "keyword", 3: "title.function" },
@@ -102,11 +115,13 @@
       hljs.C_BLOCK_COMMENT_MODE,
       HTML_COMMENT,
       DOCTYPE,
+      SERVICE_TOOL,
       ROUTE,
       IMPORT,
       SOFT,
       BUILD,
       ACCEPT,
+      TOOL,
       DEFINITION,
       ...STRINGS,
       TAGGED,
