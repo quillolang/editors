@@ -1,7 +1,7 @@
 // The snippets: each reads as the JetBrains build reads it (its stops `$1`, `${1}`, `${1:text}`,
 // `${1|a,b|}`, `$0` and `\$`, a prefix a live template can take), and the tools' snippets,
 // filled in, are a program `quillo check` takes. Run: npm test
-// QUILLO_BIN is a quillo with `fn mcp`, `confirm` and `ask` (else the check is skipped).
+// QUILLO_BIN is a quillo with `fn mcp`, `confirm` and `about` (else the check is skipped).
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
@@ -41,7 +41,7 @@ const fill = (name, end = "") =>
 
 // Tools for AI clients (quillo FEEDBACK56.md): a tool, one the pages call too, a service's tools,
 // a question before it acts, a choice, and the instructions block.
-const tools = { fnmcp: "fn mcp", serverfnmcp: "server fn mcp", servicemcp: "service mcp", confirm: "confirm", ask: "ask", instructions: "instructions" };
+const tools = { fnmcp: "fn mcp", serverfnmcp: "server fn mcp", servicemcp: "service mcp", confirm: "confirm", about: "about", instructions: "instructions" };
 for (const [prefix, name] of Object.entries(tools)) check(`a snippet ${prefix}`, snippets[name] && snippets[name].prefix === prefix, Object.keys(snippets));
 if (failed) {
   console.log(`${failed} of ${count} snippet checks failed`);
@@ -51,7 +51,9 @@ check("fnmcp starts with its /// line", body("fn mcp").startsWith("/// ") && fil
 check("serverfnmcp is a server fn mcp", fill("server fn mcp").split("\n")[1].startsWith("server fn mcp "), fill("server fn mcp"));
 check("servicemcp serves a file", fill("service mcp") === 'service mcp /billing = "billing.qwe"', fill("service mcp"));
 check("confirm returns an error on a no", /^if !confirm\("[^"]+"\) \{ return err\("[^"]+"\) \}/.test(fill("confirm")), fill("confirm"));
-check("ask has choices and a default", /ask\("[^"]+", \{ \w+: "[^"]+", \w+: "[^"]+" \}, "draft"\)/.test(fill("ask")), fill("ask"));
+check("about has choices and a default", /about\("[^"]+", \{ \w+: "[^"]+", \w+: "[^"]+" \}, "draft"\)/.test(fill("about")), fill("about"));
+// ask is the page's dialog, ask(message, options): an argument after its options is an error now.
+for (const name of Object.keys(snippets)) check(`${name}: no ask with a third argument`, !/\bask\(\s*"[^"]*"\s*,\s*\{[^}]*\}\s*,/.test(fill(name)), fill(name));
 check("instructions are //! lines", fill("instructions").trim().split("\n").every((l) => l.startsWith("//! ")), fill("instructions"));
 
 const bin = process.env.QUILLO_BIN;
@@ -66,7 +68,7 @@ else {
     fill("service mcp"),
     "/// Deletes a note.",
     "fn mcp delete_note(id: int) -> map with db {",
-    "\t" + fill("ask", "\t" + fill("confirm", '\tdb.exec("delete from notes where id = ? and draft = ?", id, who == "draft")')),
+    "\t" + fill("about", "\t" + fill("confirm", '\tdb.exec("delete from notes where id = ? and draft = ?", id, who == "draft")')),
     "}",
     "",
   ].join("\n");

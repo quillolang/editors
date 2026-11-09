@@ -59,8 +59,12 @@ let t = mcp_token({ max_age: 60 }) ?? mcp_tokens() ?? revoke_mcp_token(id)
 //                                    ^ function.builtin
 //                                                    ^ function.builtin
 
-let k = ask("Who?", { a: "A" }, "a")
+let k = about("Who?", { a: "A" }, "a")
 //      ^ function.builtin
+
+// ask stays the page's dialog, with two arguments (a tool's choice is about).
+let ok = ask("Delete it?", { tone: "danger" })
+//       ^ function.builtin
 
 let x = 1 /* a block
    comment */ + confirm("ok")

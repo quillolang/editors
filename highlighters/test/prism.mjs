@@ -55,6 +55,7 @@ check("//! is a comment", is("comment", "//! Notes are private to the user who w
 check("/// is a comment", is("comment", "/// Adds a note."), typesOf("/// Adds a note."));
 check("a block comment over lines", is("comment", "/* a block\n   comment */"), toks.filter(([, tx]) => tx.includes("a block")));
 check("the tools' builtins", is("builtin", "revoke_mcp_token") && is("builtin", "confirm"), [typesOf("revoke_mcp_token"), typesOf("confirm")]);
+check("about, a tool's pick of choices, is a builtin", is("builtin", "about"), typesOf("about"));
 check("routes /*x is a path", is("path", "/*x"), typesOf("/*x"));
 // `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
 // FEEDBACK56.md, Q-853): each line alone, its tokens in turn ("!" a token it has not).
@@ -94,7 +95,9 @@ for (const [line, want] of [
   // `server` after `private` or `public` starts its definition too.
   ["public server fn save(text: str) = text", ["keyword:public", "keyword:server", "keyword:fn", "function:save"]],
   ["  private server fn x() = 1", ["keyword:private", "keyword:server", "keyword:fn"]],
-  ['let k = ask("Who?", { a: "A", b: "B" }, "a")', ["builtin:ask"]],
+  ['let k = about("Who?", { a: "A", b: "B" }, "a")', ["builtin:about"]],
+  // ask stays the page's dialog, with two arguments (a tool's choice is about).
+  ['let ok = ask("Delete it?", { tone: "danger" })', ["builtin:ask"]],
   ["let t = mcp_token({ max_age: 60 }) ?? mcp_tokens()", ["builtin:mcp_token", "builtin:mcp_tokens"]],
 ]) {
   const bad = inTurn(line, want);

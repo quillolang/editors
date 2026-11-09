@@ -199,6 +199,7 @@
       <item>mcp_token</item>
       <item>mcp_tokens</item>
       <item>revoke_mcp_token</item>
+      <item>about</item>
     </list>
     <list name="modules">
       <item>json</item>
@@ -238,7 +239,7 @@
         <keyword attribute="Keyword" String="keywords"/>
         <keyword attribute="Constant" String="literals"/>
         <keyword attribute="Type" String="types"/>
-        <RegExpr attribute="Builtin" String="\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting|accept_calls|classes|files|markdown_page|confirm|mcp_token|mcp_tokens|revoke_mcp_token)\b(?=\s*\()"/>
+        <RegExpr attribute="Builtin" String="\b(print|str|int|float|dec|len|type_of|upper|lower|trim|split|join|contains|starts_with|ends_with|replace|slice|map|filter|find|any|all|reduce|sum|min|max|sort|sort_by|reverse|first|last|push|range|enumerate|keys|values|get|has|set|remove|merge|err|is_err|unwrap|raw|escape|url_encode|env|now|sleep|file|redirect|respond|read_file|write_file|random|random_int|uuid|abs|round|floor|ceil|sqrt|pow|unique|flatten|zip|take|drop|count|group_by|index_of|repeat|format_number|live|publish|watch|unwatched|delete_file|check_program|join_on|markdown|highlight|run_script|sql_name|sql_param|ask|notify|translations|locale_from|locale|with_locale|t|schedule|allow_cross_site|tenant|tenant_from|with_tenant|save_upload|read_upload|js|js_new|parallel|every|stream|events|listen|receive|url|css|sql|navigate|set_cookie|delete_cookie|session|set_session|end_session|sessions|renew_session|end_sessions|user_sessions|rate_limit|rate_limit_reset|security_headers|csp|csp_nonce|idempotent|args|cookie|cursor_index|defer|error|exit|filled|js_has|local_path|new_tenant|normalize|page_updated|platform|read_line|ready|run_after|site_headers|stdin|style_with|waiting|accept_calls|classes|files|markdown_page|confirm|mcp_token|mcp_tokens|revoke_mcp_token|about)\b(?=\s*\()"/>
         <RegExpr attribute="Builtin" String="\b(json|db|http|udp|channel|media|crypto|image|math|stats|vec|date|money|re|bit|later)(?=\.)"/>
         <RegExpr attribute="Function" String="\b[A-Za-z_]\w*(?=\s*\(|`)"/>
         <RegExpr attribute="Number" String="\b(0[xX][0-9a-fA-F_]+|\d[\d_]*(\.\d[\d_]*)?([eE][+-]?\d+)?m?)\b"/>

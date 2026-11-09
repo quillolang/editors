@@ -5,13 +5,14 @@
 - Tools for AI clients highlighted: the `mcp` of `fn mcp name()`, `server fn mcp name()` and
   `service mcp /billing = "billing.qwe"`, a name everywhere else (`fn mcp(x)` is a function
   named `mcp`), as quillo reads it (FEEDBACK56.md, Q-853).
-- The new builtins: `confirm` and `ask`'s three-argument form, a tool's questions to the person,
-  and `mcp_token`, `mcp_tokens` and `revoke_mcp_token`, the MCP door's tokens.
+- The new builtins: `confirm` and `about`, a tool's questions to the person (`ask` stays the
+  page's dialog, with two arguments), and `mcp_token`, `mcp_tokens` and `revoke_mcp_token`, the
+  MCP door's tokens.
 - `/* ... */` comments are comments, over lines too, where they were shown as code; `/*` in a
   route's path stays a wildcard (`route GET /*rest`, `routes /*x`, `mount /*m`), and `routes`
   and `mount` are highlighted with their paths.
 - Snippets: `fnmcp` (a tool, with its `///` line), `serverfnmcp`, `servicemcp`, `confirm` (a
-  no ends the call), `ask` (choices and a default) and `instructions` (the `//!` block). These
+  no ends the call), `about` (choices and a default) and `instructions` (the `//!` block). These
   need the quillo after 0.8.0.
 
 ## 0.16.0

@@ -32,3 +32,4 @@ public server fn save(text: str) = text
 let gone = revoke_mcp_token(id) /* a block
    comment */ && confirm("Sure?")
 routes /*x with db { }
+let who = about("Who?", { a: "A" }, "a")

@@ -152,11 +152,11 @@ class EditorTest : BasePlatformTestCase() {
 
     /** A tool's questions and the MCP door's tokens are builtins; `//!` is a comment (quillo FEEDBACK56.md). */
     fun testTheToolsBuiltins() {
-        myFixture.configureByText("main.qwe", "//! Notes are private.\npublic server fn save(t: str) = confirm(t)\nlet k = mcp_tokens() ?? revoke_mcp_token(id) ?? mcp_token()\n")
+        myFixture.configureByText("main.qwe", "//! Notes are private.\npublic server fn save(t: str) = confirm(t)\nlet k = mcp_tokens() ?? revoke_mcp_token(id) ?? mcp_token()\nlet who = about(\"Who?\", { a: \"A\" }, \"a\")\n")
         val instructions = tokens().first { "Notes are private" in it.first }.second
         assertTrue(instructions, "comment" in instructions)
         assertTrue(scopeOf("server"), "storage.modifier.server" in scopeOf("server"))
-        for (name in listOf("confirm", "mcp_tokens", "revoke_mcp_token", "mcp_token")) {
+        for (name in listOf("confirm", "mcp_tokens", "revoke_mcp_token", "mcp_token", "about")) {
             assertTrue(scopeOf(name), "support.function.builtin" in scopeOf(name))
         }
     }

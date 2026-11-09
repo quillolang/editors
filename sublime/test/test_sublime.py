@@ -69,8 +69,8 @@ class Grammars(unittest.TestCase):
 
     def test_block_comments_and_the_tools_builtins(self):
         """`/* ... */` is a comment (it was shown as code), and a route group's path is read first,
-        so `routes /*x` stays a path; `confirm`, `mcp_token` and the rest are builtins (quillo
-        FEEDBACK56.md)."""
+        so `routes /*x` stays a path; `confirm`, `about`, `mcp_token` and the rest are builtins
+        (quillo FEEDBACK56.md)."""
         g = plist("Quillo.tmLanguage")
         repo = g["repository"]
         block = [r for r in repo["comment"]["patterns"] if r.get("name") == "comment.block.quillo"]
@@ -83,7 +83,7 @@ class Grammars(unittest.TestCase):
         self.assertEqual(prefix.match('mount /*m = "a.qwe"').group(3), "/*m")
         self.assertIsNone(prefix.match("let mount = 1"))
         builtins = re.search(r"\\b\((.*?)\)\\b", repo["call"]["patterns"][0]["match"]).group(1).split("|")
-        for name in ["confirm", "ask", "mcp_token", "mcp_tokens", "revoke_mcp_token"]:
+        for name in ["confirm", "about", "ask", "mcp_token", "mcp_tokens", "revoke_mcp_token"]:
             self.assertIn(name, builtins)
 
     def test_a_script_by_its_first_line(self):

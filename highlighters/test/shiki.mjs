@@ -50,6 +50,7 @@ check("service mcp /* note */'s comment", line("service mcp /*").some(([t, s]) =
 check("a block comment over lines", line("let gone").some(([t, s]) => t === "a block" && s === "comment.block.quillo") && line("   comment */").some(([t, s]) => t === "comment" && s === "comment.block.quillo"), [line("let gone"), line("   comment */")]);
 check("code after the block comment", line("   comment */").some(([t, s]) => t === "confirm" && s === "support.function.builtin.quillo"), line("   comment */"));
 check("revoke_mcp_token is a builtin", scoped("revoke_mcp_token", "support.function.builtin"), scopesOf("revoke_mcp_token"));
+check("about, a tool's pick of choices, is a builtin", scoped("about", "support.function.builtin"), scopesOf("about"));
 check("routes /*x is a path", line("routes /*x").some(([t, s]) => t === "*" && s === "keyword.operator.wildcard.quillo") && !line("routes /*x").some(([, s]) => s.startsWith("comment")), line("routes /*x"));
 check("//! is a comment", scoped("//! Notes are private to the user who wrote them.", "comment.line"), scopesOf("//! Notes are private to the user who wrote them."));
 check("/// is a comment", scoped("/// Adds a note.", "comment.line"), scopesOf("/// Adds a note."));

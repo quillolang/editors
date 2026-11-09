@@ -37,9 +37,10 @@ server fn mcp ping() = 1
 //! Notes are private to the user who wrote them.
 /// Adds a note.
 public server fn save(text: str) = text
-let gone = revoke_mcp_token(id) && confirm("Sure?") && ask("Who?", { a: "A" }, "a") != null
+let gone = revoke_mcp_token(id) && confirm("Sure?") && about("Who?", { a: "A" }, "a") != null
 let t = mcp_token({ max_age: 60 }) ?? mcp_tokens()
 routes /*x with db { }
 mount /*m = "a.qwe"
   private server fn hidden() = 1
 let server = 1
+let ok = ask("Delete it?", { tone: "danger" })

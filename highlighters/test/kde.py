@@ -266,13 +266,16 @@ for n, text, want in [
     (33, "confirm", "Builtin"),
     (34, "/*x", "Path"),
     (34, "with", "Keyword"),
+    (35, "about", "Builtin"),
 ]:
     got = style(n, text)
     check("line %d: %s is %s" % (n, text, want), got == want, got)
 for line, want in [
     ("  private server fn x() = 1", {"server": "Keyword", "fn": "Keyword", "x": "Function"}),
     ("public server = 1", {"server": "Normal Text"}),
-    ('let k = ask("Who?", { a: "A" }, "a") ?? mcp_tokens()', {"ask": "Builtin", "mcp_tokens": "Builtin"}),
+    ('let k = about("Who?", { a: "A" }, "a") ?? mcp_tokens()', {"about": "Builtin", "mcp_tokens": "Builtin"}),
+    # ask stays the page's dialog, with two arguments (a tool's choice is about).
+    ('let ok = ask("Delete it?", { tone: "danger" })', {"ask": "Builtin"}),
 ]:
     words = {}
     for t, s in read(line)[0]:

@@ -122,7 +122,7 @@ call s:Is(39, 'server', 'quilloStatement')
 call s:Is(39, 'save', 'quilloFunction')
 call s:Is(40, 'revoke_mcp_token', 'quilloBuiltin')
 call s:Is(40, 'confirm', 'quilloBuiltin')
-call s:Is(40, 'ask', 'quilloBuiltin')
+call s:Is(40, 'about', 'quilloBuiltin')
 call s:Is(41, 'mcp_token(', 'quilloBuiltin')
 call s:Is(41, 'mcp_tokens', 'quilloBuiltin')
 call s:Is(42, '/*x', 'quilloRoutePath')
@@ -132,6 +132,8 @@ call s:Is(43, 'a.qwe', 'quilloString')
 call s:Is(44, 'server', 'quilloStatement')
 call s:Is(44, 'hidden', 'quilloFunction')
 call assert_notequal('quilloStatement', s:At(45, 'server'), 'let server is a name')
+" ask stays the page's dialog, with two arguments (a tool's choice is about).
+call s:Is(46, 'ask', 'quilloBuiltin')
 
 " Indentation: every line of indent.qwe is where its indent puts it.
 execute 'edit ' . fnameescape(s:here . '/test/indent.qwe')

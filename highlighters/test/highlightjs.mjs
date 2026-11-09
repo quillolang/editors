@@ -43,6 +43,7 @@ check("/// is a comment", has("comment", "/// Adds a note."));
 check("a block comment over lines", has("comment", "/* a block\n   comment */"), html.match(/a block.{0,40}/s)?.[0]);
 check("public server: both keywords", html.includes('<span class="hljs-keyword">public</span> <span class="hljs-keyword">server</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">save</span>'), html.match(/public[^\n]*save/)?.[0]);
 check("the tools' builtins", has("built_in", "revoke_mcp_token") && has("built_in", "confirm"));
+check("about, a tool's pick of choices, is a builtin", has("built_in", "about"));
 // `mcp` before a name on its line is the tag of a tool, and a name everywhere else (quillo
 // FEEDBACK56.md, Q-853): each line alone, its spans in turn ("!" a span it has not).
 const inTurn = (line, want) => {
@@ -80,7 +81,9 @@ for (const [line, want] of [
   ["public server = 1", ["!keyword:server"]],
   // A tool's questions and the door's tokens.
   ['if !confirm("Sure?") { return err("no") }', ["built_in:confirm"]],
-  ['let k = ask("Who?", { a: "A", b: "B" }, "a")', ["built_in:ask"]],
+  ['let k = about("Who?", { a: "A", b: "B" }, "a")', ["built_in:about"]],
+  // ask stays the page's dialog, with two arguments (a tool's choice is about).
+  ['let ok = ask("Delete it?", { tone: "danger" })', ["built_in:ask"]],
   ["let t = mcp_token({ max_age: 60 }) ?? mcp_tokens()", ["built_in:mcp_token", "built_in:mcp_tokens"]],
   ["routes /*x with db { }", ["keyword:routes", "string:/*x", "!comment:/*x with db { }"]],
 ]) {

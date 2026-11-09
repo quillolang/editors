@@ -250,7 +250,9 @@ const cases = [
   ['use "tw.rs"', "tw.rs", "string.quoted.double.quillo"],
   // FEEDBACK56: what a tool asks the person, the door's tokens, the `//!` instructions, `/* */`.
   ['if !confirm("Delete it?") { return err("not deleted") }', "confirm", "support.function.builtin.quillo"],
-  ['let who = ask("Who can see it?", { public: "Everyone", draft: "Only me" }, "draft")', "ask", "support.function.builtin.quillo"],
+  ['let who = about("Who can see it?", { public: "Everyone", draft: "Only me" }, "draft")', "about", "support.function.builtin.quillo"],
+  // ask stays the page's dialog, with two arguments (a tool's choice is about).
+  ['let ok = ask("Delete it?", { tone: "danger" })', "ask", "support.function.builtin.quillo"],
   ['let token = mcp_token({ max_age: 7 * 24 * 3600 })', "mcp_token", "support.function.builtin.quillo"],
   ['for t in mcp_tokens() { print(t.id) }', "mcp_tokens", "support.function.builtin.quillo"],
   ['let gone = revoke_mcp_token(id, { user })', "revoke_mcp_token", "support.function.builtin.quillo"],

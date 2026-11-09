@@ -34,7 +34,7 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
 - **Snippets**: `import`, `client`, `preload`, `site`, `tool` (a script reading its input a line at a time), `route`, `routejson`, `fn`, `fnb`, `pfn` (private fn), `server fn`, `view`, `component`, `match`, `for`, `page`,
   and for real time: `udplisten`, `channelon`, `channelopen`, `mediartp`, `quillo-media`; for
   tools for AI clients: `fnmcp` (a tool, with its `///` line), `serverfnmcp`, `servicemcp`,
-  `confirm` (the person's yes before a tool acts), `ask` (a choice, with a default) and
+  `confirm` (the person's yes before a tool acts), `about` (a choice, with a default) and
   `instructions` (the `//!` block an AI client is told).
 - **File icons**: a quill for `.qwe` files, and a quill with a gear for `.qwer` files, in the
   default (Seti) icon theme and any other that has none of its own for them.

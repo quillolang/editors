@@ -24,7 +24,7 @@
     "defer", "error", "exit", "filled", "js_has", "local_path", "new_tenant", "normalize",
     "page_updated", "platform", "read_line", "ready", "run_after", "site_headers", "stdin",
     "style_with", "waiting", "accept_calls", "classes", "files", "markdown_page", "confirm",
-    "mcp_token", "mcp_tokens", "revoke_mcp_token",
+    "mcp_token", "mcp_tokens", "revoke_mcp_token", "about",
   ];
   const MODULES = ["json", "db", "http", "udp", "channel", "media", "crypto", "image", "math", "stats", "vec", "date", "money", "re", "bit", "later"];
   const TYPES = ["int", "float", "dec", "num", "str", "date", "bool", "list", "map", "html", "fn", "any", "response"];

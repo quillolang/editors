@@ -173,11 +173,12 @@ EMACS_SAMPLE = """//! Notes are private to the user who wrote them.
 /// Adds a note.
 public server fn save(text: str) = text
 let gone = revoke_mcp_token(id) /* a block
-   comment */ && confirm("Sure?") && ask("Who?", { a: "A" }, "a") != null
+   comment */ && confirm("Sure?") && about("Who?", { a: "A" }, "a") != null
 let t = mcp_token({ max_age: 60 }) ?? mcp_tokens()
   private server fn hidden() = 1
 let server = 1
 fn mcp total() = len(x)
+let ok = ask("Delete it?", { tone: "danger" })
 """
 EMACS_WANT = [
     (1, "Notes are private", "font-lock-comment-face"),
@@ -189,13 +190,15 @@ EMACS_WANT = [
     (4, "a block", "font-lock-comment-face"),
     (5, "comment", "font-lock-comment-face"),
     (5, "confirm", "font-lock-builtin-face"),
-    (5, "ask", "font-lock-builtin-face"),
+    (5, "about", "font-lock-builtin-face"),
     (6, "mcp_token", "font-lock-builtin-face"),
     (6, "mcp_tokens", "font-lock-builtin-face"),
     (7, "server", "font-lock-keyword-face"),
     (8, "server", "font-lock-variable-name-face"),
     (9, "mcp", "font-lock-keyword-face"),
     (9, "len", "font-lock-builtin-face"),
+    # ask stays the page's dialog, with two arguments (a tool's choice is about).
+    (10, "ask", "font-lock-builtin-face"),
 ]
 emacs = shutil.which("emacs")
 major = 0
