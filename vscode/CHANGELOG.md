@@ -13,7 +13,12 @@
   and `mount` are highlighted with their paths.
 - Snippets: `fnmcp` (a tool, with its `///` line), `serverfnmcp`, `servicemcp`, `confirm` (a
   no ends the call), `about` (choices and a default) and `instructions` (the `//!` block). These
-  need the quillo after 0.8.0.
+  need quillo 0.8.1 or later.
+- With quillo 0.8.2, `quillo lsp` also underlines what its `quillo check` warns of: a call of
+  the program's own function that changes nothing and is dropped (`down(val)` for
+  `val = down(val)`), `xs[0] = 5` with what to write, a `return` that leaves from a value
+  that is kept, a function that gives a value on one path and null at its end, and code that
+  never runs. Nothing in the extension changed for them; the snippets pass 0.8.2's check.
 
 ## 0.16.0
 
