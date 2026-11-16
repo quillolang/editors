@@ -139,7 +139,7 @@ class EditorTest : BasePlatformTestCase() {
         assertTrue(scopeOf("bit"), "support.module" in scopeOf("bit"))
     }
 
-    /** `/* ... */` is a comment, over lines too, where it was code; in a route group's path `/*` is a wildcard. */
+    /** `/* ... */` is a comment, over lines too, where it was code; in a route group's path a `*` right after the `/` is a wildcard. */
     fun testBlockComments() {
         myFixture.configureByText("main.qwe", "let a = 1 /* a\nnote */ + 2\nroutes /*x with db {\n}\nlet b = 3\n")
         val note = tokens().first { "note" in it.first }.second
