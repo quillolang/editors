@@ -40,6 +40,9 @@ and Android Studio from Rabbit 2 (2026.2.2, build 262), which passes the Plugin 
 The editor features come from `quillo lsp`, the language server built into the `quillo` binary, and
 the debugger from `quillo dap`. The plugin looks for the binary in **Settings > Languages &
 Frameworks > Quillo**, then in `target/release` or `target/debug` of the project, then on your `PATH`.
+The project's own build is run only in a trusted project: in one opened in safe mode, a cloned
+repository's `target/release/quillo` would run as soon as a file opened. To work on Quillo itself
+with its own build, trust the project; the server starts again with that build.
 
 ## What VS Code has and this does not
 

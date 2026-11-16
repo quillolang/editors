@@ -141,14 +141,24 @@ class BinaryWatcher(private val project: Project) : Disposable {
     private var last: Stamp? = null
     private var warned = false
 
+    /** Whether the server was looked for here: a Quillo file asked for it, or it was started. */
+    @Volatile
+    var asked = false
+        private set
+
     private data class Stamp(val modified: Long, val size: Long)
+
+    /** The binary the server was last started from. */
+    @get:Synchronized
+    val started: Path? get() = watched
 
     /** True when the binary has just gone missing. */
     @Synchronized
-    fun noteMissing(missing: Boolean): Boolean = (missing && !warned).also { warned = missing }
+    fun noteMissing(missing: Boolean): Boolean = (missing && !warned).also { warned = missing; asked = true }
 
     @Synchronized
     fun watch(file: Path) {
+        asked = true
         watched = file
         running = stamp(file)
         last = running

@@ -4,17 +4,50 @@ local M = {}
 
 M.repository = "https://github.com/quillolang/editors"
 
---- The quillo binary: the option, a build in the folder Neovim runs in, then quillo on the PATH.
+--- target/release/quillo, then target/debug/quillo, in `dir` (nil: the folder Neovim runs in).
+local function build_in(dir)
+  local uv = vim.uv or vim.loop
+  for _, p in ipairs({ "target/release/quillo", "target/debug/quillo" }) do
+    local full = dir and (dir .. "/" .. p) or p
+    if uv.fs_stat(full) then
+      return uv.fs_realpath(full) or full
+    end
+  end
+end
+
+--- The folder of `folders` (one, or a list) that Neovim runs in or below, resolved, or nil.
+local function listed_folder(folders)
+  local uv = vim.uv or vim.loop
+  local here = uv.cwd and uv.cwd()
+  here = here and uv.fs_realpath(here)
+  if not here then
+    return nil
+  end
+  for _, d in ipairs(type(folders) == "string" and { folders } or folders) do
+    local real = uv.fs_realpath(vim.fs.normalize(d))
+    local after = real and here:sub(#real + 1, #real + 1)
+    if real and here:sub(1, #real) == real and (after == "" or after == "/" or after == "\\") then
+      return real
+    end
+  end
+end
+
+--- The quillo binary: opts.cmd, then quillo on the PATH. A build in a folder is used only when
+--- opts.local_binary asks: true for the folder Neovim runs in, or a folder (or a list of them)
+--- whose build is used when Neovim runs in it or below. Looking in whatever folder Neovim ran in
+--- let a cloned repository's target/release/quillo run when one of its files was opened
+--- (FEEDBACK71.md, Q-967; branch q967-binary).
 function M.binary(opts)
   opts = opts or {}
   if opts.cmd and opts.cmd ~= "" then
     return opts.cmd
   end
-  local uv = vim.uv or vim.loop
-  for _, p in ipairs({ "target/release/quillo", "target/debug/quillo" }) do
-    if uv.fs_stat(p) then
-      return uv.fs_realpath(p) or p
-    end
+  local want = opts.local_binary
+  if want == true then
+    return build_in(nil) or "quillo"
+  elseif type(want) == "string" or type(want) == "table" then
+    local dir = listed_folder(want)
+    return dir and build_in(dir) or "quillo"
   end
   return "quillo"
 end
@@ -106,8 +139,9 @@ function M.indent()
   return -1
 end
 
---- opts.cmd: the quillo binary; opts.lsp = false: do not start quillo lsp; opts.dap = false:
---- do not add the debugger.
+--- opts.cmd: the quillo binary; opts.local_binary: the build of the folder Neovim runs in
+--- (true), or of the folders listed, before quillo on the PATH; opts.lsp = false: do not start
+--- quillo lsp; opts.dap = false: do not add the debugger.
 function M.setup(opts)
   opts = opts or {}
   vim.filetype.add(require("quillo.filetype").rules)

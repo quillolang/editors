@@ -11,7 +11,8 @@ A [Zed](https://zed.dev) extension for Quillo's `.qwe` files:
   Its configuration is VS Code's (`program`, `args`, `cwd`, `stopOnEntry`).
 
 `quillo` must be on your `PATH` ([releases](https://github.com/quillolang/quillo/releases/latest)),
-or named in Zed's settings:
+or named in Zed's settings. The extension never looks in the project's folder for a build: to use
+one of Quillo itself, name its full path in your own settings:
 
 ```json
 {

@@ -2,6 +2,14 @@
 
 ## 0.17.0
 
+- Security: in a folder not trusted (Restricted Mode), the extension runs nothing of the
+  folder's. It ran the folder's own `target/release/quillo` (or `target/debug/quillo`) as the
+  language server as soon as a `.qwe` file opened, and took `quillo.path` from the folder's
+  `.vscode/settings.json`: opening a file of a cloned repository ran the repository's program
+  (FEEDBACK71.md, Q-967). Now the folder's build is looked for only in a trusted folder, only
+  your user `quillo.path` is read in one not trusted, and `quillo.path` is a restricted setting
+  for VS Code too. The server, the debugger, Run, Check and New program all choose so. Trusting
+  the folder starts the server again with its build: how to work on Quillo with its own build.
 - Tools for AI clients highlighted: the `mcp` of `fn mcp name()`, `server fn mcp name()` and
   `service mcp /billing = "billing.qwe"`, a name everywhere else (`fn mcp(x)` is a function
   named `mcp`), as quillo reads it (FEEDBACK56.md, Q-853).

@@ -24,6 +24,8 @@ for every file of a language, and most `.rs` files are a crate's. VS Code, the J
 Neovim give quillo's word on such a file too.
 
 `quillo` must be on your `PATH` ([releases](https://github.com/quillolang/quillo/releases/latest)).
+The binary never comes from the project's folder: to use a build of Quillo itself, give its full
+path as the `command` of `quillo-lsp` and `quillo-dap` in your own `~/.config/helix/languages.toml`.
 
 The highlight, injection, locals and indent queries are made from `../tree-sitter/queries` by
 `tree-sitter/scripts/queries.js`, in Helix's scope names and with the patterns turned around

@@ -32,8 +32,11 @@ local function fresh(o)
     bo = state.bo,
     uv = {
       fs_stat = function(p) return files[p] and {} or nil end,
-      fs_realpath = function(p) return "/work/" .. p end,
+      -- Neovim runs in /work, or o.cwd (for local_binary's folders, Q-967).
+      fs_realpath = function(p) return p:sub(1, 1) == "/" and p or "/work/" .. p end,
+      cwd = function() return o.cwd or "/work" end,
     },
+    fs = { normalize = function(p) return (p:gsub("^~", "/home/me")) end },
     api = {
       nvim_buf_get_lines = function(_, _, _, _) return { o.first_line } end,
       nvim_create_autocmd = function(ev, a) table.insert(state.autocmds, { ev = ev, a = a }) end,
@@ -123,10 +126,44 @@ local q = require("quillo")
 check("quillo on the PATH", q.binary() == "quillo")
 check("the option first", q.binary({ cmd = "/opt/quillo" }) == "/opt/quillo")
 check("a blank option is none", q.binary({ cmd = "" }) == "quillo")
+-- A build in the folder runs only when local_binary asks: a cloned repository's own
+-- target/release/quillo ran when one of its files was opened (FEEDBACK71.md, Q-967). The two
+-- checks of the build found here now ask for it.
+local builds = { ["target/debug/quillo"] = true, ["target/release/quillo"] = true }
+fresh({ files = builds })
+check("a build here is not run unasked", require("quillo").binary() == "quillo")
+check("local_binary = false is not asking", require("quillo").binary({ local_binary = false }) == "quillo")
+require("quillo").setup()
+check("nor by quillo lsp", state.lsp.quillo.cmd[1] == "quillo")
+check("nor by lsp/quillo.lua", dofile("lsp/quillo.lua").cmd[1] == "quillo")
+fresh({ files = builds, dap = true })
+require("quillo").setup()
+check("nor by the debugger", state.dap.adapters.quillo.command == "quillo")
 fresh({ files = { ["target/debug/quillo"] = true } })
-check("a debug build here", require("quillo").binary() == "/work/target/debug/quillo")
-fresh({ files = { ["target/debug/quillo"] = true, ["target/release/quillo"] = true } })
-check("the release build before the debug one", require("quillo").binary() == "/work/target/release/quillo")
+check("a debug build here, asked for", require("quillo").binary({ local_binary = true }) == "/work/target/debug/quillo")
+fresh({ files = builds })
+check("the release build before the debug one", require("quillo").binary({ local_binary = true }) == "/work/target/release/quillo")
+check("cmd before local_binary", require("quillo").binary({ cmd = "/opt/quillo", local_binary = true }) == "/opt/quillo")
+fresh({ files = builds, dap = true })
+require("quillo").setup({ local_binary = true })
+check("local_binary reaches quillo lsp", state.lsp.quillo.cmd[1] == "/work/target/release/quillo")
+check("and the debugger", state.dap.adapters.quillo.command == "/work/target/release/quillo")
+fresh({ files = {} })
+check("true and no build here: quillo on the PATH", require("quillo").binary({ local_binary = true }) == "quillo")
+-- The folders listed: their build, when Neovim runs in one or below it, and nowhere else.
+local mine = { ["/home/me/quillo/target/release/quillo"] = true, ["/home/me/clone/target/release/quillo"] = true, ["target/release/quillo"] = true }
+fresh({ files = mine, cwd = "/home/me/quillo" })
+check("a listed folder's build", require("quillo").binary({ local_binary = "~/quillo" }) == "/home/me/quillo/target/release/quillo")
+fresh({ files = mine, cwd = "/home/me/quillo/examples/todo" })
+check("below a listed folder, its build", require("quillo").binary({ local_binary = { "/elsewhere", "~/quillo" } }) == "/home/me/quillo/target/release/quillo")
+fresh({ files = mine, cwd = "/home/me/clone" })
+check("a folder not listed: quillo on the PATH", require("quillo").binary({ local_binary = { "~/quillo" } }) == "quillo")
+fresh({ files = mine, cwd = "/home/me/quillo-clone" })
+check("a name that starts as a listed folder's is not below it", require("quillo").binary({ local_binary = "/home/me/quillo" }) == "quillo")
+fresh({ files = {}, cwd = "/home/me/quillo" })
+check("a listed folder with no build: quillo on the PATH", require("quillo").binary({ local_binary = { "~/quillo" } }) == "quillo")
+fresh({ files = mine, cwd = "/home/me/quillo" })
+check("an empty list asks for nothing", require("quillo").binary({ local_binary = {} }) == "quillo")
 
 -- The language server, on Neovim 0.11.
 fresh()

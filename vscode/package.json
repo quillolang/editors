@@ -20,7 +20,10 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "In a folder not trusted, .qwer files are not compiled: cargo check would run their dependencies' build scripts."
+      "description": "In a folder not trusted, .qwer files are not compiled: cargo check would run their dependencies' build scripts. The folder's own target/release/quillo or target/debug/quillo is not run, and its quillo.path setting is not read: quillo is your quillo.path, or quillo on the PATH.",
+      "restrictedConfigurations": [
+        "quillo.path"
+      ]
     }
   },
   "categories": [
@@ -156,7 +159,7 @@
         "quillo.path": {
           "type": "string",
           "default": "",
-          "description": "Path to the `quillo` binary. Empty: `quillo` on the PATH, or target/release/quillo or target/debug/quillo in the workspace."
+          "description": "Path to the `quillo` binary. Empty: target/release/quillo or target/debug/quillo in a trusted workspace, then `quillo` on the PATH. In a workspace not trusted, a workspace's value is not read and its own build is not run."
         },
         "quillo.autoCloseTags": {
           "type": "boolean",
@@ -288,7 +291,7 @@
     ]
   },
   "scripts": {
-    "test": "node test/grammar.test.js && node test/snippets.test.js && node test/language-configuration.test.js && node test/new-program.test.js && node test/rust-files.test.js",
+    "test": "node test/grammar.test.js && node test/snippets.test.js && node test/language-configuration.test.js && node test/new-program.test.js && node test/rust-files.test.js && node test/binary.test.js",
     "package": "vsce package"
   },
   "dependencies": {

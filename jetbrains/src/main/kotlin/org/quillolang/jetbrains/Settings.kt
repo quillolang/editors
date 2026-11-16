@@ -39,7 +39,7 @@ class QuilloConfigurable : BoundConfigurable("Quillo") {
             textFieldWithBrowseButton(FileChooserDescriptorFactory.singleFile().withTitle("Path to quillo"))
                 .bindText({ state.path.orEmpty() }, { state.path = it.ifBlank { null } })
                 .align(AlignX.FILL)
-                .comment("Empty: target/release/quillo or target/debug/quillo in the project, then quillo on the PATH.")
+                .comment("Empty: target/release/quillo or target/debug/quillo in a trusted project, then quillo on the PATH.")
         }
         row {
             checkBox("Add an element's end tag when its start tag's > is typed, and finish the end tag when </ is typed")

@@ -12,10 +12,20 @@ let watched = null;
 let restartTimer = null;
 let closeTimer = null;
 
-/** The quillo binary: the setting, a build in the workspace, or `quillo` on the PATH. */
+/**
+ * The quillo binary, for the server, the debugger, Run, Check and New: the setting, a build in
+ * the workspace, or `quillo` on the PATH. In a folder not trusted (Restricted Mode), nothing of
+ * the folder's: its target/release/quillo is not looked for, and only the user's own quillo.path
+ * is read, never the folder's .vscode/settings.json (package.json lists it as restricted too).
+ * Opening a file of a cloned repository ran the repository's program (FEEDBACK71.md, Q-967;
+ * branch q967-binary). Trusting the folder starts the server again, with its build.
+ */
 function quilloPath() {
-  const configured = vscode.workspace.getConfiguration("quillo").get("path");
+  const trusted = vscode.workspace.isTrusted === true;
+  const config = vscode.workspace.getConfiguration("quillo");
+  const configured = trusted ? config.get("path") : (config.inspect("path") || {}).globalValue;
   if (configured) return configured;
+  if (!trusted) return "quillo";
   for (const folder of vscode.workspace.workspaceFolders || []) {
     for (const p of ["target/release/quillo", "target/debug/quillo"]) {
       const full = path.join(folder.uri.fsPath, p);
@@ -372,7 +382,7 @@ async function activate(context) {
     vscode.workspace.onDidChangeConfiguration(async (e) => {
       if (e.affectsConfiguration("quillo.path")) await restartClient();
     }),
-    // Trusted now: started again, to say so.
+    // Trusted now: started again, to say so, and with the folder's own build or quillo.path (Q-967).
     vscode.workspace.onDidGrantWorkspaceTrust(restartClient)
   );
   await startClient();
@@ -383,4 +393,4 @@ function deactivate() {
   return client ? client.stop() : undefined;
 }
 
-module.exports = { activate, deactivate, newProgram, newFolderProblem, newFailure, middleware, rustUnwelcome };
+module.exports = { activate, deactivate, newProgram, newFolderProblem, newFailure, middleware, rustUnwelcome, quilloPath };

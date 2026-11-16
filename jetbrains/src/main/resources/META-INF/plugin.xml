@@ -44,6 +44,12 @@
     <debugAdapterServer id="quillo" name="Quillo" factoryClass="org.quillolang.jetbrains.QuilloDebugFactory"/>
   </extensions>
 
+  <applicationListeners>
+    <!-- A project trusted once open: its own build is used from then on (FEEDBACK71.md, Q-967). -->
+    <listener class="org.quillolang.jetbrains.QuilloTrustListener"
+              topic="com.intellij.ide.trustedProjects.TrustedProjectsListener"/>
+  </applicationListeners>
+
   <actions>
     <group id="Quillo.Menu" text="Quillo" popup="true">
       <add-to-group group-id="ToolsMenu" anchor="last"/>

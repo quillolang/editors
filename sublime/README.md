@@ -23,7 +23,8 @@ A Sublime Text 4 package for Quillo's `.qwe` files and `.qwer` files:
    ```
 
 3. `quillo` must be on the `PATH` Sublime Text sees, or named in full in
-   *Preferences > Package Settings > LSP > Servers > LSP-quillo* (`"command"`).
+   *Preferences > Package Settings > LSP > Servers > LSP-quillo* (`"command"`). The binary never
+   comes from the project's folder: to use a build of Quillo itself, name its full path there.
 
 ## Tests
 

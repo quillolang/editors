@@ -21,7 +21,9 @@ const vscode = {
     },
     showErrorMessage: (m) => shown.push(m),
   },
-  workspace: { workspaceFolders: [], getConfiguration: () => ({ get: (k) => (k === "path" ? answers.bin : undefined) }) },
+  // Trusted, as VS Code's empty window is: the binary is chosen by trust since Q-967
+  // (test/binary.test.js), and quillo.path here is the user's, read in either case.
+  workspace: { isTrusted: true, workspaceFolders: [], getConfiguration: () => ({ get: (k) => (k === "path" ? answers.bin : undefined) }) },
   commands: { executeCommand: async (c, uri, o) => opened.push({ c, folder: uri.fsPath, o }) },
   Uri: { file: (fsPath) => ({ fsPath }) },
 };

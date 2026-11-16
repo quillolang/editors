@@ -1,5 +1,6 @@
 package org.quillolang.jetbrains
 
+import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.notification.Notification
 import com.intellij.notification.Notifications
 import com.intellij.openapi.application.ApplicationManager
@@ -155,6 +156,34 @@ class LanguageServerTest : QuilloTestCase() {
         assertTrue(before != null)
         Files.setLastModifiedTime(copy, FileTime.fromMillis(System.currentTimeMillis() + 5000))
         waitFor("a new server") { wrapper.currentProcessId != null && wrapper.currentProcessId != before }
+    }
+
+    /**
+     * Q-967: in a project not trusted, the server is quillo on the PATH, not the project's own
+     * build; trusting the project starts it again from that build.
+     */
+    fun testTheProjectsBuildOnceTrusted() {
+        val onPath = resolveBinary("quillo") ?: return println("(no quillo on the PATH: testTheProjectsBuildOnceTrusted skipped)")
+        val base = Path.of(project.basePath!!)
+        val target = base.resolve("target")
+        val existed = Files.exists(target)
+        val build = base.resolve("target/release/quillo")
+        Files.createDirectories(build.parent)
+        Files.copy(Path.of(binary!!), build, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING)
+        val watcher = project.getService(BinaryWatcher::class.java)
+        try {
+            QuilloSettings.getInstance().state.path = null
+            TrustedProjects.setProjectTrusted(project, false)
+            open("main.qwe", "fn f() = 1\n")
+            assertEquals("not trusted: quillo on the PATH", onPath, watcher.started)
+            TrustedProjects.setProjectTrusted(project, true)
+            waitFor("the server from the project's build") { watcher.started == build }
+            connect(myFixture.file)
+        } finally {
+            TrustedProjects.setProjectTrusted(project, true)
+            Files.deleteIfExists(build)
+            if (!existed) target.toFile().deleteRecursively()
+        }
     }
 
     fun testSaysWhenTheBinaryIsMissing() {

@@ -32,7 +32,8 @@ or, with `use-package`:
 Then, once: `M-x quillo-install-grammar`, which builds tree-sitter-quillo from `tree-sitter/src`
 of this repository (it needs a C compiler) and puts it where Emacs looks. `M-x eglot` in a
 `.qwe` buffer starts the language server. `quillo` must be on the `PATH`, or
-`quillo-program` set to it.
+`quillo-program` set to it. The binary never comes from the project's folder: to use a build of
+Quillo itself, set `quillo-program` to its full path in your own init file.
 
 ## Tests
 

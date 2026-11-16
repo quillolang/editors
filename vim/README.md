@@ -61,6 +61,9 @@ call ale#linter#Define('quillo', { 'name': 'quillo', 'lsp': 'stdio',
     \ 'project_root': {b -> fnamemodify(ale#path#FindNearestFile(b, 'main.qwe'), ':h')} })
 ```
 
+Each runs `quillo` from the `PATH` (`:make` too, as `quillo check %`), never from the project's
+folder: to use a build of Quillo itself, write its full path where these say `quillo`.
+
 For tree-sitter highlighting and nvim-dap, Neovim has [its own plugin](../neovim).
 
 ## Tests

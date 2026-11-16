@@ -4,7 +4,10 @@ Editor support for [Quillo](https://github.com/quillolang/quillo). Everything ta
 `quillo lsp` (the language server) and `quillo dap` (the debugger), both built into the
 `quillo` binary, so each editor needs `quillo` installed
 (see [Getting started](https://github.com/quillolang/quillo#getting-started)) or its path in
-that editor's settings.
+that editor's settings. None runs a project's own `target/release/quillo` unless you say so: VS
+Code and the JetBrains IDEs only in a folder you trust, Neovim with `local_binary`, the others
+never, which is how a cloned repository's program is kept from running when you open one of its
+files.
 
 | Editor | Folder | Highlighting | Language server | Debugger | Also | Tested |
 |---|---|---|---|---|---|---|

@@ -33,8 +33,12 @@ vim.opt.rtp:append("~/src/quillolang-editors/neovim")
 require("quillo").setup()
 ```
 
-`setup()` takes `cmd` (the quillo binary; else `target/release/quillo` or `target/debug/quillo`
-in the folder Neovim runs in, then `quillo` on the `PATH`), `lsp = false` and `dap = false`.
+`setup()` takes `cmd` (the quillo binary; else `quillo` on the `PATH`), `local_binary`,
+`lsp = false` and `dap = false`. A folder's own `target/release/quillo` (or `target/debug/quillo`)
+runs only when `local_binary` asks: a cloned repository's would run as soon as you opened one of
+its files. To work on Quillo itself with its own build, name your checkout,
+`local_binary = { "~/src/quillo" }` (a folder or a list: its build is used when Neovim runs in it
+or below it), or `local_binary = true` for any folder Neovim runs in.
 
 ### The parser
 

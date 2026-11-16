@@ -7,6 +7,11 @@
   completion, parameter info, go to declaration, find usages, rename and the structure view from
   `quillo lsp`, through LSP4IJ; end tags closed as you type; run configurations, and a debugger
   through `quillo dap`.
+- Security: the project's own `target/release/quillo` (or `target/debug/quillo`) is run only in
+  a trusted project. In one opened in safe mode it ran as the language server as soon as a
+  `.qwe` file opened, and for Run, Debug, Check and New too: opening a file of a cloned
+  repository ran the repository's program (quillo FEEDBACK71.md, Q-967). Trusting the project
+  starts the server again with its build.
 - `import lib/a.qwe use b`, `client`, `preload` and `preconnect` lines highlighted and completed
   file first, the file and then its names, with snippets for each. Needs a `quillo` that knows
   `import`.

@@ -65,7 +65,11 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
 The editor features come from `quillo lsp`, the language server built into the `quillo` binary,
 and the debugger from `quillo dap`.
 The extension looks for the binary in the `quillo.path` setting, then in `target/release` or
-`target/debug` of the open workspace, then on your `PATH`.
+`target/debug` of the open workspace, then on your `PATH`. In a folder you have not trusted
+(Restricted Mode) it runs nothing of the folder's: only your user `quillo.path` or `quillo` on
+the `PATH`, never the folder's own build or a `quillo.path` from its `.vscode/settings.json`. To
+work on Quillo itself with its own build, trust the Quillo folder (*Workspaces: Manage Workspace
+Trust*): the server starts again with `target/release/quillo`.
 
 ## Install
 
