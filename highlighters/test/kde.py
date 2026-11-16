@@ -250,6 +250,31 @@ for line, want in [
             break
         at = i + 1
     check("%r: %s" % (line, ", ".join("%s %s" % w for w in want)), ok, merged)
+# `offline` right after `route` with a method, or after `routes` with a path, is the tag of a page
+# kept for offline, and a name everywhere else; the path after it is still a path (quillo
+# FEEDBACK67.md, B.2).
+for line, want in [
+    ('route offline GET /menu = "menu"', [("route", "Keyword"), ("offline", "Keyword"), ("GET", "Constant"), ("/menu", "Path")]),
+    ("route\toffline\tGET /tabbed = 1", [("offline", "Keyword"), ("GET", "Constant"), ("/tabbed", "Path")]),
+    ("route offline GET /*rest = rest", [("offline", "Keyword"), ("/*rest", "Path"), ("rest", "Normal Text")]),
+    ("routes offline /docs {", [("routes", "Keyword"), ("offline", "Keyword"), ("/docs", "Path")]),
+    ("    routes offline /help | auth.required {", [("routes", "Keyword"), ("offline", "Keyword"), ("/help", "Path")]),
+    ("route GET /offline = offline", [("/offline", "Path"), ("offline", "Normal Text")]),
+    ("let offline = 1", [("offline", "Normal Text")]),
+    ("route offline = 1", [("route", "Keyword"), ("offline", "Normal Text")]),
+    ("route offline /menu = 1", [("offline", "Normal Text")]),
+    ("routes offline", [("offline", "Normal Text")]),
+    ("routes offline GET /menu = 1", [("offline", "Normal Text")]),
+]:
+    merged = [(t, s) for t, s in read(line)[0] if t.strip()]
+    at, ok = 0, True
+    for text, sty in want:
+        i = next((k for k in range(at, len(merged)) if merged[k][0] == text), None)
+        if i is None or merged[i][1] != sty:
+            ok = False
+            break
+        at = i + 1
+    check("%r: %s" % (line, ", ".join("%s %s" % w for w in want)), ok, merged)
 # Back to code after the markup: the line after the element is read from Normal.
 check("after the tag, code", style(16, "}") == "Normal Text", style(16, "}"))
 # FEEDBACK56: the `//!` instructions and `///` are comments, `/* */` over lines too; `server` after

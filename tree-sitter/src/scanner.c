@@ -15,6 +15,12 @@
 //   is the tag with spaces or tabs and then a name after it on its line; after `service`, a
 //   name or a `/` that starts no comment. So `fn mcp(x)`, `fn mcp` at a line's end,
 //   `service mcp = "mcp.qwe"` and `service mcp /* note */ = ...` name something `mcp`.
+// - _route_offline_tag, _routes_offline_tag: `offline`, the tag of a page kept for offline, as
+//   quillo's highlighter's `offline_tag` reads it (src/highlight.rs; FEEDBACK67.md, B.2). After
+//   `route`, it is the tag with spaces or tabs and then an uppercase method after it on its
+//   line; after `routes`, a `/`, the group's path, which the path's own tokens then read, so
+//   `routes offline /*x` is a path. `offline` at a line's end, `route offline = ...` and
+//   `offline` anywhere else are names.
 
 #include "tree_sitter/parser.h"
 
@@ -29,6 +35,8 @@ enum TokenType {
   VOID_TAG_NAME,
   MCP_TAG,
   SERVICE_MCP_TAG,
+  ROUTE_OFFLINE_TAG,
+  ROUTES_OFFLINE_TAG,
   ERROR_SENTINEL,
 };
 
@@ -178,6 +186,20 @@ static bool scan_mcp_tag(TSLexer *lexer, bool path) {
   return lexer->lookahead != '/' && lexer->lookahead != '*';
 }
 
+// `offline` with spaces or tabs after it, then an uppercase letter (a route's method) or, with
+// `group`, a `/` (a group's path).
+static bool scan_offline_tag(TSLexer *lexer, bool group) {
+  for (const char *w = "offline"; *w; w++) {
+    if (lexer->lookahead != *w) return false;
+    advance(lexer);
+  }
+  lexer->mark_end(lexer);
+  if (lexer->lookahead != ' ' && lexer->lookahead != '\t') return false;
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') advance(lexer);
+  if (group) return lexer->lookahead == '/';
+  return lexer->lookahead >= 'A' && lexer->lookahead <= 'Z';
+}
+
 bool tree_sitter_quillo_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid) {
   (void)payload;
   // Error recovery asks for every token at once: leave it to the grammar's own.
@@ -201,6 +223,13 @@ bool tree_sitter_quillo_external_scanner_scan(void *payload, TSLexer *lexer, con
     bool service = valid[SERVICE_MCP_TAG];
     if (!scan_mcp_tag(lexer, service)) return false;
     lexer->result_symbol = service ? SERVICE_MCP_TAG : MCP_TAG;
+    return true;
+  }
+  // Only spaces between, as for `mcp`: `route` and `offline` on two lines is no tag.
+  if ((valid[ROUTE_OFFLINE_TAG] || valid[ROUTES_OFFLINE_TAG]) && lexer->lookahead == 'o') {
+    bool group = valid[ROUTES_OFFLINE_TAG];
+    if (!scan_offline_tag(lexer, group)) return false;
+    lexer->result_symbol = group ? ROUTES_OFFLINE_TAG : ROUTE_OFFLINE_TAG;
     return true;
   }
   if (valid[NEWLINE] && lexer->lookahead == '\n') {

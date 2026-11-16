@@ -56,6 +56,23 @@
       beginScope: { 2: "keyword", 4: "keyword", 5: "string" },
       relevance: 10,
     };
+    // `route offline GET /menu`, `routes offline /docs`: `offline` right after `route` with a method
+    // after it, or after `routes` with a path, is the tag of a page kept for offline; it is a name
+    // everywhere else (quillo FEEDBACK67.md, B.2).
+    const OFFLINE_ROUTE = {
+      begin: [
+        /^\s*/,
+        /\b(?:route(?=[ \t]+offline[ \t]+(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)[ \t])|routes(?=[ \t]+offline[ \t]+\/))/,
+        /[ \t]+/,
+        /offline/,
+        /[ \t]+/,
+        /(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)?/,
+        /[ \t]*/,
+        /\/[^\s{=?|]*/,
+      ],
+      beginScope: { 2: "keyword", 4: "keyword", 6: "keyword", 8: "string" },
+      relevance: 10,
+    };
     const IMPORT = {
       begin: [/^\s*/, /\b(?:import|client|preload|preconnect)\b/, /\s+(?:module\s+)?/, /(?:"[^"]*"|[^\s"]+)/, /\s+/, /use\b/],
       beginScope: { 2: "keyword", 4: "string", 6: "keyword" },
@@ -122,6 +139,7 @@
       HTML_COMMENT,
       DOCTYPE,
       SERVICE_TOOL,
+      OFFLINE_ROUTE,
       ROUTE,
       IMPORT,
       VISIBLE_SERVER,

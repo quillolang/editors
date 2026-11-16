@@ -1397,84 +1397,14 @@
 				<key>2</key>
 				<dict>
 					<key>name</key>
+					<string>storage.modifier.offline.quillo</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
 					<string>constant.language.http-method.quillo</string>
 				</dict>
-				<key>3</key>
-				<dict>
-					<key>name</key>
-					<string>string.unquoted.path.quillo</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>captures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.definition.parameter.quillo</string>
-								</dict>
-								<key>2</key>
-								<dict>
-									<key>name</key>
-									<string>variable.parameter.path.quillo</string>
-								</dict>
-								<key>3</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.section.parens.quillo</string>
-								</dict>
-								<key>4</key>
-								<dict>
-									<key>name</key>
-									<string>support.type.quillo</string>
-								</dict>
-								<key>5</key>
-								<dict>
-									<key>name</key>
-									<string>punctuation.section.parens.quillo</string>
-								</dict>
-							</dict>
-							<key>match</key>
-							<string>(:)([A-Za-z_]\w*)(?:(\()(int|float|dec|num|str)(\)))?</string>
-						</dict>
-						<dict>
-							<key>captures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>keyword.operator.wildcard.quillo</string>
-								</dict>
-								<key>2</key>
-								<dict>
-									<key>name</key>
-									<string>variable.parameter.path.quillo</string>
-								</dict>
-							</dict>
-							<key>match</key>
-							<string>(\*)([A-Za-z_]\w*)?</string>
-						</dict>
-					</array>
-				</dict>
-			</dict>
-			<key>match</key>
-			<string>\b(route)\s+(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|ANY)\s+(/[^\s?{=]*)</string>
-		</dict>
-		<key>route-prefix</key>
-		<dict>
-			<key>captures</key>
-			<dict>
-				<key>1</key>
-				<dict>
-					<key>name</key>
-					<string>keyword.other.route.quillo</string>
-				</dict>
-				<key>2</key>
-				<dict>
-					<key>name</key>
-					<string>keyword.other.quillo</string>
-				</dict>
-				<key>3</key>
+				<key>4</key>
 				<dict>
 					<key>name</key>
 					<string>string.unquoted.path.quillo</string>
@@ -1533,9 +1463,91 @@
 				</dict>
 			</dict>
 			<key>comment</key>
-			<string>`routes /admin {` and `mount /blog = ...`: a path, as quillo reads it, so `/*` there is a wildcard, not a comment.</string>
+			<string>`route offline GET /menu = ...`: `offline` with a method after it on its line is the tag of a page kept for offline; it is a name everywhere else (quillo FEEDBACK67.md, B.2).</string>
 			<key>match</key>
-			<string>^\s*(?:(routes)|(mount))[ \t]+(/[^\s?{=|]*)</string>
+			<string>\b(route)\s+(?:(offline)[ \t]+)?(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|ANY)\s+(/[^\s?{=]*)</string>
+		</dict>
+		<key>route-prefix</key>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.other.route.quillo</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>storage.modifier.offline.quillo</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.other.quillo</string>
+				</dict>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>string.unquoted.path.quillo</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>captures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.definition.parameter.quillo</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>variable.parameter.path.quillo</string>
+								</dict>
+								<key>3</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.section.parens.quillo</string>
+								</dict>
+								<key>4</key>
+								<dict>
+									<key>name</key>
+									<string>support.type.quillo</string>
+								</dict>
+								<key>5</key>
+								<dict>
+									<key>name</key>
+									<string>punctuation.section.parens.quillo</string>
+								</dict>
+							</dict>
+							<key>match</key>
+							<string>(:)([A-Za-z_]\w*)(?:(\()(int|float|dec|num|str)(\)))?</string>
+						</dict>
+						<dict>
+							<key>captures</key>
+							<dict>
+								<key>1</key>
+								<dict>
+									<key>name</key>
+									<string>keyword.operator.wildcard.quillo</string>
+								</dict>
+								<key>2</key>
+								<dict>
+									<key>name</key>
+									<string>variable.parameter.path.quillo</string>
+								</dict>
+							</dict>
+							<key>match</key>
+							<string>(\*)([A-Za-z_]\w*)?</string>
+						</dict>
+					</array>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>`routes /admin {` and `mount /blog = ...`: a path, as quillo reads it, so `/*` there is a wildcard, not a comment. `routes offline /docs {`: the tag of a group kept for offline, with a path after it (quillo FEEDBACK67.md, B.2).</string>
+			<key>match</key>
+			<string>^\s*(?:(routes)(?:[ \t]+(offline))?|(mount))[ \t]+(/[^\s?{=|]*)</string>
 		</dict>
 		<key>shebang</key>
 		<dict>

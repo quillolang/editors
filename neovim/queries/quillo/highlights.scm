@@ -222,6 +222,10 @@
 ; `fn mcp total()`, `service mcp /billing`: the tag of a tool (quillo FEEDBACK56.md, Q-853).
 (mcp) @keyword.modifier
 
+; `route offline GET /menu`, `routes offline /docs`: the tag of a page kept for offline (quillo
+; FEEDBACK67.md, B.2).
+(offline) @keyword.modifier
+
 (visibility) @keyword.modifier
 
 (type_definition

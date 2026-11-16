@@ -19,6 +19,11 @@
   `val = down(val)`), `xs[0] = 5` with what to write, a `return` that leaves from a value
   that is kept, a function that gives a value on one path and null at its end, and code that
   never runs. Nothing in the extension changed for them; the snippets pass 0.8.2's check.
+- Pages kept for offline highlighted: the `offline` of `route offline GET /menu = ...` and
+  `routes offline /docs { ... }`, a name everywhere else (`let offline = 1`, `route GET /offline`),
+  with the path after it still a path (`route offline GET /*rest`), as quillo reads it
+  (FEEDBACK67.md, B.2). Snippets `routeoffline` and `routesoffline`, which need a quillo that
+  has `route offline` (after 0.8.6).
 
 ## 0.16.0
 

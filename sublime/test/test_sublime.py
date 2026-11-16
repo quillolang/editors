@@ -79,12 +79,37 @@ class Grammars(unittest.TestCase):
         self.assertTrue(begin.match("/* a note") and end.search("a note */"))
         self.assertIn({"include": "#route-prefix"}, repo["statements"]["patterns"])
         prefix = re.compile(repo["route-prefix"]["match"])
-        self.assertEqual(prefix.match("routes /*x with db {").group(3), "/*x")
-        self.assertEqual(prefix.match('mount /*m = "a.qwe"').group(3), "/*m")
+        # The path is the fourth group: `routes offline`'s tag is the second (quillo FEEDBACK67.md, B.2).
+        self.assertEqual(prefix.match("routes /*x with db {").group(4), "/*x")
+        self.assertEqual(prefix.match('mount /*m = "a.qwe"').group(4), "/*m")
         self.assertIsNone(prefix.match("let mount = 1"))
         builtins = re.search(r"\\b\((.*?)\)\\b", repo["call"]["patterns"][0]["match"]).group(1).split("|")
         for name in ["confirm", "about", "ask", "mcp_token", "mcp_tokens", "revoke_mcp_token"]:
             self.assertIn(name, builtins)
+
+    def test_the_offline_tag(self):
+        """`offline` right after `route` with a method, or after `routes` with a path, is the tag of
+        a page kept for offline, and the path after it is still a path; `offline` is a name
+        everywhere else (quillo FEEDBACK67.md, B.2)."""
+        repo = plist("Quillo.tmLanguage")["repository"]
+        route = re.compile(repo["route"]["match"])
+        m = route.search("route offline GET /*rest = rest")
+        self.assertEqual((m.group(2), m.group(3), m.group(4)), ("offline", "GET", "/*rest"))
+        m = route.search("route\toffline\tGET /menu = 1")
+        self.assertEqual((m.group(2), m.group(4)), ("offline", "/menu"))
+        m = route.search("route GET /offline = offline")
+        self.assertEqual((m.group(2), m.group(4)), (None, "/offline"))
+        self.assertIsNone(route.search("route offline = 1"))
+        prefix = re.compile(repo["route-prefix"]["match"])
+        for line, path in [("routes offline /docs {", "/docs"), ("    routes offline /*x with db {", "/*x"), ("routes\toffline\t/docs {", "/docs")]:
+            m = prefix.match(line)
+            self.assertEqual((m.group(1), m.group(2), m.group(4)), ("routes", "offline", path), line)
+        m = prefix.match("routes /offline {")
+        self.assertEqual((m.group(2), m.group(4)), (None, "/offline"))
+        self.assertIsNone(prefix.match("routes offline"))
+        self.assertIsNone(prefix.match("let offline = routes"))
+        self.assertEqual(repo["route"]["captures"]["2"]["name"], "storage.modifier.offline.quillo")
+        self.assertEqual(repo["route-prefix"]["captures"]["2"]["name"], "storage.modifier.offline.quillo")
 
     def test_a_script_by_its_first_line(self):
         first = re.compile(plist("Quillo.tmLanguage")["firstLineMatch"])

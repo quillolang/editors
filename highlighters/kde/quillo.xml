@@ -226,6 +226,10 @@
         <Detect2Chars attribute="Comment" context="LineComment" char="/" char1="/"/>
         <Detect2Chars attribute="Comment" context="BlockComment" char="/" char1="*" beginRegion="Comment"/>
         <RegExpr attribute="Keyword" firstNonSpace="true" String="(import|client|preload|preconnect)(?=\s+(module\s+)?(&quot;[^&quot;]*&quot;|[^\s&quot;]+)\s+use\b)" context="Import"/>
+        <!-- `route offline GET /menu`, `routes offline /docs`: offline right after route with a method
+             after it, or after routes with a path, is the tag of a page kept for offline; it is a
+             name everywhere else (quillo FEEDBACK67.md, B.2). -->
+        <RegExpr attribute="Keyword" firstNonSpace="true" String="(route(?=[ \t]+offline[ \t]+[A-Z])|routes(?=[ \t]+offline[ \t]+/))" context="OfflineHead"/>
         <RegExpr attribute="Keyword" firstNonSpace="true" String="(route|routes|mount)\b" context="RouteHead"/>
         <RegExpr attribute="Keyword" firstNonSpace="true" String="service\b" context="ServiceHead"/>
         <!-- `public server fn x()`: server after private or public starts its definition too. -->
@@ -283,6 +287,10 @@
         <RegExpr attribute="Constant" String="(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)\b"/>
         <RegExpr attribute="Path" String="/[^\s{=?|]*" context="#pop"/>
         <DetectIdentifier attribute="Normal Text" context="#pop"/>
+      </context>
+      <context name="OfflineHead" attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <RegExpr attribute="Keyword" String="offline\b" context="#pop!RouteHead"/>
       </context>
       <!-- `service mcp /billing = ...`, `service mcp crm = ...`: the tag, with a path or a name after it;
            `service mcp = ...` and `service mcp /* note */ = ...` name a service mcp. -->

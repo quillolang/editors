@@ -30,6 +30,12 @@ The grammar follows quillo's own parser (`src/parser.rs`, `src/lexer.rs`), with
   with a name or a path (`service mcp /billing = "billing.qwe"`); the scanner decides, as
   quillo's highlighter does. `fn mcp(x)`, the second `mcp` of `fn mcp mcp()`,
   `service mcp = "mcp.qwe"`, `service mcp /* note */ = ...` and `mcp` anywhere else are names.
+- **`offline`**, the tag of a page kept for offline, is one only right after `route` with an
+  uppercase method after it on its line (`route offline GET /menu = ...`), or after `routes`
+  with a path (`routes offline /docs { ... }`, at any indentation); the scanner decides, as
+  quillo's highlighter does, and the path after it is still a path (`route offline GET /*rest`).
+  `let offline = 1`, `route GET /offline`, `fn offline()` and `offline` anywhere else are names;
+  `route offline` with the method on the next line is an error, as in quillo.
 - `{}` and `{ x }` are maps, as quillo reads them; `{ x = 1 }` is a block.
 
 ## Queries

@@ -103,6 +103,27 @@ for (const [line, want] of [
   const bad = inTurn(line, want);
   check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
 }
+// `offline` right after `route` with a method, or after `routes` with a path, is the tag of a page
+// kept for offline, and a name everywhere else; the path after it is still a path (quillo
+// FEEDBACK67.md, B.2).
+for (const [line, want] of [
+  ['route offline GET /menu = "menu"', ["keyword:route", "keyword:offline", "method:GET", "path:/menu"]],
+  ["route\toffline\tGET /tabbed = 1", ["keyword:offline", "method:GET", "path:/tabbed"]],
+  ["route offline GET /*rest = rest", ["keyword:offline", "path:/*rest", "!comment:/*rest = rest"]],
+  ["routes offline /docs {", ["keyword:routes", "keyword:offline", "path:/docs"]],
+  ["    routes offline /help | auth.required {", ["keyword:routes", "keyword:offline", "path:/help"]],
+  ["routes offline /offline {", ["keyword:offline", "path:/offline"]],
+  ["route GET /offline = offline", ["path:/offline", "!keyword:offline"]],
+  ["routes /offline { }", ["path:/offline", "!keyword:offline"]],
+  ["let offline = 1", ["!keyword:offline"]],
+  ["route offline = 1", ["!keyword:offline"]],
+  ["route offline /menu = 1", ["!keyword:offline"]],
+  ["routes offline", ["!keyword:offline"]],
+  ["routes offline GET /menu = 1", ["!keyword:offline"]],
+]) {
+  const bad = inTurn(line, want);
+  check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
+}
 check("the alias qwe", Prism.languages.qwe === Prism.languages.quillo);
 check("the builtins are the VS Code grammar's", JSON.stringify(listIn("prism/prism-quillo.js", "BUILTINS")) === JSON.stringify(BUILTINS));
 check("the modules are the VS Code grammar's", JSON.stringify(listIn("prism/prism-quillo.js", "MODULES")) === JSON.stringify(MODULES));

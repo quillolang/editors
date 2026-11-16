@@ -55,6 +55,15 @@ syntax match quilloPath "\(^\s*use\s\+\)\@<=[^ \t",*]*[/.][^ \t",]*"
 syntax match quilloMethod "\(^\s*route\s\+\)\@<=\(GET\|POST\|PUT\|PATCH\|DELETE\|HEAD\|OPTIONS\|ANY\)\>"
 syntax match quilloRoutePath "\(^\s*route\s\+\u\+\s\+\)\@<=/[^ \t{=?]*"
 syntax match quilloRoutePath "\(^\s*\(routes\|mount\|service\)\s\+\)\@<=/[^ \t{=|]*"
+" `route offline GET /menu = ...`, `routes offline /docs { ... }`: `offline` right after `route`
+" with a method after it on its line, or after `routes` with a path, is the tag of a page kept for
+" offline, and the path after it is still a path; `offline` is a name everywhere else (quillo
+" FEEDBACK67.md, B.2).
+syntax match quilloStatement "\(^\s*route\s\+\)\@<=offline\ze[ \t]\+\u"
+syntax match quilloStatement "\(^\s*routes\s\+\)\@<=offline\ze[ \t]\+/"
+syntax match quilloMethod "\(^\s*route\s\+offline\s\+\)\@<=\(GET\|POST\|PUT\|PATCH\|DELETE\|HEAD\|OPTIONS\|ANY\)\>"
+syntax match quilloRoutePath "\(^\s*route\s\+offline\s\+\u\+\s\+\)\@<=/[^ \t{=?]*"
+syntax match quilloRoutePath "\(^\s*routes\s\+offline\s\+\)\@<=/[^ \t{=|]*"
 
 " Types and effects.
 syntax match quilloType "^\s*\(private\s\+\|public\s\+\)\=type\s\+\zs\u\w*"

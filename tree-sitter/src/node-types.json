@@ -2229,6 +2229,16 @@
           }
         ]
       },
+      "offline": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "offline",
+            "named": true
+          }
+        ]
+      },
       "path": {
         "multiple": false,
         "required": true,
@@ -2281,6 +2291,16 @@
         "types": [
           {
             "type": "_expression",
+            "named": true
+          }
+        ]
+      },
+      "offline": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "offline",
             "named": true
           }
         ]
@@ -3348,6 +3368,10 @@
   },
   {
     "type": "number",
+    "named": true
+  },
+  {
+    "type": "offline",
     "named": true
   },
   {

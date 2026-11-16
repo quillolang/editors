@@ -179,6 +179,14 @@ let t = mcp_token({ max_age: 60 }) ?? mcp_tokens()
 let server = 1
 fn mcp total() = len(x)
 let ok = ask("Delete it?", { tone: "danger" })
+route offline GET /menu = "menu"
+routes offline /docs {
+    routes offline /help {
+let offline = 1
+let a = 1 + offline
+routes offline
+route offline = 1
+route GET /offline = 1
 """
 EMACS_WANT = [
     (1, "Notes are private", "font-lock-comment-face"),
@@ -199,6 +207,22 @@ EMACS_WANT = [
     (9, "len", "font-lock-builtin-face"),
     # ask stays the page's dialog, with two arguments (a tool's choice is about).
     (10, "ask", "font-lock-builtin-face"),
+    # `offline` right after `route` with a method, or after `routes` with a path, is the tag of a
+    # page kept for offline, and a name everywhere else (quillo FEEDBACK67.md, B.2).
+    (11, "route", "font-lock-keyword-face"),
+    (11, "offline", "font-lock-keyword-face"),
+    (11, "GET", "font-lock-constant-face"),
+    (11, "/menu", "font-lock-string-face"),
+    (12, "routes", "font-lock-keyword-face"),
+    (12, "offline", "font-lock-keyword-face"),
+    (12, "/docs", "font-lock-string-face"),
+    (13, "offline", "font-lock-keyword-face"),
+    (13, "/help", "font-lock-string-face"),
+    (14, "offline", "font-lock-variable-name-face"),
+    (15, "offline", "nil"),
+    (16, "offline", "nil"),
+    (17, "offline", "nil"),
+    (18, "/offline", "font-lock-string-face"),
 ]
 emacs = shutil.which("emacs")
 major = 0

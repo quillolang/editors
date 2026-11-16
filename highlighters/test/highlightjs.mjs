@@ -90,6 +90,27 @@ for (const [line, want] of [
   const bad = inTurn(line, want);
   check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
 }
+// `offline` right after `route` with a method, or after `routes` with a path, is the tag of a page
+// kept for offline, and a name everywhere else; the path after it is still a path (quillo
+// FEEDBACK67.md, B.2).
+for (const [line, want] of [
+  ['route offline GET /menu = "menu"', ["keyword:route", "keyword:offline", "keyword:GET", "string:/menu"]],
+  ["route\toffline\tGET /tabbed = 1", ["keyword:offline", "keyword:GET", "string:/tabbed"]],
+  ["route offline GET /*rest = rest /* note */", ["keyword:offline", "string:/*rest", "comment:/* note */"]],
+  ["routes offline /docs {", ["keyword:routes", "keyword:offline", "string:/docs"]],
+  ["    routes offline /help | auth.required {", ["keyword:routes", "keyword:offline", "string:/help"]],
+  ["routes offline /*x with db { } /* note */", ["keyword:routes", "keyword:offline", "string:/*x", "comment:/* note */"]],
+  ["route GET /offline = offline", ["string:/offline", "!keyword:offline"]],
+  ["routes /offline { }", ["string:/offline", "!keyword:offline"]],
+  ["let offline = 1", ["!keyword:offline"]],
+  ["route offline = 1", ["!keyword:offline"]],
+  ["route offline /menu = 1", ["!keyword:offline"]],
+  ["routes offline", ["!keyword:offline"]],
+  ["routes offline GET /menu = 1", ["!keyword:offline"]],
+]) {
+  const bad = inTurn(line, want);
+  check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
+}
 check("the language is found by its alias", hljs.getLanguage("qwe") !== undefined);
 check("the builtins are the VS Code grammar's", JSON.stringify(listIn("highlightjs/quillo.js", "BUILTINS")) === JSON.stringify(BUILTINS));
 check("the modules are the VS Code grammar's", JSON.stringify(listIn("highlightjs/quillo.js", "MODULES")) === JSON.stringify(MODULES));

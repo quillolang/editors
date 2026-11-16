@@ -851,6 +851,27 @@
           "value": "route"
         },
         {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "offline",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_route_offline_tag"
+                },
+                "named": true,
+                "value": "offline"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
           "type": "FIELD",
           "name": "method",
           "content": {
@@ -1161,6 +1182,27 @@
         {
           "type": "STRING",
           "value": "routes"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "offline",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_routes_offline_tag"
+                },
+                "named": true,
+                "value": "offline"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "FIELD",
@@ -5007,6 +5049,14 @@
     {
       "type": "SYMBOL",
       "name": "_service_mcp_tag"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_route_offline_tag"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_routes_offline_tag"
     },
     {
       "type": "SYMBOL",

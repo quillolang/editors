@@ -29,3 +29,6 @@
   `about`, `mcp_token`, `mcp_tokens` and `revoke_mcp_token`, and the live templates `fnmcp`,
   `serverfnmcp`, `servicemcp`, `confirm`, `about` and `instructions`, from the VS Code extension
   0.17.0.
+- Pages kept for offline: the `offline` of `route offline GET /menu` and `routes offline /docs`
+  highlighted, and the live templates `routeoffline` and `routesoffline`, from the VS Code
+  extension 0.17.0.

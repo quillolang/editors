@@ -134,6 +134,29 @@ call s:Is(44, 'hidden', 'quilloFunction')
 call assert_notequal('quilloStatement', s:At(45, 'server'), 'let server is a name')
 " ask stays the page's dialog, with two arguments (a tool's choice is about).
 call s:Is(46, 'ask', 'quilloBuiltin')
+" `offline` right after `route` with a method, or after `routes` with a path, is the tag of a page
+" kept for offline, and a name everywhere else; the path after it is still a path (quillo
+" FEEDBACK67.md, B.2).
+call s:Is(47, 'route', 'quilloKeyword')
+call s:Is(47, 'offline', 'quilloStatement')
+call s:Is(47, 'GET', 'quilloMethod')
+call s:Is(47, '/menu', 'quilloRoutePath')
+call s:Is(48, 'offline', 'quilloStatement')
+call s:Is(48, 'GET', 'quilloMethod')
+call s:Is(48, '/*rest', 'quilloRoutePath')
+call s:Is(48, '= rest', '')
+call s:Is(49, 'routes', 'quilloStatement')
+call s:Is(49, 'offline', 'quilloStatement')
+call s:Is(49, '/docs', 'quilloRoutePath')
+call s:Is(50, 'routes', 'quilloStatement')
+call s:Is(50, 'offline', 'quilloStatement')
+call s:Is(50, '/*x', 'quilloRoutePath')
+call assert_notequal('quilloStatement', s:At(51, 'offline'), 'let offline is a name')
+call s:Is(52, '/offline', 'quilloRoutePath')
+call assert_notequal('quilloStatement', synIDattr(synID(52, 22, 1), 'name'), 'the route gives offline')
+call assert_notequal('quilloStatement', s:At(53, 'offline'), 'routes offline with no path is no tag')
+call assert_notequal('quilloStatement', s:At(54, 'offline'), 'route offline with no method is no tag')
+call s:Is(55, 'offline', 'quilloFunction')
 
 " Indentation: every line of indent.qwe is where its indent puts it.
 execute 'edit ' . fnameescape(s:here . '/test/indent.qwe')

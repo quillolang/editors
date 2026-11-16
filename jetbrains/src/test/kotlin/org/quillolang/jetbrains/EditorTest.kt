@@ -121,6 +121,30 @@ class EditorTest : BasePlatformTestCase() {
     }
 
     /**
+     * `offline` right after `route` with a method, or after `routes` with a path, is the tag of a page
+     * kept for offline, and a name everywhere else; the path after it is still a path (quillo
+     * FEEDBACK67.md, B.2).
+     */
+    fun testOfflineIsATagOnlyAfterRouteOrRoutes() {
+        myFixture.configureByText(
+            "main.qwe",
+            "route offline GET /menu = \"menu\"\nroutes offline /docs {\n    routes offline /help {\n        route GET /faq = 1\n    }\n}\n" +
+                "let offline = 1\nroute GET /offline = offline\nroute offline GET /*rest = rest\n",
+        )
+        val all = tokens().filter { it.first.trim() == "offline" }
+        assertEquals(all.toString(), 6, all.size)
+        for (i in listOf(0, 1, 2, 5)) assertTrue(all[i].second, "storage.modifier.offline" in all[i].second)
+        for (i in listOf(3, 4)) assertFalse(all[i].second, "storage.modifier.offline" in all[i].second)
+        assertTrue(scopeOf("GET"), "constant.language.http-method" in scopeOf("GET"))
+        assertTrue(scopeOf("/docs"), "string.unquoted.path" in scopeOf("/docs"))
+        assertTrue(scopeOf("/offline"), "string.unquoted.path" in scopeOf("/offline"))
+        // The IDE's TextMate support reads no patterns inside a capture, so `/*rest` is one token: a
+        // path, and no comment starts in it.
+        assertTrue(scopeOf("/*rest"), "string.unquoted.path" in scopeOf("/*rest") && "comment" !in scopeOf("/*rest"))
+        assertTrue(scopeOf("rest"), "variable.other" in scopeOf("rest"))
+    }
+
+    /**
      * VS Code reads `\A` as the document's start. The IDE's lexer reads it as each line's, so a `#!`
      * after the first line is a comment here too: a line `quillo check` refuses anyway.
      */

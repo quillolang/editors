@@ -67,6 +67,18 @@
           path: { pattern: /\/\S*/, alias: "url" },
         },
       },
+      // `route offline GET /menu`, `routes offline /docs`: `offline` right after `route` with a method
+      // after it, or after `routes` with a path, is the tag of a page kept for offline; it is a name
+      // everywhere else (quillo FEEDBACK67.md, B.2). The path goes first, so `/offline` stays one.
+      "offline-route": {
+        pattern: /^(\s*)(?:route[ \t]+offline[ \t]+(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)[ \t]+|routes[ \t]+offline[ \t]+)\/[^\s{=?|]*/m,
+        lookbehind: true,
+        inside: {
+          path: { pattern: /\/\S*/, alias: "url" },
+          keyword: /^\w+|\boffline\b/,
+          method: { pattern: /\b(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)\b/, alias: "keyword" },
+        },
+      },
       route: {
         pattern: /^(\s*)(?:route|routes|mount|service)\s+(?:(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)\s+)?\/[^\s{=?|]*/m,
         lookbehind: true,

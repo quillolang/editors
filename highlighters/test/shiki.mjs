@@ -54,6 +54,13 @@ check("about, a tool's pick of choices, is a builtin", scoped("about", "support.
 check("routes /*x is a path", line("routes /*x").some(([t, s]) => t === "*" && s === "keyword.operator.wildcard.quillo") && !line("routes /*x").some(([, s]) => s.startsWith("comment")), line("routes /*x"));
 check("//! is a comment", scoped("//! Notes are private to the user who wrote them.", "comment.line"), scopesOf("//! Notes are private to the user who wrote them."));
 check("/// is a comment", scoped("/// Adds a note.", "comment.line"), scopesOf("/// Adds a note."));
+// `offline` right after `route` with a method, or after `routes` with a path, is the tag of a page
+// kept for offline, and a name everywhere else; the path after it is still a path (quillo
+// FEEDBACK67.md, B.2).
+const kept = "storage.modifier.offline.quillo";
+check("route offline's tag", JSON.stringify(line("route offline GET").slice(0, 3)) === JSON.stringify([["route", "keyword.other.route.quillo"], ["offline", kept], ["GET", "constant.language.http-method.quillo"]]), line("route offline GET"));
+check("routes offline's tag, and /*x a path", JSON.stringify(line("routes offline").slice(0, 2)) === JSON.stringify([["routes", "keyword.other.route.quillo"], ["offline", kept]]) && line("routes offline").some(([t, s]) => t === "*" && s === "keyword.operator.wildcard.quillo") && !line("routes offline").some(([, s]) => s.startsWith("comment")), line("routes offline"));
+check("let offline is a name", !line("let offline").some(([, s]) => s === kept), line("let offline"));
 // The grammar is the VS Code extension's, with Shiki's name, aliases and embedded languages.
 const vs = JSON.parse(fs.readFileSync(path.join(here, "../vscode/syntaxes/quillo.tmLanguage.json"), "utf8"));
 const { name, displayName, aliases, embeddedLangs, ...rest } = grammar;

@@ -331,6 +331,28 @@ const comments = [
   ["let mount = 1", [["mount", "!keyword.other.quillo"]]],
 ];
 
+// `offline` right after `route` with a method after it, or after `routes` with a path, is the tag
+// of a page kept for offline, and a name everywhere else (quillo FEEDBACK67.md, B.2); the same
+// shape as `tags`, and the path after the tag is still a path.
+const offline = [
+  ['route offline GET /menu = "menu"', [["route", "keyword.other.route.quillo"], ["offline", "storage.modifier.offline.quillo"], ["GET", "constant.language.http-method.quillo"], ["/menu", "string.unquoted.path.quillo"]]],
+  ["route\toffline\tGET /tabbed = 1", [["offline", "storage.modifier.offline.quillo"], ["GET", "constant.language.http-method.quillo"]]],
+  ["route offline GET /notes/:id(int) with db = id", [["offline", "storage.modifier.offline.quillo"], ["id", "variable.parameter.path.quillo"], ["int", "support.type.quillo"], ["with", "keyword.other.with.quillo"]]],
+  ["route offline GET /*rest = rest // last", [["offline", "storage.modifier.offline.quillo"], ["*", "keyword.operator.wildcard.quillo"], ["rest", "!comment.block.quillo"], ["// last", "comment.line.double-slash.quillo"]]],
+  ["routes offline /docs {", [["routes", "keyword.other.route.quillo"], ["offline", "storage.modifier.offline.quillo"], ["/docs", "string.unquoted.path.quillo"]]],
+  ["    routes offline /help | auth.required {", [["routes", "keyword.other.route.quillo"], ["offline", "storage.modifier.offline.quillo"], ["/help", "string.unquoted.path.quillo"]]],
+  ["routes\toffline\t/docs {", [["offline", "storage.modifier.offline.quillo"], ["/docs", "string.unquoted.path.quillo"]]],
+  ["routes offline /*x with db {", [["offline", "storage.modifier.offline.quillo"], ["*", "keyword.operator.wildcard.quillo"], ["x", "!comment.block.quillo"], ["with", "keyword.other.with.quillo"]]],
+  ["route GET /offline = offline", [["/offline", "string.unquoted.path.quillo"], ["offline", "!storage.modifier.offline.quillo"]]],
+  ["routes /offline {", [["/offline", "string.unquoted.path.quillo"]]],
+  ["let offline = 1", [["offline", "!storage.modifier.offline.quillo"]]],
+  ["fn offline(x) = x.offline", [["offline", "entity.name.function.quillo"], ["offline", "!storage.modifier.offline.quillo"]]],
+  ["let a = offline(1) + offline", [["offline", "entity.name.function.call.quillo"], ["offline", "!storage.modifier.offline.quillo"]]],
+  ["route offline", [["offline", "!storage.modifier.offline.quillo"]]],
+  ["routes offline", [["offline", "!storage.modifier.offline.quillo"]]],
+  ["route offline = 1", [["offline", "!storage.modifier.offline.quillo"]]],
+];
+
 (async () => {
   const grammar = await registry.loadGrammar("source.quillo");
   let failed = 0;
@@ -358,7 +380,7 @@ const comments = [
       console.log(`FAIL ${JSON.stringify(text)} on line ${n + 1} of ${JSON.stringify(lines)}\n  want ${scope}${state.depth > 1 ? " (and the state is still nested at the end)" : ""}\n  got  ${tok ? tok.scopes.join(" ") : "(no token)"}`);
     }
   }
-  for (const [line, want] of [...tags, ...comments]) {
+  for (const [line, want] of [...tags, ...comments, ...offline]) {
     const toks = grammar.tokenizeLine(line, vsctm.INITIAL).tokens.map((t) => ({ text: line.slice(t.startIndex, t.endIndex), scopes: t.scopes }));
     let at = 0;
     for (const [text, scope] of want) {
@@ -521,6 +543,6 @@ const comments = [
   } else {
     console.log("(no Rust grammar found: the .qwer cases were skipped)");
   }
-  console.log(failed ? `${failed} failed` : `all ${cases.length + blocks.length + tags.length + comments.length + rustCases} grammar cases passed`);
+  console.log(failed ? `${failed} failed` : `all ${cases.length + blocks.length + tags.length + comments.length + offline.length + rustCases} grammar cases passed`);
   process.exit(failed ? 1 : 0);
 })();
