@@ -36,6 +36,12 @@ The grammar follows quillo's own parser (`src/parser.rs`, `src/lexer.rs`), with
   quillo's highlighter does, and the path after it is still a path (`route offline GET /*rest`).
   `let offline = 1`, `route GET /offline`, `fn offline()` and `offline` anywhere else are names;
   `route offline` with the method on the next line is an error, as in quillo.
+- **`writes`**, which says that a GET's write is meant (quillo FEEDBACK70.md, Q-965), is a tag in
+  the same place: `route writes GET /confirm/:code = ...`, `routes writes /p { ... }`, in either
+  order with `offline` (`route offline writes GET`, `route writes offline GET`), each once; the
+  scanner decides, as quillo's highlighter does. `let writes = 1`, `route GET /writes` and
+  `writes` anywhere else are names; `route writes writes GET`, a third tag and `route writes`
+  with the method on the next line are errors, as in quillo.
 - `{}` and `{ x }` are maps, as quillo reads them; `{ x = 1 }` is a block.
 
 ## Queries

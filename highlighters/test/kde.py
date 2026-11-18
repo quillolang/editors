@@ -275,6 +275,39 @@ for line, want in [
             break
         at = i + 1
     check("%r: %s" % (line, ", ".join("%s %s" % w for w in want)), ok, merged)
+# `writes`, in the place of `offline` and in either order with it, each once, says that a GET's
+# write is meant, and is a name everywhere else; the path after the tags is still a path (quillo
+# FEEDBACK70.md, Q-965).
+for line, want in [
+    ("route writes GET /confirm/:code = code", [("route", "Keyword"), ("writes", "Keyword"), ("GET", "Constant"), ("/confirm/:code", "Path")]),
+    ("route\twrites\tANY /ping = 1", [("writes", "Keyword"), ("ANY", "Constant"), ("/ping", "Path")]),
+    ('route offline writes GET /menu = "menu"', [("route", "Keyword"), ("offline", "Keyword"), ("writes", "Keyword"), ("GET", "Constant"), ("/menu", "Path")]),
+    ('route writes offline GET /menu = "menu"', [("route", "Keyword"), ("writes", "Keyword"), ("offline", "Keyword"), ("GET", "Constant"), ("/menu", "Path")]),
+    ("route writes GET /*rest = rest", [("writes", "Keyword"), ("/*rest", "Path"), ("rest", "Normal Text")]),
+    ("routes writes /p {", [("routes", "Keyword"), ("writes", "Keyword"), ("/p", "Path")]),
+    ("    routes writes /help | auth.required {", [("routes", "Keyword"), ("writes", "Keyword"), ("/help", "Path")]),
+    ("routes writes offline /docs {", [("routes", "Keyword"), ("writes", "Keyword"), ("offline", "Keyword"), ("/docs", "Path")]),
+    ("routes offline writes /docs {", [("routes", "Keyword"), ("offline", "Keyword"), ("writes", "Keyword"), ("/docs", "Path")]),
+    ("route GET /writes = writes", [("/writes", "Path"), ("writes", "Normal Text")]),
+    ("let writes = 1", [("writes", "Normal Text")]),
+    ("route writes = 1", [("route", "Keyword"), ("writes", "Normal Text")]),
+    ("route writes /x = 1", [("writes", "Normal Text")]),
+    ("routes writes", [("writes", "Normal Text")]),
+    ("routes writes GET /x = 1", [("writes", "Normal Text")]),
+    ("route writes writes GET /x = 1", [("writes", "Normal Text"), ("writes", "Normal Text")]),
+    ("route offline offline GET /x = 1", [("offline", "Normal Text"), ("offline", "Normal Text")]),
+    ("route writes offline writes GET /x = 1", [("writes", "Normal Text"), ("offline", "Normal Text"), ("writes", "Normal Text")]),
+    ("routes writes writes /x {", [("writes", "Normal Text"), ("writes", "Normal Text")]),
+]:
+    merged = [(t, s) for t, s in read(line)[0] if t.strip()]
+    at, ok = 0, True
+    for text, sty in want:
+        i = next((k for k in range(at, len(merged)) if merged[k][0] == text), None)
+        if i is None or merged[i][1] != sty:
+            ok = False
+            break
+        at = i + 1
+    check("%r: %s" % (line, ", ".join("%s %s" % w for w in want)), ok, merged)
 # Back to code after the markup: the line after the element is read from Normal.
 check("after the tag, code", style(16, "}") == "Normal Text", style(16, "}"))
 # FEEDBACK56: the `//!` instructions and `///` are comments, `/* */` over lines too; `server` after

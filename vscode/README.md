@@ -2,7 +2,7 @@
 
 Language support for [Quillo](https://github.com/quillolang/quillo), the small web language.
 
-- **Highlighting** for `private` and `public` before a definition, `site shop = "..."`, a script's `#!` line, routes and paths, tools for AI clients (`fn mcp name()`, `service mcp /billing`), pages kept for offline (`route offline GET /menu`, `routes offline /docs`), `//` and `/* */` comments, HTML literals (tags, `.class#id`, `@event`, `bind:value`),
+- **Highlighting** for `private` and `public` before a definition, `site shop = "..."`, a script's `#!` line, routes and paths, tools for AI clients (`fn mcp name()`, `service mcp /billing`), pages kept for offline (`route offline GET /menu`, `routes offline /docs`), GET routes whose write is meant (`route writes GET /confirm/:code`), `//` and `/* */` comments, HTML literals (tags, `.class#id`, `@event`, `bind:value`),
   string interpolation, `state` declarations, `type` records, numbers such as `1e-9`, types,
   effects and pipelines. SQL is highlighted as SQL in the string (or template) passed to
   `db.exec`, `db.one` and `db.query`, and in `` sql`...` ``.
@@ -36,7 +36,8 @@ Language support for [Quillo](https://github.com/quillolang/quillo), the small w
   tools for AI clients: `fnmcp` (a tool, with its `///` line), `serverfnmcp`, `servicemcp`,
   `confirm` (the person's yes before a tool acts), `about` (a choice, with a default) and
   `instructions` (the `//!` block an AI client is told); for pages kept for when there is no
-  network: `routeoffline` and `routesoffline`.
+  network: `routeoffline` and `routesoffline`; for a GET whose write is meant (a confirm link):
+  `routewrites`.
 - **File icons**: a quill for `.qwe` files, and a quill with a gear for `.qwer` files, in the
   default (Seti) icon theme and any other that has none of its own for them.
 - **Rust in `.qwer` files**: highlighted as Rust, with the `//! [dependencies]` header as TOML;

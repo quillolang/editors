@@ -79,9 +79,11 @@ class Grammars(unittest.TestCase):
         self.assertTrue(begin.match("/* a note") and end.search("a note */"))
         self.assertIn({"include": "#route-prefix"}, repo["statements"]["patterns"])
         prefix = re.compile(repo["route-prefix"]["match"])
-        # The path is the fourth group: `routes offline`'s tag is the second (quillo FEEDBACK67.md, B.2).
-        self.assertEqual(prefix.match("routes /*x with db {").group(4), "/*x")
-        self.assertEqual(prefix.match('mount /*m = "a.qwe"').group(4), "/*m")
+        # The path is the seventh group: the tags are the second to the fifth, `offline` (quillo
+        # FEEDBACK67.md, B.2), `writes` after it, `writes`, and `offline` after that (quillo
+        # FEEDBACK70.md, Q-965).
+        self.assertEqual(prefix.match("routes /*x with db {").group(7), "/*x")
+        self.assertEqual(prefix.match('mount /*m = "a.qwe"').group(7), "/*m")
         self.assertIsNone(prefix.match("let mount = 1"))
         builtins = re.search(r"\\b\((.*?)\)\\b", repo["call"]["patterns"][0]["match"]).group(1).split("|")
         for name in ["confirm", "about", "ask", "mcp_token", "mcp_tokens", "revoke_mcp_token"]:
@@ -94,22 +96,59 @@ class Grammars(unittest.TestCase):
         repo = plist("Quillo.tmLanguage")["repository"]
         route = re.compile(repo["route"]["match"])
         m = route.search("route offline GET /*rest = rest")
-        self.assertEqual((m.group(2), m.group(3), m.group(4)), ("offline", "GET", "/*rest"))
+        # The method is the sixth group and the path the seventh, past `writes`'s groups (quillo
+        # FEEDBACK70.md, Q-965).
+        self.assertEqual((m.group(2), m.group(6), m.group(7)), ("offline", "GET", "/*rest"))
         m = route.search("route\toffline\tGET /menu = 1")
-        self.assertEqual((m.group(2), m.group(4)), ("offline", "/menu"))
+        self.assertEqual((m.group(2), m.group(7)), ("offline", "/menu"))
         m = route.search("route GET /offline = offline")
-        self.assertEqual((m.group(2), m.group(4)), (None, "/offline"))
+        self.assertEqual((m.group(2), m.group(7)), (None, "/offline"))
         self.assertIsNone(route.search("route offline = 1"))
         prefix = re.compile(repo["route-prefix"]["match"])
         for line, path in [("routes offline /docs {", "/docs"), ("    routes offline /*x with db {", "/*x"), ("routes\toffline\t/docs {", "/docs")]:
             m = prefix.match(line)
-            self.assertEqual((m.group(1), m.group(2), m.group(4)), ("routes", "offline", path), line)
+            self.assertEqual((m.group(1), m.group(2), m.group(7)), ("routes", "offline", path), line)
         m = prefix.match("routes /offline {")
-        self.assertEqual((m.group(2), m.group(4)), (None, "/offline"))
+        self.assertEqual((m.group(2), m.group(7)), (None, "/offline"))
         self.assertIsNone(prefix.match("routes offline"))
         self.assertIsNone(prefix.match("let offline = routes"))
         self.assertEqual(repo["route"]["captures"]["2"]["name"], "storage.modifier.offline.quillo")
         self.assertEqual(repo["route-prefix"]["captures"]["2"]["name"], "storage.modifier.offline.quillo")
+
+    def test_the_writes_tag(self):
+        """`writes`, in the place of `offline` and in either order with it, each once, says that a
+        GET's write is meant, and the path after the tags is still a path; `writes` is a name
+        everywhere else (quillo FEEDBACK70.md, Q-965)."""
+        repo = plist("Quillo.tmLanguage")["repository"]
+        route = re.compile(repo["route"]["match"])
+        # Groups: 2 `offline`, 3 `writes` after it, 4 `writes`, 5 `offline` after it, 6 the method, 7 the path.
+        for line, want in [
+            ("route writes GET /confirm/:code = code", (None, None, "writes", None, "GET", "/confirm/:code")),
+            ("route\twrites\tANY /ping = 1", (None, None, "writes", None, "ANY", "/ping")),
+            ("route offline writes GET /*rest = rest", ("offline", "writes", None, None, "GET", "/*rest")),
+            ("route writes offline GET /menu = 1", (None, None, "writes", "offline", "GET", "/menu")),
+            ("route GET /writes = writes", (None, None, None, None, "GET", "/writes")),
+        ]:
+            m = route.search(line)
+            self.assertEqual(m.groups()[1:], want, line)
+        for line in ["route writes = 1", "route writes /x = 1", "route writes writes GET /x = 1", "route offline offline GET /x = 1", "route writes offline writes GET /x = 1", "let writes = route"]:
+            self.assertIsNone(route.search(line), line)
+        prefix = re.compile(repo["route-prefix"]["match"])
+        for line, want in [
+            ("routes writes /p {", ("routes", None, None, "writes", None, None, "/p")),
+            ("    routes writes /*x with db {", ("routes", None, None, "writes", None, None, "/*x")),
+            ("routes offline writes /docs {", ("routes", "offline", "writes", None, None, None, "/docs")),
+            ("routes writes offline /docs {", ("routes", None, None, "writes", "offline", None, "/docs")),
+            ("routes /writes {", ("routes", None, None, None, None, None, "/writes")),
+            ('mount /writes = "w.qwe"', (None, None, None, None, None, "mount", "/writes")),
+        ]:
+            m = prefix.match(line)
+            self.assertEqual(m.groups(), want, line)
+        for line in ["routes writes", "routes writes writes /x {", "routes offline offline /x {", "let writes = routes"]:
+            self.assertIsNone(prefix.match(line), line)
+        for rule in ["route", "route-prefix"]:
+            names = {k: v["name"] for k, v in repo[rule]["captures"].items()}
+            self.assertEqual([names[k] for k in "2345"], ["storage.modifier.offline.quillo", "storage.modifier.writes.quillo", "storage.modifier.writes.quillo", "storage.modifier.offline.quillo"], rule)
 
     def test_a_script_by_its_first_line(self):
         first = re.compile(plist("Quillo.tmLanguage")["firstLineMatch"])

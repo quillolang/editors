@@ -53,3 +53,19 @@ route GET /offline = offline
 routes offline
 route offline = 1
 fn offline() = 1
+route writes GET /confirm/:code = code
+route	writes	ANY /ping = 1
+route offline writes GET /menu = "menu"
+route writes offline GET /*rest = rest
+routes writes /p {
+    routes offline writes /*x {
+routes writes offline /docs {
+let writes = 1
+route GET /writes = writes
+routes writes
+route writes = 1
+fn writes() = 1
+route writes writes GET /x = 1
+route offline offline GET /x = 1
+routes writes writes /x {
+route writes offline writes GET /x = 1

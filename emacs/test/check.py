@@ -187,6 +187,20 @@ let a = 1 + offline
 routes offline
 route offline = 1
 route GET /offline = 1
+route writes GET /confirm/:code = code
+route offline writes GET /menu = "menu"
+route writes offline ANY /ping = 1
+routes writes /p {
+    routes writes offline /help {
+routes offline writes /docs {
+let writes = 1
+let b = 1 + writes
+routes writes
+route writes = 1
+route GET /writes = 1
+route writes writes GET /x = 1
+route writes offline writes GET /x = 1
+routes writes writes /x {
 """
 EMACS_WANT = [
     (1, "Notes are private", "font-lock-comment-face"),
@@ -223,6 +237,42 @@ EMACS_WANT = [
     (16, "offline", "nil"),
     (17, "offline", "nil"),
     (18, "/offline", "font-lock-string-face"),
+    # `writes`, in the place of `offline` and in either order with it, each once, says that a GET's
+    # write is meant, and is a name everywhere else (quillo FEEDBACK70.md, Q-965).
+    (19, "route", "font-lock-keyword-face"),
+    (19, "writes", "font-lock-keyword-face"),
+    (19, "GET", "font-lock-constant-face"),
+    (19, "/confirm/", "font-lock-string-face"),
+    (20, "offline", "font-lock-keyword-face"),
+    (20, "writes", "font-lock-keyword-face"),
+    (20, "GET", "font-lock-constant-face"),
+    (20, "/menu", "font-lock-string-face"),
+    (21, "writes", "font-lock-keyword-face"),
+    (21, "offline", "font-lock-keyword-face"),
+    (21, "ANY", "font-lock-constant-face"),
+    (21, "/ping", "font-lock-string-face"),
+    (22, "routes", "font-lock-keyword-face"),
+    (22, "writes", "font-lock-keyword-face"),
+    (22, "/p", "font-lock-string-face"),
+    (23, "writes", "font-lock-keyword-face"),
+    (23, "offline", "font-lock-keyword-face"),
+    (23, "/help", "font-lock-string-face"),
+    (24, "offline", "font-lock-keyword-face"),
+    (24, "writes", "font-lock-keyword-face"),
+    (24, "/docs", "font-lock-string-face"),
+    (25, "writes", "font-lock-variable-name-face"),
+    (26, "writes", "nil"),
+    (27, "writes", "nil"),
+    (28, "writes", "nil"),
+    (29, "/writes", "font-lock-string-face"),
+    # Each tag once: quillo refuses `writes writes` and a third tag.
+    (30, "writes", "nil"),
+    (30, "writes GET", "nil"),
+    (31, "writes", "nil"),
+    (31, "offline", "nil"),
+    (31, "writes GET", "nil"),
+    (32, "writes", "nil"),
+    (32, "writes /x", "nil"),
 ]
 emacs = shutil.which("emacs")
 major = 0

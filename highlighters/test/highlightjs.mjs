@@ -111,6 +111,34 @@ for (const [line, want] of [
   const bad = inTurn(line, want);
   check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
 }
+// `writes`, in the place of `offline` and in either order with it, each once, says that a GET's
+// write is meant, and is a name everywhere else; the path after the tags is still a path (quillo
+// FEEDBACK70.md, Q-965).
+for (const [line, want] of [
+  ["route writes GET /confirm/:code = code", ["keyword:route", "keyword:writes", "keyword:GET", "string:/confirm/:code"]],
+  ["route\twrites\tANY /ping = 1", ["keyword:writes", "keyword:ANY", "string:/ping"]],
+  ['route offline writes GET /menu = "menu"', ["keyword:route", "keyword:offline", "keyword:writes", "keyword:GET", "string:/menu"]],
+  ['route writes offline GET /menu = "menu"', ["keyword:route", "keyword:writes", "keyword:offline", "keyword:GET", "string:/menu"]],
+  ["route writes GET /*rest = rest /* note */", ["keyword:writes", "string:/*rest", "comment:/* note */"]],
+  ["routes writes /p {", ["keyword:routes", "keyword:writes", "string:/p"]],
+  ["    routes writes /help | auth.required {", ["keyword:routes", "keyword:writes", "string:/help"]],
+  ["routes writes offline /docs {", ["keyword:routes", "keyword:writes", "keyword:offline", "string:/docs"]],
+  ["routes offline writes /*x with db { } /* note */", ["keyword:routes", "keyword:offline", "keyword:writes", "string:/*x", "comment:/* note */"]],
+  ["route GET /writes = writes", ["string:/writes", "!keyword:writes"]],
+  ["routes /writes { }", ["string:/writes", "!keyword:writes"]],
+  ["let writes = 1", ["!keyword:writes"]],
+  ["route writes = 1", ["!keyword:writes"]],
+  ["route writes /x = 1", ["!keyword:writes"]],
+  ["routes writes", ["!keyword:writes"]],
+  ["routes writes GET /x = 1", ["!keyword:writes"]],
+  ["route writes writes GET /x = 1", ["!keyword:writes"]],
+  ["route offline offline GET /x = 1", ["!keyword:offline"]],
+  ["route writes offline writes GET /x = 1", ["!keyword:writes", "!keyword:offline"]],
+  ["routes writes writes /x {", ["!keyword:writes"]],
+]) {
+  const bad = inTurn(line, want);
+  check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
+}
 check("the language is found by its alias", hljs.getLanguage("qwe") !== undefined);
 check("the builtins are the VS Code grammar's", JSON.stringify(listIn("highlightjs/quillo.js", "BUILTINS")) === JSON.stringify(BUILTINS));
 check("the modules are the VS Code grammar's", JSON.stringify(listIn("highlightjs/quillo.js", "MODULES")) === JSON.stringify(MODULES));

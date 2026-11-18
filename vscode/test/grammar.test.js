@@ -353,6 +353,41 @@ const offline = [
   ["route offline = 1", [["offline", "!storage.modifier.offline.quillo"]]],
 ];
 
+// `writes`, in the same place as `offline` (either order with it, each once), says that a GET's
+// write is meant, and is a name everywhere else (quillo FEEDBACK70.md, Q-965); the same shape as
+// `offline`, and the path after the tags is still a path.
+const W = "storage.modifier.writes.quillo";
+const O = "storage.modifier.offline.quillo";
+const writes = [
+  ["route writes GET /confirm/:code = code", [["route", "keyword.other.route.quillo"], ["writes", W], ["GET", "constant.language.http-method.quillo"], ["/confirm/", "string.unquoted.path.quillo"], ["code", "variable.parameter.path.quillo"]]],
+  ["route\twrites\tGET /tabbed = 1", [["writes", W], ["GET", "constant.language.http-method.quillo"]]],
+  ["route writes ANY /ping with db = 1", [["writes", W], ["ANY", "constant.language.http-method.quillo"], ["with", "keyword.other.with.quillo"]]],
+  ['route offline writes GET /menu = "menu"', [["route", "keyword.other.route.quillo"], ["offline", O], ["writes", W], ["GET", "constant.language.http-method.quillo"], ["/menu", "string.unquoted.path.quillo"]]],
+  ['route writes offline GET /menu = "menu"', [["route", "keyword.other.route.quillo"], ["writes", W], ["offline", O], ["GET", "constant.language.http-method.quillo"], ["/menu", "string.unquoted.path.quillo"]]],
+  ["route writes GET /*rest = rest // last", [["writes", W], ["*", "keyword.operator.wildcard.quillo"], ["rest", "!comment.block.quillo"], ["// last", "comment.line.double-slash.quillo"]]],
+  ["routes writes /p {", [["routes", "keyword.other.route.quillo"], ["writes", W], ["/p", "string.unquoted.path.quillo"]]],
+  ["    routes writes /help | auth.required {", [["routes", "keyword.other.route.quillo"], ["writes", W], ["/help", "string.unquoted.path.quillo"]]],
+  ["routes\twrites\t/p {", [["writes", W], ["/p", "string.unquoted.path.quillo"]]],
+  ["routes writes offline /docs {", [["routes", "keyword.other.route.quillo"], ["writes", W], ["offline", O], ["/docs", "string.unquoted.path.quillo"]]],
+  ["routes offline writes /docs {", [["routes", "keyword.other.route.quillo"], ["offline", O], ["writes", W], ["/docs", "string.unquoted.path.quillo"]]],
+  ["routes writes /*x with db {", [["writes", W], ["*", "keyword.operator.wildcard.quillo"], ["x", "!comment.block.quillo"], ["with", "keyword.other.with.quillo"]]],
+  ['mount /writes = "w.qwe"', [["mount", "keyword.other.quillo"], ["/writes", "string.unquoted.path.quillo"]]],
+  ["route GET /writes = writes", [["/writes", "string.unquoted.path.quillo"], ["writes", "!" + W]]],
+  ["routes /writes {", [["/writes", "string.unquoted.path.quillo"]]],
+  ["let writes = 1", [["writes", "!" + W]]],
+  ["fn writes(x) = x.writes", [["writes", "entity.name.function.quillo"], ["writes", "!" + W]]],
+  ["let a = writes(1) + writes", [["writes", "entity.name.function.call.quillo"], ["writes", "!" + W]]],
+  ["route writes", [["writes", "!" + W]]],
+  ["routes writes", [["writes", "!" + W]]],
+  ["route writes = 1", [["writes", "!" + W]]],
+  ["route writes /x = 1", [["writes", "!" + W]]],
+  // Each tag once, as quillo refuses `writes writes` and a third tag.
+  ["route writes writes GET /x = 1", [["writes", "!" + W], ["writes", "!" + W]]],
+  ["route offline offline GET /x = 1", [["offline", "!" + O], ["offline", "!" + O]]],
+  ["route writes offline writes GET /x = 1", [["writes", "!" + W], ["offline", "!" + O], ["writes", "!" + W]]],
+  ["routes writes writes /x {", [["writes", "!" + W], ["writes", "!" + W]]],
+];
+
 (async () => {
   const grammar = await registry.loadGrammar("source.quillo");
   let failed = 0;
@@ -380,7 +415,7 @@ const offline = [
       console.log(`FAIL ${JSON.stringify(text)} on line ${n + 1} of ${JSON.stringify(lines)}\n  want ${scope}${state.depth > 1 ? " (and the state is still nested at the end)" : ""}\n  got  ${tok ? tok.scopes.join(" ") : "(no token)"}`);
     }
   }
-  for (const [line, want] of [...tags, ...comments, ...offline]) {
+  for (const [line, want] of [...tags, ...comments, ...offline, ...writes]) {
     const toks = grammar.tokenizeLine(line, vsctm.INITIAL).tokens.map((t) => ({ text: line.slice(t.startIndex, t.endIndex), scopes: t.scopes }));
     let at = 0;
     for (const [text, scope] of want) {
@@ -543,6 +578,6 @@ const offline = [
   } else {
     console.log("(no Rust grammar found: the .qwer cases were skipped)");
   }
-  console.log(failed ? `${failed} failed` : `all ${cases.length + blocks.length + tags.length + comments.length + offline.length + rustCases} grammar cases passed`);
+  console.log(failed ? `${failed} failed` : `all ${cases.length + blocks.length + tags.length + comments.length + offline.length + writes.length + rustCases} grammar cases passed`);
   process.exit(failed ? 1 : 0);
 })();

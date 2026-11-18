@@ -1,8 +1,8 @@
 // The snippets: each reads as the JetBrains build reads it (its stops `$1`, `${1}`, `${1:text}`,
-// `${1|a,b|}`, `$0` and `\$`, a prefix a live template can take), and the tools' snippets and
-// the offline ones, filled in, are programs `quillo check` takes. Run: npm test
-// QUILLO_BIN is a quillo with `fn mcp`, `confirm`, `about` and `route offline` (else the check is
-// skipped).
+// `${1|a,b|}`, `$0` and `\$`, a prefix a live template can take), and the tools' snippets, the
+// offline ones and routewrites, filled in, are programs `quillo check` takes. Run: npm test
+// QUILLO_BIN is a quillo with `fn mcp`, `confirm`, `about`, `route offline` and `route writes`
+// (else the check is skipped).
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
@@ -69,6 +69,11 @@ const offlineProgram = () =>
     body("routes offline").replace("${1}", "docs").replace("{\n}", '{\n\troute GET /intro = "intro"\n}'),
     "",
   ].join("\n");
+// A GET whose write is meant (quillo FEEDBACK70.md, Q-965).
+check("a snippet routewrites", snippets["route writes"] && snippets["route writes"].prefix === "routewrites", Object.keys(snippets));
+check("routewrites is a GET tagged writes", snippets["route writes"] && body("route writes") === "route writes GET /${1} = ${2}", snippets["route writes"]);
+/** routewrites with its places filled. */
+const writesProgram = () => [body("route writes").replace("${1}", "confirm/:code").replace("${2}", "code"), ""].join("\n");
 
 const bin = process.env.QUILLO_BIN;
 if (!bin) console.log("skipped quillo check of the tools' snippets: no QUILLO_BIN");
@@ -109,6 +114,18 @@ else {
     kout = String(e.stdout || "") + String(e.stderr || e.message);
   }
   check("the offline snippets make a program quillo check takes, with no warning", kok && /: ok \(2 routes,.*\)\s*$/.test(kout.trim()) && !/warning/.test(kout), { out: kout, program: offlineProgram() });
+  // A quillo with `route writes` (0.8.7) takes routewrites.
+  const wdir = fs.mkdtempSync(path.join(os.tmpdir(), "quillo-snippets-writes-"));
+  fs.writeFileSync(path.join(wdir, "main.qwe"), writesProgram());
+  let wout = "";
+  let wok = true;
+  try {
+    wout = execFileSync(bin, ["check", path.join(wdir, "main.qwe")], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 30000 });
+  } catch (e) {
+    wok = false;
+    wout = String(e.stdout || "") + String(e.stderr || e.message);
+  }
+  check("routewrites makes a program quillo check takes, with no warning", wok && /: ok \(1 route,.*\)\s*$/.test(wout.trim()) && !/warning/.test(wout), { out: wout, program: writesProgram() });
 }
 
 console.log(failed ? `${failed} of ${count} snippet checks failed` : `all ${count} snippet checks passed`);

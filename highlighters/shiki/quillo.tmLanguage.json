@@ -138,8 +138,8 @@
       ]
     },
     "route-prefix": {
-      "comment": "`routes /admin {` and `mount /blog = ...`: a path, as quillo reads it, so `/*` there is a wildcard, not a comment. `routes offline /docs {`: the tag of a group kept for offline, with a path after it (quillo FEEDBACK67.md, B.2).",
-      "match": "^\\s*(?:(routes)(?:[ \\t]+(offline))?|(mount))[ \\t]+(/[^\\s?{=|]*)",
+      "comment": "`routes /admin {` and `mount /blog = ...`: a path, as quillo reads it, so `/*` there is a wildcard, not a comment. `routes offline /docs {`: the tag of a group kept for offline, with a path after it (quillo FEEDBACK67.md, B.2). `routes writes /p {`: the group's GET routes write on purpose, the tags in either order, each once (quillo FEEDBACK70.md, Q-965).",
+      "match": "^\\s*(?:(routes)(?:[ \\t]+(?:(offline)(?:[ \\t]+(writes))?|(writes)(?:[ \\t]+(offline))?))?|(mount))[ \\t]+(/[^\\s?{=|]*)",
       "captures": {
         "1": {
           "name": "keyword.other.route.quillo"
@@ -148,9 +148,18 @@
           "name": "storage.modifier.offline.quillo"
         },
         "3": {
-          "name": "keyword.other.quillo"
+          "name": "storage.modifier.writes.quillo"
         },
         "4": {
+          "name": "storage.modifier.writes.quillo"
+        },
+        "5": {
+          "name": "storage.modifier.offline.quillo"
+        },
+        "6": {
+          "name": "keyword.other.quillo"
+        },
+        "7": {
           "name": "string.unquoted.path.quillo",
           "patterns": [
             {
@@ -189,8 +198,8 @@
       }
     },
     "route": {
-      "comment": "`route offline GET /menu = ...`: `offline` with a method after it on its line is the tag of a page kept for offline; it is a name everywhere else (quillo FEEDBACK67.md, B.2).",
-      "match": "\\b(route)\\s+(?:(offline)[ \\t]+)?(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|ANY)\\s+(/[^\\s?{=]*)",
+      "comment": "`route offline GET /menu = ...`: `offline` with a method after it on its line is the tag of a page kept for offline; it is a name everywhere else (quillo FEEDBACK67.md, B.2). `route writes GET /confirm/:code = ...`: `writes`, read the same way, says that a GET's write is meant; the two tags in either order, each once (quillo FEEDBACK70.md, Q-965).",
+      "match": "\\b(route)\\s+(?:(offline)[ \\t]+(?:(writes)[ \\t]+)?|(writes)[ \\t]+(?:(offline)[ \\t]+)?)?(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|ANY)\\s+(/[^\\s?{=]*)",
       "captures": {
         "1": {
           "name": "keyword.other.route.quillo"
@@ -199,9 +208,18 @@
           "name": "storage.modifier.offline.quillo"
         },
         "3": {
-          "name": "constant.language.http-method.quillo"
+          "name": "storage.modifier.writes.quillo"
         },
         "4": {
+          "name": "storage.modifier.writes.quillo"
+        },
+        "5": {
+          "name": "storage.modifier.offline.quillo"
+        },
+        "6": {
+          "name": "constant.language.http-method.quillo"
+        },
+        "7": {
           "name": "string.unquoted.path.quillo",
           "patterns": [
             {

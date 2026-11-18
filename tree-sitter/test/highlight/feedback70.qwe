@@ -1,0 +1,53 @@
+route writes GET /confirm/:code = code
+// <- keyword
+//    ^ keyword.modifier
+//           ^ constant.builtin
+//               ^ string.special.url
+
+route offline writes GET /menu = "menu"
+//    ^ keyword.modifier
+//            ^ keyword.modifier
+//                   ^ constant.builtin
+//                       ^ string.special.url
+
+route writes offline GET /*rest = rest
+//    ^ keyword.modifier
+//           ^ keyword.modifier
+//                       ^ string.special.url
+//                        ^ !comment
+
+routes writes /p {
+// <- keyword
+//     ^ keyword.modifier
+//            ^ string.special.url
+    route GET /seen = 1
+    routes offline writes /help {
+    // <- keyword
+    //     ^ keyword.modifier
+    //             ^ keyword.modifier
+    //                    ^ string.special.url
+        route GET /faq = "faq"
+    }
+}
+
+routes writes offline /*x {
+//     ^ keyword.modifier
+//            ^ keyword.modifier
+//                    ^ string.special.url
+//                     ^ !comment
+    route GET / = x
+}
+
+let writes = 1
+//  ^ variable
+//  ^ !keyword.modifier
+
+route GET /writes = writes
+//         ^ string.special.url
+//                  ^ variable
+//                  ^ !keyword.modifier
+
+fn writes(x) = x.writes
+// ^ function
+// ^ !keyword.modifier
+//               ^ variable.member

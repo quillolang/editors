@@ -61,6 +61,13 @@ const kept = "storage.modifier.offline.quillo";
 check("route offline's tag", JSON.stringify(line("route offline GET").slice(0, 3)) === JSON.stringify([["route", "keyword.other.route.quillo"], ["offline", kept], ["GET", "constant.language.http-method.quillo"]]), line("route offline GET"));
 check("routes offline's tag, and /*x a path", JSON.stringify(line("routes offline").slice(0, 2)) === JSON.stringify([["routes", "keyword.other.route.quillo"], ["offline", kept]]) && line("routes offline").some(([t, s]) => t === "*" && s === "keyword.operator.wildcard.quillo") && !line("routes offline").some(([, s]) => s.startsWith("comment")), line("routes offline"));
 check("let offline is a name", !line("let offline").some(([, s]) => s === kept), line("let offline"));
+// `writes`, in the place of `offline` and in either order with it, each once, says that a GET's
+// write is meant, and is a name everywhere else; the path after the tags is still a path (quillo
+// FEEDBACK70.md, Q-965).
+const meant = "storage.modifier.writes.quillo";
+check("route writes offline's tags", JSON.stringify(line("route writes offline").slice(0, 4)) === JSON.stringify([["route", "keyword.other.route.quillo"], ["writes", meant], ["offline", kept], ["GET", "constant.language.http-method.quillo"]]), line("route writes offline"));
+check("routes offline writes' tags, and /*x a path", JSON.stringify(line("routes offline writes").slice(0, 3)) === JSON.stringify([["routes", "keyword.other.route.quillo"], ["offline", kept], ["writes", meant]]) && line("routes offline writes").some(([t, s]) => t === "*" && s === "keyword.operator.wildcard.quillo") && !line("routes offline writes").some(([, s]) => s.startsWith("comment")), line("routes offline writes"));
+check("let writes is a name", !line("let writes").some(([, s]) => s === meant), line("let writes"));
 // The grammar is the VS Code extension's, with Shiki's name, aliases and embedded languages.
 const vs = JSON.parse(fs.readFileSync(path.join(here, "../vscode/syntaxes/quillo.tmLanguage.json"), "utf8"));
 const { name, displayName, aliases, embeddedLangs, ...rest } = grammar;

@@ -32,3 +32,6 @@
 - Pages kept for offline: the `offline` of `route offline GET /menu` and `routes offline /docs`
   highlighted, and the live templates `routeoffline` and `routesoffline`, from the VS Code
   extension 0.17.0.
+- GET routes whose write is meant: the `writes` of `route writes GET /confirm/:code` and
+  `routes writes /p`, in either order with `offline`, highlighted, and the live template
+  `routewrites`, from the VS Code extension 0.17.0.

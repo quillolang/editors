@@ -19,6 +19,11 @@
     "body": ["routes offline /${1} {", "}"],
     "description": "A group whose GET routes are kept for when there is no network"
   },
+  "route writes": {
+    "prefix": "routewrites",
+    "body": ["route writes GET /${1} = ${2}"],
+    "description": "A GET whose write is meant, as a confirm link or a sign-in callback: quillo check warns of a GET that writes for a visitor, untagged"
+  },
   "import": {
     "prefix": "import",
     "body": ["import ${1:lib/file.qwe} use ${0:name}"],

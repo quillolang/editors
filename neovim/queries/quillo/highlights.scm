@@ -226,6 +226,10 @@
 ; FEEDBACK67.md, B.2).
 (offline) @keyword.modifier
 
+; `route writes GET /confirm/:code`, `routes writes /p`: a GET whose write is meant (quillo
+; FEEDBACK70.md, Q-965).
+(writes) @keyword.modifier
+
 (visibility) @keyword.modifier
 
 (type_definition

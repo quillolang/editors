@@ -59,11 +59,20 @@ syntax match quilloRoutePath "\(^\s*\(routes\|mount\|service\)\s\+\)\@<=/[^ \t{=
 " with a method after it on its line, or after `routes` with a path, is the tag of a page kept for
 " offline, and the path after it is still a path; `offline` is a name everywhere else (quillo
 " FEEDBACK67.md, B.2).
-syntax match quilloStatement "\(^\s*route\s\+\)\@<=offline\ze[ \t]\+\u"
-syntax match quilloStatement "\(^\s*routes\s\+\)\@<=offline\ze[ \t]\+/"
-syntax match quilloMethod "\(^\s*route\s\+offline\s\+\)\@<=\(GET\|POST\|PUT\|PATCH\|DELETE\|HEAD\|OPTIONS\|ANY\)\>"
-syntax match quilloRoutePath "\(^\s*route\s\+offline\s\+\u\+\s\+\)\@<=/[^ \t{=?]*"
-syntax match quilloRoutePath "\(^\s*routes\s\+offline\s\+\)\@<=/[^ \t{=|]*"
+" `route writes GET /confirm/:code = ...`, `routes writes /p { ... }`: `writes`, in the same place,
+" says that a GET's write is meant; the two tags in either order, each once, so `writes writes` is
+" no tag (quillo FEEDBACK70.md, Q-965).
+syntax match quilloStatement "\(^\s*route\s\+\)\@<=offline\ze[ \t]\+\%(writes[ \t]\+\)\=\u"
+syntax match quilloStatement "\(^\s*route\s\+\)\@<=writes\ze[ \t]\+\%(offline[ \t]\+\)\=\u"
+syntax match quilloStatement "\(^\s*route\s\+offline[ \t]\+\)\@<=writes\ze[ \t]\+\u"
+syntax match quilloStatement "\(^\s*route\s\+writes[ \t]\+\)\@<=offline\ze[ \t]\+\u"
+syntax match quilloStatement "\(^\s*routes\s\+\)\@<=offline\ze[ \t]\+\%(writes[ \t]\+\)\=/"
+syntax match quilloStatement "\(^\s*routes\s\+\)\@<=writes\ze[ \t]\+\%(offline[ \t]\+\)\=/"
+syntax match quilloStatement "\(^\s*routes\s\+offline[ \t]\+\)\@<=writes\ze[ \t]\+/"
+syntax match quilloStatement "\(^\s*routes\s\+writes[ \t]\+\)\@<=offline\ze[ \t]\+/"
+syntax match quilloMethod "\(^\s*route\s\+\%(offline\%(\s\+writes\)\=\|writes\%(\s\+offline\)\=\)\s\+\)\@<=\(GET\|POST\|PUT\|PATCH\|DELETE\|HEAD\|OPTIONS\|ANY\)\>"
+syntax match quilloRoutePath "\(^\s*route\s\+\%(offline\%(\s\+writes\)\=\|writes\%(\s\+offline\)\=\)\s\+\u\+\s\+\)\@<=/[^ \t{=?]*"
+syntax match quilloRoutePath "\(^\s*routes\s\+\%(offline\%(\s\+writes\)\=\|writes\%(\s\+offline\)\=\)\s\+\)\@<=/[^ \t{=|]*"
 
 " Types and effects.
 syntax match quilloType "^\s*\(private\s\+\|public\s\+\)\=type\s\+\zs\u\w*"

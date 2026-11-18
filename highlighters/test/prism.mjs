@@ -124,6 +124,34 @@ for (const [line, want] of [
   const bad = inTurn(line, want);
   check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
 }
+// `writes`, in the place of `offline` and in either order with it, each once, says that a GET's
+// write is meant, and is a name everywhere else; the path after the tags is still a path (quillo
+// FEEDBACK70.md, Q-965).
+for (const [line, want] of [
+  ["route writes GET /confirm/:code = code", ["keyword:route", "keyword:writes", "method:GET", "path:/confirm/:code"]],
+  ["route\twrites\tANY /ping = 1", ["keyword:writes", "method:ANY", "path:/ping"]],
+  ['route offline writes GET /menu = "menu"', ["keyword:route", "keyword:offline", "keyword:writes", "method:GET", "path:/menu"]],
+  ['route writes offline GET /menu = "menu"', ["keyword:route", "keyword:writes", "keyword:offline", "method:GET", "path:/menu"]],
+  ["route writes GET /*rest = rest", ["keyword:writes", "path:/*rest", "!comment:/*rest = rest"]],
+  ["routes writes /p {", ["keyword:routes", "keyword:writes", "path:/p"]],
+  ["    routes writes /help | auth.required {", ["keyword:routes", "keyword:writes", "path:/help"]],
+  ["routes writes offline /docs {", ["keyword:routes", "keyword:writes", "keyword:offline", "path:/docs"]],
+  ["routes offline writes /writes {", ["keyword:offline", "keyword:writes", "path:/writes"]],
+  ["route GET /writes = writes", ["path:/writes", "!keyword:writes"]],
+  ["routes /writes { }", ["path:/writes", "!keyword:writes"]],
+  ["let writes = 1", ["!keyword:writes"]],
+  ["route writes = 1", ["!keyword:writes"]],
+  ["route writes /x = 1", ["!keyword:writes"]],
+  ["routes writes", ["!keyword:writes"]],
+  ["routes writes GET /x = 1", ["!keyword:writes"]],
+  ["route writes writes GET /x = 1", ["!keyword:writes"]],
+  ["route offline offline GET /x = 1", ["!keyword:offline"]],
+  ["route writes offline writes GET /x = 1", ["!keyword:writes", "!keyword:offline"]],
+  ["routes writes writes /x {", ["!keyword:writes"]],
+]) {
+  const bad = inTurn(line, want);
+  check(`${JSON.stringify(line)}: ${want.join(", ")}`, bad === null, bad);
+}
 check("the alias qwe", Prism.languages.qwe === Prism.languages.quillo);
 check("the builtins are the VS Code grammar's", JSON.stringify(listIn("prism/prism-quillo.js", "BUILTINS")) === JSON.stringify(BUILTINS));
 check("the modules are the VS Code grammar's", JSON.stringify(listIn("prism/prism-quillo.js", "MODULES")) === JSON.stringify(MODULES));
