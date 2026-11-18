@@ -1,0 +1,44 @@
+route offline GET /menu = "menu"
+// <- keyword
+//    ^ keyword.modifier
+//            ^ constant.builtin
+//                ^ string.special.url
+
+route offline GET /*rest = rest
+//    ^ keyword.modifier
+//                ^ string.special.url
+//                 ^ !comment
+
+routes offline /docs {
+// <- keyword
+//     ^ keyword.modifier
+//             ^ string.special.url
+    route GET /intro = "intro"
+    routes offline /help {
+    // <- keyword
+    //     ^ keyword.modifier
+    //             ^ string.special.url
+        route GET /faq = "faq"
+    }
+}
+
+routes offline /*x {
+//     ^ keyword.modifier
+//             ^ string.special.url
+//              ^ !comment
+    route GET / = x
+}
+
+let offline = 1
+//  ^ variable
+//  ^ !keyword.modifier
+
+route GET /offline = offline
+//         ^ string.special.url
+//                   ^ variable
+//                   ^ !keyword.modifier
+
+fn offline(x) = x.offline
+// ^ function
+// ^ !keyword.modifier
+//                ^ variable.member

@@ -161,11 +161,13 @@ const ZED_OUTLINE = `(function_definition
 
 (route
   "route" @context
+  [(offline) (writes)]* @context
   method: (http_method) @name
   path: (route_path) @name) @item
 
 (route_group
   "routes" @context
+  [(offline) (writes)]* @context
   path: (route_path) @name) @item
 
 (let_declaration

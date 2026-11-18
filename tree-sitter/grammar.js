@@ -14,6 +14,12 @@
  * - `mcp` is the tag of a tool after `fn`, `view`, `component` or `service` with a name
  *   (or, after `service`, a path) after it on its line, as quillo's `mcp_tag` reads it; the
  *   scanner decides. It is a name everywhere else: `fn mcp(x)`, `service mcp = ...`.
+ * - `offline` is the tag of a page kept for offline right after `route` with a method after it
+ *   on its line, or after `routes` with a path, as quillo's `offline_tag` reads it; the
+ *   scanner decides. It is a name everywhere else: `let offline = 1`, `route GET /offline`.
+ * - `writes`, a GET whose write is meant, is a tag in the same place, in either order with
+ *   `offline`, each once, as quillo's `route_tag` reads them (FEEDBACK70.md, Q-965); the
+ *   scanner decides. It is a name everywhere else: `let writes = 1`, `route GET /writes`.
  */
 
 /// <reference types="tree-sitter-cli/dsl" />
@@ -66,6 +72,10 @@ module.exports = grammar({
     $._void_tag_name,
     $._mcp_tag,
     $._service_mcp_tag,
+    $._route_offline_tag,
+    $._routes_offline_tag,
+    $._route_writes_tag,
+    $._routes_writes_tag,
     $._error_sentinel,
   ],
 
@@ -199,6 +209,14 @@ module.exports = grammar({
     // Routes.
     route: $ => seq(
       'route',
+      // `route offline GET /menu = ...`: a page kept for when there is no network (quillo
+      // FEEDBACK67.md, B.2). The scanner takes `offline` as the tag only with an uppercase
+      // method after it on its line. `route writes GET /confirm/:code = ...`: a GET whose write
+      // is meant, the two tags in either order, each once (quillo FEEDBACK70.md, Q-965).
+      optional(choice(
+        seq(field('offline', alias($._route_offline_tag, $.offline)), optional(field('writes', alias($._route_writes_tag, $.writes)))),
+        seq(field('writes', alias($._route_writes_tag, $.writes)), optional(field('offline', alias($._route_offline_tag, $.offline)))),
+      )),
       field('method', $.http_method),
       field('path', $.route_path),
       optional(seq('?', field('query', $.record_pattern))),
@@ -233,6 +251,14 @@ module.exports = grammar({
     // `routes /admin | auth.required { route GET /users = ... }`
     route_group: $ => seq(
       'routes',
+      // `routes offline /docs { ... }`: each GET route in it kept for offline (quillo
+      // FEEDBACK67.md, B.2), the tag with a path after it on its line. `routes writes /p { ... }`:
+      // each GET route in it writes on purpose, the two tags in either order, each once (quillo
+      // FEEDBACK70.md, Q-965).
+      optional(choice(
+        seq(field('offline', alias($._routes_offline_tag, $.offline)), optional(field('writes', alias($._routes_writes_tag, $.writes)))),
+        seq(field('writes', alias($._routes_writes_tag, $.writes)), optional(field('offline', alias($._routes_offline_tag, $.offline)))),
+      )),
       field('path', $.route_path),
       repeat(seq('|', field('middleware', $._expression))),
       optional(field('request', $.record_pattern)),

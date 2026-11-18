@@ -2229,6 +2229,16 @@
           }
         ]
       },
+      "offline": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "offline",
+            "named": true
+          }
+        ]
+      },
       "path": {
         "multiple": false,
         "required": true,
@@ -2255,6 +2265,16 @@
         "types": [
           {
             "type": "record_pattern",
+            "named": true
+          }
+        ]
+      },
+      "writes": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "writes",
             "named": true
           }
         ]
@@ -2285,6 +2305,16 @@
           }
         ]
       },
+      "offline": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "offline",
+            "named": true
+          }
+        ]
+      },
       "path": {
         "multiple": false,
         "required": true,
@@ -2301,6 +2331,16 @@
         "types": [
           {
             "type": "record_pattern",
+            "named": true
+          }
+        ]
+      },
+      "writes": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "writes",
             "named": true
           }
         ]
@@ -3351,6 +3391,10 @@
     "named": true
   },
   {
+    "type": "offline",
+    "named": true
+  },
+  {
     "type": "path_literal",
     "named": true
   },
@@ -3469,6 +3513,10 @@
   {
     "type": "with",
     "named": false
+  },
+  {
+    "type": "writes",
+    "named": true
   },
   {
     "type": "{",

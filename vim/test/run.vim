@@ -134,6 +134,69 @@ call s:Is(44, 'hidden', 'quilloFunction')
 call assert_notequal('quilloStatement', s:At(45, 'server'), 'let server is a name')
 " ask stays the page's dialog, with two arguments (a tool's choice is about).
 call s:Is(46, 'ask', 'quilloBuiltin')
+" `offline` right after `route` with a method, or after `routes` with a path, is the tag of a page
+" kept for offline, and a name everywhere else; the path after it is still a path (quillo
+" FEEDBACK67.md, B.2).
+call s:Is(47, 'route', 'quilloKeyword')
+call s:Is(47, 'offline', 'quilloStatement')
+call s:Is(47, 'GET', 'quilloMethod')
+call s:Is(47, '/menu', 'quilloRoutePath')
+call s:Is(48, 'offline', 'quilloStatement')
+call s:Is(48, 'GET', 'quilloMethod')
+call s:Is(48, '/*rest', 'quilloRoutePath')
+call s:Is(48, '= rest', '')
+call s:Is(49, 'routes', 'quilloStatement')
+call s:Is(49, 'offline', 'quilloStatement')
+call s:Is(49, '/docs', 'quilloRoutePath')
+call s:Is(50, 'routes', 'quilloStatement')
+call s:Is(50, 'offline', 'quilloStatement')
+call s:Is(50, '/*x', 'quilloRoutePath')
+call assert_notequal('quilloStatement', s:At(51, 'offline'), 'let offline is a name')
+call s:Is(52, '/offline', 'quilloRoutePath')
+call assert_notequal('quilloStatement', synIDattr(synID(52, 22, 1), 'name'), 'the route gives offline')
+call assert_notequal('quilloStatement', s:At(53, 'offline'), 'routes offline with no path is no tag')
+call assert_notequal('quilloStatement', s:At(54, 'offline'), 'route offline with no method is no tag')
+call s:Is(55, 'offline', 'quilloFunction')
+" `writes`, in the place of `offline` and in either order with it, each once, says that a GET's
+" write is meant, and is a name everywhere else; the path after the tags is still a path (quillo
+" FEEDBACK70.md, Q-965).
+call s:Is(56, 'route', 'quilloKeyword')
+call s:Is(56, 'writes', 'quilloStatement')
+call s:Is(56, 'GET', 'quilloMethod')
+call s:Is(56, '/confirm/:code', 'quilloRoutePath')
+call s:Is(57, 'writes', 'quilloStatement')
+call s:Is(57, 'ANY', 'quilloMethod')
+call s:Is(57, '/ping', 'quilloRoutePath')
+call s:Is(58, 'offline', 'quilloStatement')
+call s:Is(58, 'writes', 'quilloStatement')
+call s:Is(58, 'GET', 'quilloMethod')
+call s:Is(58, '/menu', 'quilloRoutePath')
+call s:Is(59, 'writes', 'quilloStatement')
+call s:Is(59, 'offline', 'quilloStatement')
+call s:Is(59, 'GET', 'quilloMethod')
+call s:Is(59, '/*rest', 'quilloRoutePath')
+call s:Is(59, '= rest', '')
+call s:Is(60, 'routes', 'quilloStatement')
+call s:Is(60, 'writes', 'quilloStatement')
+call s:Is(60, '/p', 'quilloRoutePath')
+call s:Is(61, 'offline', 'quilloStatement')
+call s:Is(61, 'writes', 'quilloStatement')
+call s:Is(61, '/*x', 'quilloRoutePath')
+call s:Is(62, 'writes', 'quilloStatement')
+call s:Is(62, 'offline', 'quilloStatement')
+call s:Is(62, '/docs', 'quilloRoutePath')
+call assert_notequal('quilloStatement', s:At(63, 'writes'), 'let writes is a name')
+call s:Is(64, '/writes', 'quilloRoutePath')
+call assert_notequal('quilloStatement', synIDattr(synID(64, 21, 1), 'name'), 'the route gives writes')
+call assert_notequal('quilloStatement', s:At(65, 'writes'), 'routes writes with no path is no tag')
+call assert_notequal('quilloStatement', s:At(66, 'writes'), 'route writes with no method is no tag')
+call s:Is(67, 'writes', 'quilloFunction')
+" Each tag once: quillo refuses `writes writes` and a third tag.
+for [s:l, s:cols] in [[68, [7, 14]], [69, [7, 15]], [70, [8, 15]], [71, [7, 14, 22]]]
+  for s:c in s:cols
+    call assert_notequal('quilloStatement', synIDattr(synID(s:l, s:c, 1), 'name'), 'line ' . s:l . ', column ' . s:c . ': a tag written twice is none')
+  endfor
+endfor
 
 " Indentation: every line of indent.qwe is where its indent puts it.
 execute 'edit ' . fnameescape(s:here . '/test/indent.qwe')

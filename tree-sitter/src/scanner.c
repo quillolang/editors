@@ -15,6 +15,17 @@
 //   is the tag with spaces or tabs and then a name after it on its line; after `service`, a
 //   name or a `/` that starts no comment. So `fn mcp(x)`, `fn mcp` at a line's end,
 //   `service mcp = "mcp.qwe"` and `service mcp /* note */ = ...` name something `mcp`.
+// - _route_offline_tag, _routes_offline_tag: `offline`, the tag of a page kept for offline, as
+//   quillo's highlighter's `offline_tag` reads it (src/highlight.rs; FEEDBACK67.md, B.2). After
+//   `route`, it is the tag with spaces or tabs and then an uppercase method after it on its
+//   line; after `routes`, a `/`, the group's path, which the path's own tokens then read, so
+//   `routes offline /*x` is a path. `offline` at a line's end, `route offline = ...` and
+//   `offline` anywhere else are names.
+// - _route_writes_tag, _routes_writes_tag: `writes`, which says that a GET's write is meant, read
+//   the same way, in either order with `offline`, each once, as quillo's highlighter's
+//   `route_tag` reads them (src/highlight.rs; FEEDBACK70.md, Q-965): the first of two is a tag
+//   with the other, spaces or tabs, and then the method or the path after it, so
+//   `route writes writes GET` and a third tag are names (and errors, as in quillo).
 
 #include "tree_sitter/parser.h"
 
@@ -29,6 +40,10 @@ enum TokenType {
   VOID_TAG_NAME,
   MCP_TAG,
   SERVICE_MCP_TAG,
+  ROUTE_OFFLINE_TAG,
+  ROUTES_OFFLINE_TAG,
+  ROUTE_WRITES_TAG,
+  ROUTES_WRITES_TAG,
   ERROR_SENTINEL,
 };
 
@@ -178,6 +193,40 @@ static bool scan_mcp_tag(TSLexer *lexer, bool path) {
   return lexer->lookahead != '/' && lexer->lookahead != '*';
 }
 
+// The word `w`, then at least one space or tab, past which the lexer is left.
+static bool scan_word_and_blanks(TSLexer *lexer, const char *w) {
+  for (; *w; w++) {
+    if (lexer->lookahead != *w) return false;
+    advance(lexer);
+  }
+  if (lexer->lookahead != ' ' && lexer->lookahead != '\t') return false;
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') advance(lexer);
+  return true;
+}
+
+// What ends a route's tags: an uppercase letter (the method) or, with `group`, a `/` (the
+// group's path).
+static inline bool at_route_tags_end(TSLexer *lexer, bool group) {
+  if (group) return lexer->lookahead == '/';
+  return lexer->lookahead >= 'A' && lexer->lookahead <= 'Z';
+}
+
+// `offline` or `writes` (`tag`) with spaces or tabs after it, then an uppercase letter (a route's
+// method) or, with `group`, a `/` (a group's path); or, while the other tag (`other`) is still
+// free, that tag with spaces or tabs and then the method or the path (quillo FEEDBACK67.md, B.2;
+// FEEDBACK70.md, Q-965). The token is `tag` alone.
+static bool scan_route_tag(TSLexer *lexer, const char *tag, const char *other, bool group) {
+  for (const char *w = tag; *w; w++) {
+    if (lexer->lookahead != *w) return false;
+    advance(lexer);
+  }
+  lexer->mark_end(lexer);
+  if (lexer->lookahead != ' ' && lexer->lookahead != '\t') return false;
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') advance(lexer);
+  if (at_route_tags_end(lexer, group)) return true;
+  return other && scan_word_and_blanks(lexer, other) && at_route_tags_end(lexer, group);
+}
+
 bool tree_sitter_quillo_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid) {
   (void)payload;
   // Error recovery asks for every token at once: leave it to the grammar's own.
@@ -201,6 +250,21 @@ bool tree_sitter_quillo_external_scanner_scan(void *payload, TSLexer *lexer, con
     bool service = valid[SERVICE_MCP_TAG];
     if (!scan_mcp_tag(lexer, service)) return false;
     lexer->result_symbol = service ? SERVICE_MCP_TAG : MCP_TAG;
+    return true;
+  }
+  // Only spaces between, as for `mcp`: `route` and `offline` on two lines is no tag. `writes` the
+  // same way (quillo FEEDBACK70.md, Q-965); each tag the grammar still takes here, once.
+  bool group = valid[ROUTES_OFFLINE_TAG] || valid[ROUTES_WRITES_TAG];
+  bool offline_free = group ? valid[ROUTES_OFFLINE_TAG] : valid[ROUTE_OFFLINE_TAG];
+  bool writes_free = group ? valid[ROUTES_WRITES_TAG] : valid[ROUTE_WRITES_TAG];
+  if (offline_free && lexer->lookahead == 'o') {
+    if (!scan_route_tag(lexer, "offline", writes_free ? "writes" : NULL, group)) return false;
+    lexer->result_symbol = group ? ROUTES_OFFLINE_TAG : ROUTE_OFFLINE_TAG;
+    return true;
+  }
+  if (writes_free && lexer->lookahead == 'w') {
+    if (!scan_route_tag(lexer, "writes", offline_free ? "offline" : NULL, group)) return false;
+    lexer->result_symbol = group ? ROUTES_WRITES_TAG : ROUTE_WRITES_TAG;
     return true;
   }
   if (valid[NEWLINE] && lexer->lookahead == '\n') {

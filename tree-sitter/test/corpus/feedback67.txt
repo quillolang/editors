@@ -1,0 +1,198 @@
+======================================================================
+A page kept for offline: route offline GET
+======================================================================
+
+route offline GET /menu = "menu"
+route	offline	GET /tabbed = 1
+route offline GET /notes/:id(int) with db = id
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    offline: (offline)
+    method: (http_method)
+    path: (route_path
+      (path_literal))
+    body: (string
+      (string_content)))
+  (route
+    offline: (offline)
+    method: (http_method)
+    path: (route_path
+      (path_literal))
+    body: (number))
+  (route
+    offline: (offline)
+    method: (http_method)
+    path: (route_path
+      (path_literal)
+      (path_parameter
+        name: (identifier)
+        type: (type_identifier)))
+    (effects
+      (effect))
+    body: (identifier)))
+
+======================================================================
+The path after the tag is a path: its /* starts no comment
+======================================================================
+
+route offline GET /*rest = rest
+routes offline /*x {
+    route GET / = x
+}
+let after = 1 /* a comment */
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    offline: (offline)
+    method: (http_method)
+    path: (route_path
+      (path_rest
+        name: (identifier)))
+    body: (identifier))
+  (route_group
+    offline: (offline)
+    path: (route_path
+      (path_rest
+        name: (identifier)))
+    (route
+      method: (http_method)
+      path: (route_path)
+      body: (identifier)))
+  (let_declaration
+    pattern: (identifier)
+    value: (number))
+  (comment))
+
+======================================================================
+routes offline: a group kept for offline, at any indentation
+======================================================================
+
+routes offline /docs {
+    route GET /intro = "intro"
+    route POST /search = 1
+}
+routes /app | auth.required {
+    routes offline /help {
+        route GET /faq = "faq"
+    }
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (route_group
+    offline: (offline)
+    path: (route_path
+      (path_literal))
+    (route
+      method: (http_method)
+      path: (route_path
+        (path_literal))
+      body: (string
+        (string_content)))
+    (route
+      method: (http_method)
+      path: (route_path
+        (path_literal))
+      body: (number)))
+  (route_group
+    path: (route_path
+      (path_literal))
+    middleware: (member_expression
+      object: (identifier)
+      property: (property_identifier))
+    (route_group
+      offline: (offline)
+      path: (route_path
+        (path_literal))
+      (route
+        method: (http_method)
+        path: (route_path
+          (path_literal))
+        body: (string
+          (string_content))))))
+
+======================================================================
+offline is a name everywhere else
+======================================================================
+
+let offline = 1
+offline(2)
+fn offline(x) = x
+let a = x.offline + offline
+let m = { offline: offline }
+route GET /offline = offline
+routes /offline {
+    route GET /a = 1
+}
+let routes = offline
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    pattern: (identifier)
+    value: (number))
+  (expression_statement
+    (call_expression
+      function: (identifier)
+      arguments: (arguments
+        (number))))
+  (function_definition
+    name: (identifier)
+    parameters: (parameters
+      (parameter
+        name: (identifier)))
+    body: (identifier))
+  (let_declaration
+    pattern: (identifier)
+    value: (binary_expression
+      left: (member_expression
+        object: (identifier)
+        property: (property_identifier))
+      right: (identifier)))
+  (let_declaration
+    pattern: (identifier)
+    value: (map
+      (map_entry
+        key: (property_identifier)
+        value: (identifier))))
+  (route
+    method: (http_method)
+    path: (route_path
+      (path_literal))
+    body: (identifier))
+  (route_group
+    path: (route_path
+      (path_literal))
+    (route
+      method: (http_method)
+      path: (route_path
+        (path_literal))
+      body: (number)))
+  (let_declaration
+    pattern: (identifier)
+    value: (identifier)))
+
+======================================================================
+A line break after offline: it is no tag but an error, as in quillo
+======================================================================
+
+route offline
+GET /menu = 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    (ERROR
+      (identifier))
+    method: (http_method)
+    path: (route_path
+      (path_literal))
+    body: (number)))

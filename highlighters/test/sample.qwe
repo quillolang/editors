@@ -33,3 +33,9 @@ let gone = revoke_mcp_token(id) /* a block
    comment */ && confirm("Sure?")
 routes /*x with db { }
 let who = about("Who?", { a: "A" }, "a")
+route offline GET /menu = "menu"
+routes offline /*x with db { }
+let offline = routes
+route writes offline GET /confirm/:code = code
+routes offline writes /*x with db { }
+let writes = routes

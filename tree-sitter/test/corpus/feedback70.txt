@@ -1,0 +1,275 @@
+======================================================================
+A GET whose write is meant: route writes GET, and ANY
+======================================================================
+
+route writes GET /confirm/:code = code
+route	writes	ANY /ping = 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    writes: (writes)
+    method: (http_method)
+    path: (route_path
+      (path_literal)
+      (path_parameter
+        name: (identifier)))
+    body: (identifier))
+  (route
+    writes: (writes)
+    method: (http_method)
+    path: (route_path
+      (path_literal))
+    body: (number)))
+
+======================================================================
+writes and offline in either order, each once
+======================================================================
+
+route offline writes GET /menu = "menu"
+route writes offline GET /notes/:id(int) with db = id
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    offline: (offline)
+    writes: (writes)
+    method: (http_method)
+    path: (route_path
+      (path_literal))
+    body: (string
+      (string_content)))
+  (route
+    writes: (writes)
+    offline: (offline)
+    method: (http_method)
+    path: (route_path
+      (path_literal)
+      (path_parameter
+        name: (identifier)
+        type: (type_identifier)))
+    (effects
+      (effect))
+    body: (identifier)))
+
+======================================================================
+The path after the tags is a path: its /* starts no comment
+======================================================================
+
+route writes GET /*rest = rest
+routes writes offline /*x {
+    route GET / = x
+}
+let after = 1 /* a comment */
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    writes: (writes)
+    method: (http_method)
+    path: (route_path
+      (path_rest
+        name: (identifier)))
+    body: (identifier))
+  (route_group
+    writes: (writes)
+    offline: (offline)
+    path: (route_path
+      (path_rest
+        name: (identifier)))
+    (route
+      method: (http_method)
+      path: (route_path)
+      body: (identifier)))
+  (let_declaration
+    pattern: (identifier)
+    value: (number))
+  (comment))
+
+======================================================================
+routes writes: a group whose GET routes write, at any indentation
+======================================================================
+
+routes writes /p {
+    route GET /seen = 1
+    route POST /save = 1
+}
+routes /app | auth.required {
+    routes offline writes /help {
+        route GET /faq = "faq"
+    }
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (route_group
+    writes: (writes)
+    path: (route_path
+      (path_literal))
+    (route
+      method: (http_method)
+      path: (route_path
+        (path_literal))
+      body: (number))
+    (route
+      method: (http_method)
+      path: (route_path
+        (path_literal))
+      body: (number)))
+  (route_group
+    path: (route_path
+      (path_literal))
+    middleware: (member_expression
+      object: (identifier)
+      property: (property_identifier))
+    (route_group
+      offline: (offline)
+      writes: (writes)
+      path: (route_path
+        (path_literal))
+      (route
+        method: (http_method)
+        path: (route_path
+          (path_literal))
+        body: (string
+          (string_content))))))
+
+======================================================================
+writes is a name everywhere else
+======================================================================
+
+let writes = 1
+writes(2)
+fn writes(x) = x
+let a = x.writes + writes
+let m = { writes: writes }
+route GET /writes = writes
+routes /writes {
+    route GET /a = 1
+}
+let routes = writes
+
+----------------------------------------------------------------------
+
+(source_file
+  (let_declaration
+    pattern: (identifier)
+    value: (number))
+  (expression_statement
+    (call_expression
+      function: (identifier)
+      arguments: (arguments
+        (number))))
+  (function_definition
+    name: (identifier)
+    parameters: (parameters
+      (parameter
+        name: (identifier)))
+    body: (identifier))
+  (let_declaration
+    pattern: (identifier)
+    value: (binary_expression
+      left: (member_expression
+        object: (identifier)
+        property: (property_identifier))
+      right: (identifier)))
+  (let_declaration
+    pattern: (identifier)
+    value: (map
+      (map_entry
+        key: (property_identifier)
+        value: (identifier))))
+  (route
+    method: (http_method)
+    path: (route_path
+      (path_literal))
+    body: (identifier))
+  (route_group
+    path: (route_path
+      (path_literal))
+    (route
+      method: (http_method)
+      path: (route_path
+        (path_literal))
+      body: (number)))
+  (let_declaration
+    pattern: (identifier)
+    value: (identifier)))
+
+======================================================================
+A line break after writes: it is no tag but an error, as in quillo
+======================================================================
+
+route writes
+GET /confirm = 1
+
+----------------------------------------------------------------------
+
+(source_file
+  (route
+    (ERROR
+      (identifier))
+    method: (http_method)
+    path: (route_path
+      (path_literal))
+    body: (number)))
+
+======================================================================
+writes twice is no tag but an error, as in quillo
+:error
+======================================================================
+
+route writes writes GET /x = 1
+
+----------------------------------------------------------------------
+
+
+
+======================================================================
+offline twice is no tag but an error, as in quillo
+:error
+======================================================================
+
+route offline offline GET /x = 1
+
+----------------------------------------------------------------------
+
+
+
+======================================================================
+A third tag is no tag but an error, as in quillo
+:error
+======================================================================
+
+route writes offline writes GET /x = 1
+
+----------------------------------------------------------------------
+
+
+
+======================================================================
+writes twice after routes is no tag but an error, as in quillo
+======================================================================
+
+routes writes writes /x {
+    route GET /a = 1
+}
+
+----------------------------------------------------------------------
+
+(source_file
+  (route_group
+    (ERROR
+      (identifier)
+      (identifier))
+    path: (route_path
+      (path_literal))
+    (route
+      method: (http_method)
+      path: (route_path
+        (path_literal))
+      body: (number))))

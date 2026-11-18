@@ -118,6 +118,12 @@
      (server) @font-lock-keyword-face
      ;; `fn mcp total()`, `service mcp /billing`: the tag of a tool (quillo FEEDBACK56.md, Q-853).
      (mcp) @font-lock-keyword-face
+     ;; `route offline GET /menu`, `routes offline /docs`: the tag of a page kept for offline
+     ;; (quillo FEEDBACK67.md, B.2).
+     (offline) @font-lock-keyword-face
+     ;; `route writes GET /confirm/:code`, `routes writes /p`: a GET whose write is meant (quillo
+     ;; FEEDBACK70.md, Q-965).
+     (writes) @font-lock-keyword-face
      (visibility) @font-lock-keyword-face)
 
    :language 'quillo
@@ -280,6 +286,29 @@
     (,(rx bol (* space) "service" (+ (any " \t")) "mcp" (+ (any " \t"))
           (group "/" (not (any space "/" "*" "{" "=" "?" "|")) (* (not (any space "{" "=" "?" "|")))))
      (1 font-lock-string-face))
+    ;; `route offline GET /menu = ...`, `routes offline /docs { ... }`: `offline` right after
+    ;; `route` with a method after it on its line, or after `routes` with a path, is the tag of a
+    ;; page kept for offline; it is a name everywhere else (quillo FEEDBACK67.md, B.2).
+    ;; `route writes GET /confirm/:code = ...`, `routes writes /p { ... }`: `writes`, in the same
+    ;; place, says that a GET's write is meant; the two in either order, each once (quillo
+    ;; FEEDBACK70.md, Q-965). Groups 2 to 5: `offline`, `writes` after it, `writes`, `offline`
+    ;; after it.
+    (,(rx bol (* space) (group "route") (+ (any " \t"))
+          (or (seq (group "offline") (opt (+ (any " \t")) (group "writes")))
+              (seq (group "writes") (opt (+ (any " \t")) (group "offline"))))
+          (+ (any " \t"))
+          (group (or "GET" "POST" "PUT" "PATCH" "DELETE" "HEAD" "OPTIONS" "ANY")) (+ (any " \t"))
+          (group "/" (* (not (any space "{" "=" "?" "|")))))
+     (1 font-lock-keyword-face) (2 font-lock-keyword-face nil t) (3 font-lock-keyword-face nil t)
+     (4 font-lock-keyword-face nil t) (5 font-lock-keyword-face nil t)
+     (6 font-lock-constant-face) (7 font-lock-string-face))
+    (,(rx bol (* space) (group "routes") (+ (any " \t"))
+          (or (seq (group "offline") (opt (+ (any " \t")) (group "writes")))
+              (seq (group "writes") (opt (+ (any " \t")) (group "offline"))))
+          (+ (any " \t"))
+          (group "/" (* (not (any space "{" "=" "?" "|")))))
+     (1 font-lock-keyword-face) (2 font-lock-keyword-face nil t) (3 font-lock-keyword-face nil t)
+     (4 font-lock-keyword-face nil t) (5 font-lock-keyword-face nil t) (6 font-lock-string-face))
     (,(rx bol (* space) (group (or "route" "routes" "mount" "service")) (+ space)
           (opt (group (or "GET" "POST" "PUT" "PATCH" "DELETE" "HEAD" "OPTIONS" "ANY")) (+ space))
           (group "/" (* (not (any space "{" "=" "?" "|")))))
