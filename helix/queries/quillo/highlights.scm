@@ -135,6 +135,14 @@
 
 (visibility) @keyword.storage.modifier
 
+; `route writes GET /confirm/:code`, `routes writes /p`: a GET whose write is meant (quillo
+; FEEDBACK70.md, Q-965).
+(writes) @keyword.storage.modifier
+
+; `route offline GET /menu`, `routes offline /docs`: the tag of a page kept for offline (quillo
+; FEEDBACK67.md, B.2).
+(offline) @keyword.storage.modifier
+
 ; `fn mcp total()`, `service mcp /billing`: the tag of a tool (quillo FEEDBACK56.md, Q-853).
 (mcp) @keyword.storage.modifier
 
